@@ -201,9 +201,6 @@ export default function AdminPage() {
           >
             Unlock
           </button>
-          <p className="text-center text-ink/50 text-base">
-            Default password is <code>sostaga2027</code> until you set <code>ADMIN_PASSWORD</code>.
-          </p>
         </form>
       </div>
     );

@@ -11,10 +11,12 @@ import type { PartyWithGuests, RsvpSubmission } from "@/lib/types";
 type Answer = {
   attending: "yes" | "no";
   email: string;
-  driving: boolean;
+  driving: boolean | null; // null = not yet answered (a required choice)
   dietary: string;
   character: CharacterConfig;
 };
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function RsvpPage() {
   const [step, setStep] = useState<"lookup" | "form" | "done">("lookup");
@@ -36,7 +38,8 @@ export default function RsvpPage() {
       initial[g.id] = {
         attending: g.attending === "no" ? "no" : "yes",
         email: g.email ?? "",
-        driving: g.driving ?? false,
+        // Force an explicit choice unless they've already responded.
+        driving: g.attending == null ? null : (g.driving ?? false),
         dietary: g.dietary ?? "",
         character: normalizeCharacter(g.character),
       };
@@ -87,6 +90,21 @@ export default function RsvpPage() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!party) return;
+
+    // Email + driving are required for everyone attending.
+    const missing = party.guests.filter((g) => {
+      const a = answers[g.id];
+      if (a.attending !== "yes") return false;
+      return !EMAIL_RE.test(a.email.trim()) || a.driving === null;
+    });
+    if (missing.length > 0) {
+      setErrorMsg(
+        "Please add a valid email address and answer the driving question for everyone attending"
+      );
+      setSaveStatus("error");
+      return;
+    }
+
     setSaveStatus("saving");
     setErrorMsg("");
 
@@ -97,7 +115,7 @@ export default function RsvpPage() {
         guestId: g.id,
         attending: answers[g.id].attending,
         email: answers[g.id].email.trim(),
-        driving: answers[g.id].driving,
+        driving: answers[g.id].driving === true,
         dietary: answers[g.id].dietary.trim(),
         character: answers[g.id].character,
       })),
@@ -280,10 +298,11 @@ export default function RsvpPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-                        Email address
+                        Email address *
                       </label>
                       <input
                         type="email"
+                        required
                         value={a.email}
                         onChange={(e) => setAnswer(g.id, { email: e.target.value })}
                         className={inputCls}
@@ -292,14 +311,16 @@ export default function RsvpPage() {
                     </div>
                     <div>
                       <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-                        Driving to the venue?
+                        Driving to the venue? *
                       </label>
                       <div className="flex gap-2">
                         <button
                           type="button"
                           onClick={() => setAnswer(g.id, { driving: true })}
                           className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
-                            a.driving ? "bg-lake-deep text-cream" : "bg-parchment hover:bg-lake/20"
+                            a.driving === true
+                              ? "bg-lake-deep text-cream"
+                              : "bg-parchment hover:bg-lake/20"
                           }`}
                         >
                           Driving
@@ -308,7 +329,9 @@ export default function RsvpPage() {
                           type="button"
                           onClick={() => setAnswer(g.id, { driving: false })}
                           className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
-                            !a.driving ? "bg-sage text-cream" : "bg-parchment hover:bg-sage/20"
+                            a.driving === false
+                              ? "bg-sage text-cream"
+                              : "bg-parchment hover:bg-sage/20"
                           }`}
                         >
                           Not driving
