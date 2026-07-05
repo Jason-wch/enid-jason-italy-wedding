@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #faf6ee;
+  --color-parchment: #f3ecdd;
+  --color-ink: #2e2a26;
+  --color-sage: #8a9b7a;
+  --color-sage-dark: #67795a;
+  --color-gold: #b8963e;
+  --color-terracotta: #c2704e;
+  --color-lake: #6fa8c9;
+  --color-lake-deep: #3f7ba0;
+  --color-villa: #e8b64c;
+
+  --font-serif-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-pixel: "Press Start 2P", "Courier New", monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-serif-display);
+  font-size: 1.125rem;
+}
+
+.font-pixel {
+  font-family: var(--font-pixel);
+}
+
+.font-display {
+  font-family: var(--font-serif-display);
+}
+
+canvas.pixelated {
+  image-rendering: pixelated;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float-slow {
+  animation: float-slow 4s ease-in-out infinite;
+}
+
+.prose-wedding h2 {
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-sage-dark);
+}
+
+.prose-wedding p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
