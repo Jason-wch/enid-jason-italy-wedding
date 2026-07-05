@@ -34,10 +34,10 @@ import { WEDDING } from "@/lib/wedding";
 
 const VIEW_W = 960;
 const VIEW_H = 540;
-const WORLD_W = 2700;
+const WORLD_W = 1500;
 const GROUND_Y = 470;
-const LAKE_X = 2280; // water starts here
-const ARRIVE_X = 2400; // reaching this point finishes the game
+const LAKE_X = 900; // water starts here
+const ARRIVE_X = 1020; // reaching this point finishes the game
 const CHAR_SCALE = 4;
 const CHAR_W = SPRITE_W * CHAR_SCALE;
 const CHAR_H = SPRITE_H * CHAR_SCALE;
@@ -218,20 +218,16 @@ export default function WelcomeGame() {
       ctx.fillRect(LAKE_X + 20, GROUND_Y, 40, VIEW_H - GROUND_Y);
       drawWater(ctx, LAKE_X + 60, GROUND_Y + 16, WORLD_W - LAKE_X - 60 + VIEW_W, VIEW_H - GROUND_Y - 16, t);
 
-      // scenery along the way
-      drawSign(ctx, 330, GROUND_Y, "VILLA SOSTAGA >");
-      drawCypress(ctx, 210, GROUND_Y, 120);
-      drawCypress(ctx, 560, GROUND_Y, 150);
-      drawCypress(ctx, 660, GROUND_Y, 110);
-      drawBush(ctx, 760, GROUND_Y, 22);
-      drawVilla(ctx, 1000, GROUND_Y, 1);
-      drawCypress(ctx, 1290, GROUND_Y, 140);
-      drawBush(ctx, 1360, GROUND_Y, 26);
-      drawCypress(ctx, 1560, GROUND_Y, 120);
-      drawCypress(ctx, 1900, GROUND_Y, 150);
-      drawBush(ctx, 1990, GROUND_Y, 20);
-      drawSign(ctx, 2120, GROUND_Y, "LAKE GARDA >");
-      drawCypress(ctx, 2230, GROUND_Y, 100);
+      // scenery along the way (compact: a short stroll from villa to lake)
+      drawSign(ctx, 180, GROUND_Y, "VILLA SOSTAGA >");
+      drawCypress(ctx, 120, GROUND_Y, 120);
+      drawCypress(ctx, 300, GROUND_Y, 150);
+      drawBush(ctx, 400, GROUND_Y, 22);
+      drawVilla(ctx, 500, GROUND_Y, 1);
+      drawCypress(ctx, 690, GROUND_Y, 140);
+      drawBush(ctx, 760, GROUND_Y, 26);
+      drawSign(ctx, 820, GROUND_Y, "LAKE GARDA >");
+      drawCypress(ctx, 870, GROUND_Y, 100);
 
       // player (half-submerged when in the lake)
       const submerged = player.x + CHAR_W / 2 > LAKE_X + 60;

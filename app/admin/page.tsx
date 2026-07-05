@@ -23,7 +23,7 @@ import type { Guest, PartyWithGuests } from "@/lib/types";
 const PASS_KEY = "ej-admin-pass";
 
 function toCsv(parties: PartyWithGuests[]): string {
-  const cols = ["party", "guest", "attending", "dietary", "responded_at"] as const;
+  const cols = ["party", "guest", "email", "attending", "driving", "dietary", "responded_at"] as const;
   const esc = (v: unknown) => `"${String(v ?? "").replace(/"/g, '""')}"`;
   const lines = [cols.join(",")];
   for (const p of parties) {
@@ -32,7 +32,9 @@ function toCsv(parties: PartyWithGuests[]): string {
         [
           esc(p.name),
           esc(g.full_name),
+          esc(g.email),
           esc(g.attending ?? "pending"),
+          esc(g.driving ? "yes" : "no"),
           esc(g.dietary),
           esc(g.responded_at ?? ""),
         ].join(",")
@@ -341,10 +343,10 @@ function PartyCard({
       )}
 
       <div className="mt-4 overflow-x-auto">
-        <table className="w-full border-collapse min-w-[560px]">
+        <table className="w-full border-collapse min-w-[760px]">
           <thead>
             <tr className="bg-parchment font-pixel text-xs text-ink/60">
-              {["", "Name", "Attending", "Dietary", ""].map((h, i) => (
+              {["", "Name", "Email", "Attending", "Driving", "Dietary", ""].map((h, i) => (
                 <th key={i} className={`${cellCls} text-left`}>
                   {h}
                 </th>
@@ -367,7 +369,16 @@ function PartyCard({
                     }
                   />
                 </td>
-                <td className={`${cellCls} w-32`}>
+                <td className={cellCls}>
+                  <input
+                    className={inputCls}
+                    defaultValue={g.email}
+                    onBlur={(e) =>
+                      e.target.value !== g.email && onEditGuest(g.id, { email: e.target.value })
+                    }
+                  />
+                </td>
+                <td className={`${cellCls} w-28`}>
                   <select
                     className={`${inputCls} cursor-pointer`}
                     value={g.attending ?? ""}
@@ -380,6 +391,16 @@ function PartyCard({
                     <option value="">pending</option>
                     <option value="yes">yes</option>
                     <option value="no">no</option>
+                  </select>
+                </td>
+                <td className={`${cellCls} w-24`}>
+                  <select
+                    className={`${inputCls} cursor-pointer`}
+                    value={g.driving ? "yes" : "no"}
+                    onChange={(e) => onEditGuest(g.id, { driving: e.target.value === "yes" })}
+                  >
+                    <option value="no">no</option>
+                    <option value="yes">yes</option>
                   </select>
                 </td>
                 <td className={cellCls}>

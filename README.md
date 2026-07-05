@@ -13,6 +13,8 @@ Wedding website for **23–25 April 2027 at Villa Sostaga Boutique Hotel, Lake G
 - **Guest-list admin** (`/admin`) — password-protected. Create parties (households), add/edit/remove guests, watch RSVPs arrive live, and export the whole list to CSV.
 - **Background music** — built-in chiptune loop with a mute toggle; drop your own `public/audio/bgm.mp3` to replace it.
 
+- **Password gate** — the entire site is protected by a shared `SITE_PASSWORD`; visitors enter it once at `/enter` to get in.
+
 Everything works in **demo mode** (localStorage) before Supabase is configured, so you can preview the whole site immediately.
 
 ## Getting started
@@ -32,6 +34,7 @@ Open http://localhost:3000.
    - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings → API)
    - `SUPABASE_SERVICE_ROLE_KEY` (same page — keep this secret, server-only)
    - `ADMIN_PASSWORD` for the `/admin` page
+   - `SITE_PASSWORD` — the password guests type to enter the whole site (defaults to `garda2027` if unset)
 4. Restart `npm run dev`. Then open `/admin`, add your parties and guests, and RSVPs will flow into the `guests` table and appear live on the guest map and admin view.
 
 Data model: a `parties` table (invited households) and a `guests` table (individual invitees, each linked to a party). Guests look themselves up by full name and RSVP for their whole party.
@@ -42,7 +45,7 @@ Security model: both tables have RLS enabled with no public policies — all rea
 
 1. Push this repo to GitHub.
 2. Import it at [vercel.com/new](https://vercel.com/new).
-3. Add the four environment variables from `.env.local` in the Vercel project settings.
+3. Add the environment variables from `.env.local` in the Vercel project settings.
 4. Deploy.
 
 ## Customizing

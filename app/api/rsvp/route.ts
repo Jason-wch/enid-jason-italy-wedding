@@ -56,12 +56,14 @@ export async function POST(req: Request) {
     if (!validIds.has(guestId)) continue;
 
     const attending = r.attending === "no" ? "no" : "yes";
+    const email = String(r.email ?? "").trim().slice(0, 120);
+    const driving = r.driving === true;
     const dietary = String(r.dietary ?? "").slice(0, 500);
     const character = normalizeCharacter(r.character);
 
     const { error } = await supabase
       .from("guests")
-      .update({ attending, dietary, character, responded_at: now })
+      .update({ attending, email, driving, dietary, character, responded_at: now })
       .eq("id", guestId);
 
     if (error) {

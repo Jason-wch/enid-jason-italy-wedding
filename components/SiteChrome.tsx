@@ -19,6 +19,11 @@ const LINKS = [
 export default function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
+  // The password gate is a standalone fullscreen page with no site chrome.
+  if (pathname === "/enter") {
+    return <>{children}</>;
+  }
+
   // The welcome minigame is fullscreen with its own overlay controls.
   if (pathname === "/") {
     return (

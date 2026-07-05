@@ -88,7 +88,7 @@ export async function POST(req: Request) {
 }
 
 const PARTY_FIELDS = new Set(["name", "message"]);
-const GUEST_FIELDS = new Set(["full_name", "attending", "dietary"]);
+const GUEST_FIELDS = new Set(["full_name", "email", "attending", "driving", "dietary"]);
 
 /** Edit a party or a single guest, or add a guest to a party. */
 export async function PATCH(req: Request) {

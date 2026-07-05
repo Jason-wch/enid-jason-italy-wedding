@@ -23,7 +23,9 @@ create table if not exists public.guests (
   id uuid primary key default gen_random_uuid(),
   party_id uuid not null references public.parties(id) on delete cascade,
   full_name text not null,
+  email text not null default '',
   attending text check (attending in ('yes', 'no')),
+  driving boolean not null default false,
   dietary text not null default '',
   character jsonb not null default '{}'::jsonb,
   map_x double precision not null default random(),
@@ -31,6 +33,10 @@ create table if not exists public.guests (
   responded_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+-- Migration for existing deployments: add the newer columns if missing.
+alter table public.guests add column if not exists email text not null default '';
+alter table public.guests add column if not exists driving boolean not null default false;
 
 -- Case/space-insensitive name lookups.
 create index if not exists guests_full_name_lower_idx

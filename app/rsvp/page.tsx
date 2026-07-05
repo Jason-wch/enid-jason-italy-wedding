@@ -10,6 +10,8 @@ import type { PartyWithGuests, RsvpSubmission } from "@/lib/types";
 
 type Answer = {
   attending: "yes" | "no";
+  email: string;
+  driving: boolean;
   dietary: string;
   character: CharacterConfig;
 };
@@ -33,6 +35,8 @@ export default function RsvpPage() {
     for (const g of p.guests) {
       initial[g.id] = {
         attending: g.attending === "no" ? "no" : "yes",
+        email: g.email ?? "",
+        driving: g.driving ?? false,
         dietary: g.dietary ?? "",
         character: normalizeCharacter(g.character),
       };
@@ -92,6 +96,8 @@ export default function RsvpPage() {
       responses: party.guests.map((g) => ({
         guestId: g.id,
         attending: answers[g.id].attending,
+        email: answers[g.id].email.trim(),
+        driving: answers[g.id].driving,
         dietary: answers[g.id].dietary.trim(),
         character: answers[g.id].character,
       })),
@@ -271,16 +277,55 @@ export default function RsvpPage() {
                     value={a.character}
                     onChange={(character) => setAnswer(g.id, { character })}
                   />
-                  <div>
-                    <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-                      Dietary requirements
-                    </label>
-                    <input
-                      value={a.dietary}
-                      onChange={(e) => setAnswer(g.id, { dietary: e.target.value })}
-                      className={inputCls}
-                      placeholder="Allergies, vegetarian, vegan…"
-                    />
+                  <div className="space-y-4">
+                    <div>
+                      <label className="font-pixel text-xs text-ink/60 block mb-1.5">
+                        Email address
+                      </label>
+                      <input
+                        type="email"
+                        value={a.email}
+                        onChange={(e) => setAnswer(g.id, { email: e.target.value })}
+                        className={inputCls}
+                        placeholder="name@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="font-pixel text-xs text-ink/60 block mb-1.5">
+                        Driving to the venue?
+                      </label>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setAnswer(g.id, { driving: true })}
+                          className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
+                            a.driving ? "bg-lake-deep text-cream" : "bg-parchment hover:bg-lake/20"
+                          }`}
+                        >
+                          Driving
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAnswer(g.id, { driving: false })}
+                          className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
+                            !a.driving ? "bg-sage text-cream" : "bg-parchment hover:bg-sage/20"
+                          }`}
+                        >
+                          Not driving
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="font-pixel text-xs text-ink/60 block mb-1.5">
+                        Dietary requirements
+                      </label>
+                      <input
+                        value={a.dietary}
+                        onChange={(e) => setAnswer(g.id, { dietary: e.target.value })}
+                        className={inputCls}
+                        placeholder="Allergies, vegetarian, vegan…"
+                      />
+                    </div>
                   </div>
                 </div>
               )}

@@ -16,7 +16,9 @@ export type Guest = {
   id: string;
   party_id: string;
   full_name: string;
+  email: string;
   attending: Attending;
+  driving: boolean;
   dietary: string;
   character: CharacterConfig;
   map_x: number;
@@ -34,6 +36,8 @@ export type PartyWithGuests = Party & {
 export type GuestResponse = {
   guestId: string;
   attending: Exclude<Attending, null>;
+  email: string;
+  driving: boolean;
   dietary: string;
   character: CharacterConfig;
 };

@@ -38,13 +38,7 @@ export default function HomePage() {
               href="/rsvp"
               className="font-pixel text-sm px-6 py-4 rounded-full bg-sage text-cream hover:bg-sage-dark transition-colors shadow-lg"
             >
-              RSVP &amp; BUILD YOUR CHARACTER
-            </Link>
-            <Link
-              href="/"
-              className="font-pixel text-sm px-6 py-4 rounded-full bg-cream/90 text-ink hover:bg-cream transition-colors shadow-lg"
-            >
-              ▶ PLAY THE WELCOME GAME
+              RSVP
             </Link>
           </div>
         </div>
