@@ -1,19 +1,20 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #faf6ee;
-  --color-parchment: #f3ecdd;
-  --color-ink: #2e2a26;
+  --color-cream: #f7f3ea;
+  --color-parchment: #efe8d8;
+  --color-ink: #23201b;
   --color-sage: #8a9b7a;
-  --color-sage-dark: #67795a;
-  --color-gold: #b8963e;
-  --color-terracotta: #c2704e;
+  --color-sage-dark: #5f7052;
+  --color-gold: #b08d3f;
+  --color-terracotta: #bc6a48;
   --color-lake: #6fa8c9;
-  --color-lake-deep: #3f7ba0;
+  --color-lake-deep: #38678a;
   --color-villa: #e8b64c;
 
   --font-serif-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
   --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-heading: "Italiana", "Playfair Display", Georgia, serif;
 }
 
 html {
@@ -25,10 +26,45 @@ body {
   color: var(--color-ink);
   font-family: var(--font-serif-display);
   font-size: 1.125rem;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Elegant display treatment. Class name kept as .font-pixel so existing
-   markup inherits the refined look without markup churn. */
+/* Cinematic film grain over everything (very subtle). */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 90;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain-shift 1.2s steps(4) infinite;
+}
+
+@keyframes grain-shift {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(-2%, 1.5%); }
+  50% { transform: translate(1.5%, -2%); }
+  75% { transform: translate(-1%, -1%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Typography utilities
+--------------------------------------------------------------------------- */
+
+.font-heading {
+  font-family: var(--font-heading);
+  font-weight: 400;
+}
+
+/* Elegant display treatment. Class name kept as .font-pixel so the game/map
+   overlays and admin keep working without markup churn. */
 .font-pixel {
   font-family: var(--font-display);
   letter-spacing: 0.14em;
@@ -40,28 +76,257 @@ body {
   font-family: var(--font-display);
 }
 
+/* Small letterspaced section label, e.g. "THE WEEKEND". */
+.eyebrow {
+  font-family: var(--font-serif-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  text-indent: 0.42em; /* visually balance the tracking */
+  color: var(--color-gold);
+}
+
+/* Eyebrow with hairlines either side. */
+.eyebrow-rule {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  justify-content: center;
+}
+.eyebrow-rule::before,
+.eyebrow-rule::after {
+  content: "";
+  height: 1px;
+  width: 3rem;
+  background: color-mix(in srgb, var(--color-gold) 45%, transparent);
+}
+
 canvas.pixelated {
   image-rendering: pixelated;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+--------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  font-family: var(--font-serif-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-indent: 0.28em;
+  text-transform: uppercase;
+  padding: 1.05rem 2.4rem;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.45s cubic-bezier(0.2, 0.65, 0.2, 1),
+    color 0.45s cubic-bezier(0.2, 0.65, 0.2, 1),
+    border-color 0.45s cubic-bezier(0.2, 0.65, 0.2, 1),
+    transform 0.45s cubic-bezier(0.2, 0.65, 0.2, 1);
+}
+.btn:hover { transform: translateY(-1px); }
+.btn:disabled { opacity: 0.55; cursor: default; transform: none; }
+
+.btn-dark {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  border-color: var(--color-ink);
+}
+.btn-dark:hover {
+  background: transparent;
+  color: var(--color-ink);
+}
+
+.btn-light {
+  background: transparent;
+  color: var(--color-cream);
+  border-color: color-mix(in srgb, var(--color-cream) 75%, transparent);
+}
+.btn-light:hover {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border-color: color-mix(in srgb, var(--color-ink) 25%, transparent);
+}
+.btn-ghost:hover {
+  border-color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   Inputs
+--------------------------------------------------------------------------- */
+
+/* Understated underline field for the lookup / password moments. */
+.input-line {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 30%, transparent);
+  padding: 0.85rem 0.25rem;
+  font-family: var(--font-serif-display);
+  font-size: 1.35rem;
+  text-align: center;
+  transition: border-color 0.4s ease;
+}
+.input-line:focus {
+  outline: none;
+  border-bottom-color: var(--color-gold);
+}
+.input-line::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  font-style: italic;
+}
+
+/* Bordered field for forms. */
+.input-card {
+  width: 100%;
+  background: color-mix(in srgb, white 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  border-radius: 2px;
+  padding: 0.8rem 1rem;
+  font-size: 1.1rem;
+  transition: border-color 0.4s ease, background-color 0.4s ease;
+}
+.input-card:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  background: white;
+}
+.input-card::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  font-style: italic;
+}
+
+/* Small choice chip (attending / driving toggles). */
+.chip {
+  font-family: var(--font-serif-display);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-transform: uppercase;
+  padding: 0.65rem 1.4rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 22%, transparent);
+  background: transparent;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+.chip:hover { border-color: var(--color-ink); }
+.chip-active {
+  background: var(--color-ink);
+  color: var(--color-cream);
+  border-color: var(--color-ink);
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+--------------------------------------------------------------------------- */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1s cubic-bezier(0.2, 0.65, 0.2, 1),
+    transform 1s cubic-bezier(0.2, 0.65, 0.2, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+@keyframes ken-burns {
+  0% { transform: scale(1) translateY(0); }
+  100% { transform: scale(1.08) translateY(-1.5%); }
+}
+.animate-ken-burns {
+  animation: ken-burns 24s ease-out both;
+}
+
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee-track {
+  display: inline-flex;
+  animation: marquee-scroll 36s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
 }
 
 @keyframes float-slow {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
-
 .animate-float-slow {
   animation: float-slow 4s ease-in-out infinite;
 }
 
+@keyframes fade-up-in {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: none; }
+}
+.animate-hero-in {
+  animation: fade-up-in 1.4s cubic-bezier(0.2, 0.65, 0.2, 1) both;
+}
+
+@keyframes scroll-cue {
+  0%, 100% { transform: translateY(0); opacity: 0.85; }
+  50% { transform: translateY(8px); opacity: 0.4; }
+}
+.animate-scroll-cue {
+  animation: scroll-cue 2.4s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------------------
+   Editorial details
+--------------------------------------------------------------------------- */
+
+/* Big first letter for story paragraphs. */
+.dropcap::first-letter {
+  font-family: var(--font-heading);
+  font-size: 3.6em;
+  float: left;
+  line-height: 0.82;
+  padding-right: 0.12em;
+  color: var(--color-sage-dark);
+}
+
+.hairline {
+  height: 1px;
+  background: color-mix(in srgb, var(--color-ink) 14%, transparent);
+}
+
 .prose-wedding h2 {
-  font-size: 1.9rem;
-  font-weight: 600;
-  margin-top: 2rem;
-  margin-bottom: 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  letter-spacing: 0.04em;
+  margin-top: 2.4rem;
+  margin-bottom: 0.85rem;
   color: var(--color-sage-dark);
 }
 
 .prose-wedding p {
   margin-bottom: 1rem;
-  line-height: 1.7;
+  line-height: 1.75;
 }

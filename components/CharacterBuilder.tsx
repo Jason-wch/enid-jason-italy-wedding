@@ -30,21 +30,23 @@ function Cycler({
   const step = (dir: number) => onIndex((index + dir + options.length) % options.length);
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="font-pixel text-xs text-ink/60 w-20 shrink-0">{label}</span>
+      <span className="text-[0.62rem] tracking-[0.25em] uppercase text-ink/50 w-20 shrink-0">
+        {label}
+      </span>
       <div className="flex items-center gap-1 flex-1 justify-end">
         <button
           type="button"
           onClick={() => step(-1)}
-          className="font-pixel text-sm w-8 h-8 rounded-lg border border-ink/20 hover:bg-parchment cursor-pointer"
+          className="text-sm w-8 h-8 rounded-full border border-ink/20 hover:border-ink/60 transition-colors cursor-pointer"
           aria-label={`Previous ${label}`}
         >
           ◀
         </button>
-        <span className="text-base w-32 text-center">{options[index]}</span>
+        <span className="text-base italic w-32 text-center">{options[index]}</span>
         <button
           type="button"
           onClick={() => step(1)}
-          className="font-pixel text-sm w-8 h-8 rounded-lg border border-ink/20 hover:bg-parchment cursor-pointer"
+          className="text-sm w-8 h-8 rounded-full border border-ink/20 hover:border-ink/60 transition-colors cursor-pointer"
           aria-label={`Next ${label}`}
         >
           ▶
@@ -67,7 +69,9 @@ function Swatches({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="font-pixel text-xs text-ink/60 w-20 shrink-0">{label}</span>
+      <span className="text-[0.62rem] tracking-[0.25em] uppercase text-ink/50 w-20 shrink-0">
+        {label}
+      </span>
       <div className="flex gap-1.5 flex-wrap justify-end">
         {colors.map((c, i) => (
           <button
@@ -89,19 +93,21 @@ function Swatches({
 
 export default function CharacterBuilder({ value, onChange }: Props) {
   return (
-    <div className="bg-parchment rounded-2xl p-5 border-2 border-gold/30">
+    <div className="bg-white/60 border border-ink/10 p-6">
       <div className="flex items-center justify-between">
-        <h3 className="font-pixel text-sm text-sage-dark">YOUR CHARACTER</h3>
+        <h3 className="text-[0.68rem] tracking-[0.3em] uppercase text-sage-dark font-semibold">
+          Your character
+        </h3>
         <button
           type="button"
           onClick={() => onChange(randomCharacter())}
-          className="font-pixel text-xs px-3 py-2 rounded-full bg-villa/70 hover:bg-villa cursor-pointer"
+          className="text-[0.62rem] tracking-[0.22em] uppercase px-4 py-2 rounded-full border border-ink/20 hover:border-ink/60 transition-colors cursor-pointer"
         >
-          ⚄ RANDOM
+          ⚄ Random
         </button>
       </div>
 
-      <div className="flex justify-center my-4 bg-gradient-to-b from-lake/25 to-sage/20 rounded-xl py-4">
+      <div className="flex justify-center my-5 bg-gradient-to-b from-lake/20 to-sage/15 py-5">
         <CharacterSprite config={value} scale={7} />
       </div>
 

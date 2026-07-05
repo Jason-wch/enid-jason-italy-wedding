@@ -1,20 +1,22 @@
+import Reveal from "@/components/Reveal";
+
 export const metadata = {
   title: "Gift Registry — Enid & Jason",
 };
 
 const FUNDS = [
   {
-    icon: "🛶",
+    n: "01",
     title: "Honeymoon Fund",
     text: "Help us set sail on the adventure after the adventure — flights, boat rides and one very nice hotel breakfast.",
   },
   {
-    icon: "🍝",
+    n: "02",
     title: "Date Nights Forever",
     text: "Contribute to a lifetime supply of pasta dates, from Gargnano trattorias to our kitchen at home.",
   },
   {
-    icon: "🏡",
+    n: "03",
     title: "Our First Home",
     text: "Every brick counts. Help us build the place where all our friends will crash after the next party.",
   },
@@ -22,37 +24,45 @@ const FUNDS = [
 
 export default function RegistryPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="font-pixel text-sm text-sage-dark text-center">GIFT REGISTRY</h1>
-      <p className="text-center mt-6 text-xl text-ink/80 leading-relaxed">
-        Your presence at Lake Garda is truly the greatest gift — many of you are crossing
-        oceans to be there, and that means the world to us.
-      </p>
-      <p className="text-center mt-4 text-xl text-ink/80 leading-relaxed">
-        If you&apos;d still like to give something, a contribution to one of these funds
-        would make us very happy.
-      </p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+      <Reveal className="text-center">
+        <p className="eyebrow eyebrow-rule">I regali</p>
+        <h1 className="font-heading text-5xl sm:text-6xl mt-6">Registry</h1>
+      </Reveal>
 
-      <div className="mt-10 grid sm:grid-cols-3 gap-4">
-        {FUNDS.map((f) => (
-          <div
+      <Reveal delay={100} className="text-center mt-12 max-w-2xl mx-auto">
+        <p className="font-heading text-2xl sm:text-3xl leading-snug text-ink/85">
+          Your presence at Lake Garda is truly the greatest gift.
+        </p>
+        <p className="mt-6 text-xl leading-relaxed italic text-ink/60">
+          Many of you are crossing oceans to be there, and that means the world to us. If
+          you&apos;d still like to give something, a contribution to one of these funds would
+          make us very happy.
+        </p>
+      </Reveal>
+
+      <div className="mt-20 grid sm:grid-cols-3 gap-px bg-ink/10 border border-ink/10">
+        {FUNDS.map((f, i) => (
+          <Reveal
             key={f.title}
-            className="bg-white/60 border border-gold/25 rounded-2xl p-6 text-center shadow-sm"
+            delay={i * 100}
+            className="bg-cream p-8 sm:p-10 text-center hover:bg-parchment/70 transition-colors duration-700"
           >
-            <div className="text-4xl">{f.icon}</div>
-            <h2 className="text-2xl font-semibold mt-3">{f.title}</h2>
-            <p className="mt-2 text-ink/70 leading-relaxed">{f.text}</p>
-          </div>
+            <div className="font-heading text-3xl text-gold/70">{f.n}</div>
+            <h2 className="font-heading text-3xl mt-5 leading-tight">{f.title}</h2>
+            <div className="hairline w-10 mx-auto mt-5" />
+            <p className="mt-5 text-lg leading-relaxed text-ink/65">{f.text}</p>
+          </Reveal>
         ))}
       </div>
 
-      <div className="mt-10 bg-parchment rounded-2xl p-6 text-center">
-        <p className="text-lg text-ink/75">
+      <Reveal delay={120} className="mt-16 text-center border-t border-ink/10 pt-12">
+        <p className="text-lg italic text-ink/55 max-w-xl mx-auto">
           Bank transfer and payment details will be shared here closer to the date — or
           replace this block with links to your registry of choice (Prezola, Zola, Amazon,
           etc.).
         </p>
-      </div>
+      </Reveal>
     </div>
   );
 }

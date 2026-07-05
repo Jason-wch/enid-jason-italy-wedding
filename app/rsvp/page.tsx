@@ -154,8 +154,7 @@ export default function RsvpPage() {
     }
   };
 
-  const inputCls =
-    "w-full rounded-xl border-2 border-ink/15 bg-white/70 px-4 py-3 text-lg focus:outline-none focus:border-sage transition-colors";
+  const label = "block text-[0.68rem] tracking-[0.3em] uppercase text-ink/50 mb-2";
 
   // -- Success screen --------------------------------------------------------
   if (step === "done") {
@@ -165,40 +164,35 @@ export default function RsvpPage() {
         .map((g) => ({ id: g.id, character: answers[g.id].character })) ?? [];
     const anyone = attendingChars.length > 0;
     return (
-      <div className="max-w-xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-2xl mx-auto px-4 py-28 text-center">
         {anyone && (
-          <div className="flex justify-center gap-2 flex-wrap animate-float-slow">
+          <div className="flex justify-center gap-3 flex-wrap animate-float-slow">
             {attendingChars.map((c) => (
               <CharacterSprite key={c.id} config={c.character} scale={7} />
             ))}
           </div>
         )}
-        <h1 className="font-pixel text-2xl text-sage-dark mt-8">
+        <p className="eyebrow eyebrow-rule mt-12">{anyone ? "Evviva" : "Ci mancherai"}</p>
+        <h1 className="font-heading text-5xl sm:text-6xl mt-6">
           {anyone ? "Grazie mille!" : "We'll miss you"}
         </h1>
-        <p className="mt-6 text-xl text-ink/80">
+        <p className="mt-8 text-xl italic text-ink/70 max-w-lg mx-auto">
           {anyone
             ? "Your RSVP is in — your characters have just arrived at the villa."
             : "Thank you for letting us know — your message means a lot."}
         </p>
         {usedMock && (
-          <p className="mt-4 text-ink/50 text-base">
+          <p className="mt-4 text-ink/45 text-base">
             (Demo mode: saved locally in your browser — connect Supabase to collect real RSVPs.)
           </p>
         )}
-        <div className="mt-8 flex gap-4 justify-center flex-wrap">
+        <div className="mt-12 flex gap-4 justify-center flex-wrap">
           {anyone && (
-            <Link
-              href="/guests"
-              className="font-pixel text-sm px-6 py-4 rounded-full bg-sage text-cream hover:bg-sage-dark transition-colors"
-            >
+            <Link href="/guests" className="btn btn-dark">
               See yourself on the guest map
             </Link>
           )}
-          <Link
-            href="/home"
-            className="font-pixel text-sm px-6 py-4 rounded-full bg-parchment hover:bg-gold/20 transition-colors"
-          >
+          <Link href="/home" className="btn btn-ghost">
             Back home
           </Link>
         </div>
@@ -209,12 +203,14 @@ export default function RsvpPage() {
   // -- Name lookup step ------------------------------------------------------
   if (step === "lookup") {
     return (
-      <div className="max-w-xl mx-auto px-4 py-16">
-        <h1 className="font-pixel text-2xl text-sage-dark text-center">RSVP</h1>
-        <p className="text-center mt-4 text-xl text-ink/75">
-          Enter your full name as it appears on your invitation, and we&apos;ll find your party.
+      <div className="max-w-xl mx-auto px-4 py-28 text-center">
+        <p className="eyebrow eyebrow-rule">Ci sarete?</p>
+        <h1 className="font-heading text-6xl sm:text-7xl mt-6">RSVP</h1>
+        <p className="mt-8 text-xl italic text-ink/60 max-w-md mx-auto">
+          Enter your full name as it appears on your invitation, and we&apos;ll find your
+          party.
         </p>
-        <form onSubmit={lookup} className="mt-10 space-y-4">
+        <form onSubmit={lookup} className="mt-14 space-y-8">
           <input
             required
             value={name}
@@ -222,24 +218,20 @@ export default function RsvpPage() {
               setName(e.target.value);
               if (lookupStatus !== "idle") setLookupStatus("idle");
             }}
-            className={inputCls}
+            className="input-line"
             placeholder="e.g. Rosa Rossi"
             autoFocus
           />
           {lookupStatus === "notfound" && (
-            <p className="text-terracotta">
-              We couldn&apos;t find that name. Please check the spelling (or try another name in
-              your party). Still stuck? Just reach out to Enid or Jason.
+            <p className="text-terracotta italic">
+              We couldn&apos;t find that name. Please check the spelling (or try another name
+              in your party). Still stuck? Just reach out to Enid or Jason.
             </p>
           )}
           {lookupStatus === "error" && (
-            <p className="text-terracotta">Something went wrong — please try again.</p>
+            <p className="text-terracotta italic">Something went wrong — please try again.</p>
           )}
-          <button
-            type="submit"
-            disabled={lookupStatus === "searching"}
-            className="w-full font-pixel text-base px-6 py-5 rounded-xl bg-sage text-cream hover:bg-sage-dark transition-colors disabled:opacity-60 cursor-pointer"
-          >
+          <button type="submit" disabled={lookupStatus === "searching"} className="btn btn-dark">
             {lookupStatus === "searching" ? "Searching…" : "Find my invitation"}
           </button>
         </form>
@@ -249,40 +241,36 @@ export default function RsvpPage() {
 
   // -- Party RSVP form -------------------------------------------------------
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <h1 className="font-pixel text-2xl text-sage-dark text-center">{party?.name}</h1>
-      <p className="text-center mt-4 text-xl text-ink/75 max-w-2xl mx-auto">
-        Let us know who&apos;s joining us — and design the pixel character that will represent each
-        guest on our map (and in the welcome game!).
-      </p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-24">
+      <div className="text-center">
+        <p className="eyebrow eyebrow-rule">Benvenuti</p>
+        <h1 className="font-heading text-5xl sm:text-6xl mt-6">{party?.name}</h1>
+        <p className="mt-6 text-xl italic text-ink/60 max-w-2xl mx-auto">
+          Let us know who&apos;s joining us — and design the pixel character that will
+          represent each guest on our map (and in the welcome game!).
+        </p>
+      </div>
 
-      <form onSubmit={submit} className="mt-10 space-y-6">
+      <form onSubmit={submit} className="mt-16 space-y-12">
         {party?.guests.map((g) => {
           const a = answers[g.id];
           const attending = a?.attending === "yes";
           return (
-            <div
-              key={g.id}
-              className="rounded-2xl border-2 border-gold/30 bg-white/60 p-5 sm:p-6"
-            >
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <h2 className="font-pixel text-lg text-ink">{g.full_name}</h2>
-                <div className="flex gap-2">
+            <div key={g.id} className="border-t border-ink/10 pt-10">
+              <div className="flex items-baseline justify-between gap-4 flex-wrap">
+                <h2 className="font-heading text-3xl sm:text-4xl">{g.full_name}</h2>
+                <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => setAnswer(g.id, { attending: "yes" })}
-                    className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
-                      attending ? "bg-sage text-cream" : "bg-parchment hover:bg-sage/20"
-                    }`}
+                    className={`chip ${attending ? "chip-active" : ""}`}
                   >
                     Attending
                   </button>
                   <button
                     type="button"
                     onClick={() => setAnswer(g.id, { attending: "no" })}
-                    className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
-                      !attending ? "bg-terracotta text-cream" : "bg-parchment hover:bg-terracotta/20"
-                    }`}
+                    className={`chip ${!attending ? "chip-active" : ""}`}
                   >
                     Can&apos;t make it
                   </button>
@@ -290,62 +278,48 @@ export default function RsvpPage() {
               </div>
 
               {attending && (
-                <div className="mt-5 grid md:grid-cols-2 gap-6 items-start">
+                <div className="mt-8 grid md:grid-cols-2 gap-8 items-start">
                   <CharacterBuilder
                     value={a.character}
                     onChange={(character) => setAnswer(g.id, { character })}
                   />
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div>
-                      <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-                        Email address *
-                      </label>
+                      <label className={label}>Email address *</label>
                       <input
                         type="email"
                         required
                         value={a.email}
                         onChange={(e) => setAnswer(g.id, { email: e.target.value })}
-                        className={inputCls}
+                        className="input-card"
                         placeholder="name@example.com"
                       />
                     </div>
                     <div>
-                      <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-                        Driving to the venue? *
-                      </label>
-                      <div className="flex gap-2">
+                      <label className={label}>Driving to the venue? *</label>
+                      <div className="flex gap-3">
                         <button
                           type="button"
                           onClick={() => setAnswer(g.id, { driving: true })}
-                          className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
-                            a.driving === true
-                              ? "bg-lake-deep text-cream"
-                              : "bg-parchment hover:bg-lake/20"
-                          }`}
+                          className={`chip ${a.driving === true ? "chip-active" : ""}`}
                         >
                           Driving
                         </button>
                         <button
                           type="button"
                           onClick={() => setAnswer(g.id, { driving: false })}
-                          className={`font-pixel text-xs px-4 py-2.5 rounded-full transition-colors cursor-pointer ${
-                            a.driving === false
-                              ? "bg-sage text-cream"
-                              : "bg-parchment hover:bg-sage/20"
-                          }`}
+                          className={`chip ${a.driving === false ? "chip-active" : ""}`}
                         >
                           Not driving
                         </button>
                       </div>
                     </div>
                     <div>
-                      <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-                        Dietary requirements
-                      </label>
+                      <label className={label}>Dietary requirements</label>
                       <input
                         value={a.dietary}
                         onChange={(e) => setAnswer(g.id, { dietary: e.target.value })}
-                        className={inputCls}
+                        className="input-card"
                         placeholder="Allergies, vegetarian, vegan…"
                       />
                     </div>
@@ -356,39 +330,33 @@ export default function RsvpPage() {
           );
         })}
 
-        <div>
-          <label className="font-pixel text-xs text-ink/60 block mb-1.5">
-            Message for the couple
-          </label>
+        <div className="border-t border-ink/10 pt-10">
+          <label className={label}>Message for the couple</label>
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={3}
-            className={inputCls}
+            className="input-card"
             placeholder="Anything you want to tell us!"
           />
         </div>
 
         {saveStatus === "error" && (
-          <p className="text-terracotta font-medium">⚠ {errorMsg} — please try again.</p>
+          <p className="text-terracotta italic text-center">⚠ {errorMsg} — please try again.</p>
         )}
 
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex gap-4 flex-wrap justify-center pt-2">
           <button
             type="button"
             onClick={() => {
               setStep("lookup");
               setParty(null);
             }}
-            className="font-pixel text-sm px-6 py-4 rounded-xl bg-parchment hover:bg-gold/20 transition-colors cursor-pointer"
+            className="btn btn-ghost"
           >
             ← Not you?
           </button>
-          <button
-            type="submit"
-            disabled={saveStatus === "saving"}
-            className="flex-1 font-pixel text-base px-6 py-4 rounded-xl bg-sage text-cream hover:bg-sage-dark transition-colors disabled:opacity-60 cursor-pointer"
-          >
+          <button type="submit" disabled={saveStatus === "saving"} className="btn btn-dark">
             {saveStatus === "saving" ? "Sending…" : "Send RSVP ♥"}
           </button>
         </div>

@@ -1,3 +1,5 @@
+import Reveal from "@/components/Reveal";
+
 export const metadata = {
   title: "FAQ — Enid & Jason",
 };
@@ -39,31 +41,39 @@ const FAQS: { q: string; a: string }[] = [
 
 export default function FaqPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <h1 className="font-pixel text-sm text-sage-dark text-center">FAQ</h1>
-      <p className="text-center mt-4 text-xl text-ink/75">
-        Everything you might be wondering about the weekend.
-      </p>
-      <div className="mt-10 space-y-4">
-        {FAQS.map((f) => (
-          <details
-            key={f.q}
-            className="group bg-white/60 border border-gold/25 rounded-2xl px-6 py-5 open:shadow-sm"
-          >
-            <summary className="text-xl font-semibold cursor-pointer list-none flex justify-between items-center gap-4">
-              {f.q}
-              <span className="font-pixel text-sm text-sage-dark group-open:rotate-90 transition-transform">
-                ▶
-              </span>
-            </summary>
-            <p className="mt-3 text-lg leading-relaxed text-ink/80">{f.a}</p>
-          </details>
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
+      <Reveal className="text-center">
+        <p className="eyebrow eyebrow-rule">Domande</p>
+        <h1 className="font-heading text-5xl sm:text-6xl mt-6">Questions</h1>
+        <p className="mt-6 text-xl italic text-ink/60">
+          Everything you might be wondering about the weekend.
+        </p>
+      </Reveal>
+
+      <div className="mt-16 border-t border-ink/10">
+        {FAQS.map((f, i) => (
+          <Reveal key={f.q} delay={Math.min(i * 60, 240)}>
+            <details className="group border-b border-ink/10">
+              <summary className="cursor-pointer list-none flex justify-between items-baseline gap-6 py-7">
+                <span className="font-heading text-2xl sm:text-[1.7rem] leading-snug group-hover:text-sage-dark transition-colors duration-500">
+                  {f.q}
+                </span>
+                <span className="font-heading text-2xl text-gold shrink-0 transition-transform duration-500 group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <p className="pb-8 -mt-1 text-xl leading-relaxed text-ink/75 max-w-2xl">{f.a}</p>
+            </details>
+          </Reveal>
         ))}
       </div>
-      <p className="text-center mt-10 text-ink/60">
-        Something else on your mind? Write it in your RSVP message and we&apos;ll get back to
-        you.
-      </p>
+
+      <Reveal className="text-center mt-14">
+        <p className="italic text-lg text-ink/55">
+          Something else on your mind? Write it in your RSVP message and we&apos;ll get back to
+          you.
+        </p>
+      </Reveal>
     </div>
   );
 }

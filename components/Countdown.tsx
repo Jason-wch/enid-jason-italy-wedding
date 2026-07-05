@@ -19,15 +19,13 @@ export default function Countdown() {
   }, [target]);
 
   return (
-    <div className="flex justify-center">
-      <div className="bg-cream/90 border-2 border-gold/40 rounded-xl px-6 sm:px-8 py-4 text-center min-w-[120px] shadow-sm">
-        <div className="font-pixel text-2xl sm:text-4xl text-sage-dark tabular-nums">
-          {days === null ? "--" : days}
-        </div>
-        <div className="font-pixel text-xs mt-2 text-ink/50">
-          {days === 1 ? "DAY TO GO" : "DAYS TO GO"}
-        </div>
-      </div>
+    <div className="inline-flex items-baseline gap-4">
+      <span className="font-heading text-6xl sm:text-7xl leading-none tabular-nums">
+        {days === null ? "—" : days}
+      </span>
+      <span className="text-[0.72rem] tracking-[0.4em] uppercase opacity-80">
+        {days === 1 ? "day to go" : "days to go"}
+      </span>
     </div>
   );
 }
