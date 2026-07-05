@@ -201,7 +201,7 @@ export function MusicToggle({ className = "" }: { className?: string }) {
       onClick={toggle}
       aria-label={enabled ? "Mute music" : "Play music"}
       title={enabled ? "Mute music" : "Play music"}
-      className={`font-pixel text-[10px] px-3 py-2 rounded-full border-2 border-ink/20 bg-cream/90 hover:bg-parchment transition-colors cursor-pointer ${className}`}
+      className={`font-pixel text-sm px-3 py-2 rounded-full border-2 border-ink/20 bg-cream/90 hover:bg-parchment transition-colors cursor-pointer ${className}`}
     >
       {enabled ? "♪ ON" : "♪ OFF"}
     </button>

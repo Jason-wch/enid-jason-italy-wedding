@@ -9,8 +9,8 @@ export async function GET() {
 
   const supabase = getServerSupabase();
   const { data, error } = await supabase
-    .from("rsvps")
-    .select("id, name, character, map_x, map_y")
+    .from("guests")
+    .select("id, full_name, character, map_x, map_y")
     .eq("attending", "yes")
     .order("created_at", { ascending: true });
 
@@ -19,5 +19,14 @@ export async function GET() {
     return NextResponse.json({ error: "Could not load guests" }, { status: 500 });
   }
 
-  return NextResponse.json({ guests: data ?? [] });
+  // Map full_name -> name for the public-safe GuestChar shape.
+  const guests = (data ?? []).map((g) => ({
+    id: g.id,
+    name: g.full_name,
+    character: g.character,
+    map_x: g.map_x,
+    map_y: g.map_y,
+  }));
+
+  return NextResponse.json({ guests });
 }

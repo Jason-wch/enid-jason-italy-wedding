@@ -1,22 +1,48 @@
 import type { CharacterConfig } from "@/lib/pixel/sprites";
 
-export type Attending = "yes" | "no";
+/** null = not yet responded. */
+export type Attending = "yes" | "no" | null;
 
-export type RsvpInput = {
+/** An invited household / group. */
+export type Party = {
+  id: string;
   name: string;
-  email: string;
-  attending: Attending;
-  guests_count: number;
-  dietary: string;
   message: string;
+  created_at: string;
+};
+
+/** An individual invited guest, belonging to a party. */
+export type Guest = {
+  id: string;
+  party_id: string;
+  full_name: string;
+  attending: Attending;
+  dietary: string;
+  character: CharacterConfig;
+  map_x: number;
+  map_y: number;
+  responded_at: string | null;
+  created_at: string;
+};
+
+/** A party together with all of its guests (used by lookup + admin). */
+export type PartyWithGuests = Party & {
+  guests: Guest[];
+};
+
+/** One guest's answers, submitted as part of a party RSVP. */
+export type GuestResponse = {
+  guestId: string;
+  attending: Exclude<Attending, null>;
+  dietary: string;
   character: CharacterConfig;
 };
 
-export type RsvpRow = RsvpInput & {
-  id: string;
-  map_x: number;
-  map_y: number;
-  created_at: string;
+/** Payload posted from the RSVP page for a whole party. */
+export type RsvpSubmission = {
+  partyId: string;
+  message: string;
+  responses: GuestResponse[];
 };
 
 /** Public-safe subset shown on the guest map. */

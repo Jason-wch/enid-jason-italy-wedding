@@ -20,7 +20,7 @@ export default function SchedulePage() {
         <a
           href={icsHref}
           download="enid-jason-wedding.ics"
-          className="font-pixel text-[10px] px-5 py-3 rounded-full bg-gold/20 hover:bg-gold/30 transition-colors inline-block"
+          className="font-pixel text-sm px-5 py-3 rounded-full bg-gold/20 hover:bg-gold/30 transition-colors inline-block"
         >
           ⤓ DOWNLOAD ALL EVENTS (.ICS)
         </a>
@@ -32,7 +32,7 @@ export default function SchedulePage() {
             key={ev.id}
             className="bg-white/60 border border-gold/25 rounded-2xl p-6 sm:p-8 shadow-sm"
           >
-            <div className="font-pixel text-[10px] text-gold">{ev.day.toUpperCase()}</div>
+            <div className="font-pixel text-sm text-gold">{ev.day.toUpperCase()}</div>
             <h2 className="text-3xl font-semibold mt-2">{ev.title}</h2>
             <div className="text-lg text-ink/60 mt-1">{ev.timeLabel}</div>
             <p className="mt-3 text-lg leading-relaxed text-ink/80">{ev.description}</p>
@@ -40,7 +40,7 @@ export default function SchedulePage() {
               href={googleCalendarUrl(ev)}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block mt-4 font-pixel text-[10px] px-4 py-3 rounded-full bg-sage text-cream hover:bg-sage-dark transition-colors"
+              className="inline-block mt-4 font-pixel text-sm px-4 py-3 rounded-full bg-sage text-cream hover:bg-sage-dark transition-colors"
             >
               + ADD TO GOOGLE CALENDAR
             </a>
@@ -67,7 +67,7 @@ export default function SchedulePage() {
             href={mapsLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-pixel text-[10px] px-5 py-3 rounded-full bg-lake-deep text-cream hover:opacity-90 transition-opacity inline-block"
+            className="font-pixel text-sm px-5 py-3 rounded-full bg-lake-deep text-cream hover:opacity-90 transition-opacity inline-block"
           >
             OPEN IN GOOGLE MAPS →
           </a>

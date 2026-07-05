@@ -61,7 +61,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
         <p className="text-lg">
           {WEDDING.couple} · {WEDDING.dates} · {WEDDING.venue}
         </p>
-        <p className="font-pixel text-[9px] mt-3 text-ink/40">
+        <p className="font-pixel text-xs mt-3 text-ink/40">
           made with ♥ (and a little pixel magic)
         </p>
       </footer>

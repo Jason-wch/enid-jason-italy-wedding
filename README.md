@@ -6,11 +6,11 @@ Wedding website for **23–25 April 2027 at Villa Sostaga Boutique Hotel, Lake G
 
 - **Welcome minigame** (`/`) — side-scrolling pixel game: walk your character past cypress trees and the villa, and dive into Lake Garda to enter the site. Arrow keys / WASD + space; touch controls on mobile; skip button.
 - **Homepage** (`/home`) — hero photo, countdown, story/photo/video sections.
-- **RSVP + character builder** (`/rsvp`) — guests RSVP and design their own pixel character (skin, hair, outfit, colors). Saved to Supabase in real time.
+- **RSVP by name + party** (`/rsvp`) — guests type their full name to find their invitation, then RSVP for everyone in their party at once and design a pixel character (skin, hair, outfit, colors) for each attendee. Saved to Supabase in real time.
 - **Live guest map** (`/guests`) — every attending guest's character hangs out in the villa gardens; new RSVPs pop in live via Supabase Realtime.
 - **Schedule** (`/schedule`) — weekend itinerary with Add-to-Google-Calendar links, an `.ics` download, and an embedded Google Map of the venue.
 - **FAQ / Dress code / Registry** — separate content pages.
-- **Admin sheet** (`/admin`) — password-protected, Google-Sheets-style editable table of all RSVPs with live refresh and CSV export.
+- **Guest-list admin** (`/admin`) — password-protected. Create parties (households), add/edit/remove guests, watch RSVPs arrive live, and export the whole list to CSV.
 - **Background music** — built-in chiptune loop with a mute toggle; drop your own `public/audio/bgm.mp3` to replace it.
 
 Everything works in **demo mode** (localStorage) before Supabase is configured, so you can preview the whole site immediately.
@@ -32,9 +32,11 @@ Open http://localhost:3000.
    - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings → API)
    - `SUPABASE_SERVICE_ROLE_KEY` (same page — keep this secret, server-only)
    - `ADMIN_PASSWORD` for the `/admin` page
-4. Restart `npm run dev`. RSVPs now flow into the `rsvps` table and appear live on the guest map and admin sheet.
+4. Restart `npm run dev`. Then open `/admin`, add your parties and guests, and RSVPs will flow into the `guests` table and appear live on the guest map and admin view.
 
-Security model: guests can only *insert* RSVPs (RLS). All reads go through server API routes — the public guest map endpoint exposes only name, character and map position; the full sheet requires the admin password.
+Data model: a `parties` table (invited households) and a `guests` table (individual invitees, each linked to a party). Guests look themselves up by full name and RSVP for their whole party.
+
+Security model: both tables have RLS enabled with no public policies — all reads and writes go through server API routes using the service role key. The public guest-map endpoint exposes only name, character and map position; managing the guest list requires the admin password.
 
 ## Deploy to Vercel
 

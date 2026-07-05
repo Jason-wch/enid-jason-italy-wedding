@@ -165,7 +165,7 @@ export function drawSign(ctx: Ctx, x: number, baseY: number, text: string) {
   const w = Math.max(84, text.length * 7 + 16);
   ctx.fillRect(x - w / 2, baseY - 56, w, 24);
   ctx.fillStyle = "#f5ecd8";
-  ctx.font = "10px 'Press Start 2P', monospace";
+  ctx.font = "600 13px 'Playfair Display', Georgia, serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(text, x, baseY - 43);

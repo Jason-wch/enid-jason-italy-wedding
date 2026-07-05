@@ -13,7 +13,7 @@
   --color-villa: #e8b64c;
 
   --font-serif-display: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-pixel: "Press Start 2P", "Courier New", monospace;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
 }
 
 html {
@@ -27,12 +27,17 @@ body {
   font-size: 1.125rem;
 }
 
+/* Elegant display treatment. Class name kept as .font-pixel so existing
+   markup inherits the refined look without markup churn. */
 .font-pixel {
-  font-family: var(--font-pixel);
+  font-family: var(--font-display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .font-display {
-  font-family: var(--font-serif-display);
+  font-family: var(--font-display);
 }
 
 canvas.pixelated {

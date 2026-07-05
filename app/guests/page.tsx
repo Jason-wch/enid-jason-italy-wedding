@@ -19,7 +19,7 @@ export default function GuestsPage() {
       <div className="text-center mt-8">
         <Link
           href="/rsvp"
-          className="font-pixel text-[11px] px-6 py-4 rounded-full bg-sage text-cream hover:bg-sage-dark transition-colors inline-block"
+          className="font-pixel text-sm px-6 py-4 rounded-full bg-sage text-cream hover:bg-sage-dark transition-colors inline-block"
         >
           RSVP TO JOIN THE MAP
         </Link>

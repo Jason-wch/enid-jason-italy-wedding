@@ -30,12 +30,12 @@ function Cycler({
   const step = (dir: number) => onIndex((index + dir + options.length) % options.length);
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="font-pixel text-[9px] text-ink/60 w-20 shrink-0">{label}</span>
+      <span className="font-pixel text-xs text-ink/60 w-20 shrink-0">{label}</span>
       <div className="flex items-center gap-1 flex-1 justify-end">
         <button
           type="button"
           onClick={() => step(-1)}
-          className="font-pixel text-[10px] w-8 h-8 rounded-lg border border-ink/20 hover:bg-parchment cursor-pointer"
+          className="font-pixel text-sm w-8 h-8 rounded-lg border border-ink/20 hover:bg-parchment cursor-pointer"
           aria-label={`Previous ${label}`}
         >
           ◀
@@ -44,7 +44,7 @@ function Cycler({
         <button
           type="button"
           onClick={() => step(1)}
-          className="font-pixel text-[10px] w-8 h-8 rounded-lg border border-ink/20 hover:bg-parchment cursor-pointer"
+          className="font-pixel text-sm w-8 h-8 rounded-lg border border-ink/20 hover:bg-parchment cursor-pointer"
           aria-label={`Next ${label}`}
         >
           ▶
@@ -67,7 +67,7 @@ function Swatches({
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
-      <span className="font-pixel text-[9px] text-ink/60 w-20 shrink-0">{label}</span>
+      <span className="font-pixel text-xs text-ink/60 w-20 shrink-0">{label}</span>
       <div className="flex gap-1.5 flex-wrap justify-end">
         {colors.map((c, i) => (
           <button
@@ -91,11 +91,11 @@ export default function CharacterBuilder({ value, onChange }: Props) {
   return (
     <div className="bg-parchment rounded-2xl p-5 border-2 border-gold/30">
       <div className="flex items-center justify-between">
-        <h3 className="font-pixel text-[10px] text-sage-dark">YOUR CHARACTER</h3>
+        <h3 className="font-pixel text-sm text-sage-dark">YOUR CHARACTER</h3>
         <button
           type="button"
           onClick={() => onChange(randomCharacter())}
-          className="font-pixel text-[9px] px-3 py-2 rounded-full bg-villa/70 hover:bg-villa cursor-pointer"
+          className="font-pixel text-xs px-3 py-2 rounded-full bg-villa/70 hover:bg-villa cursor-pointer"
         >
           ⚄ RANDOM
         </button>

@@ -40,7 +40,7 @@ export default function Countdown() {
           <div className="font-pixel text-lg sm:text-2xl text-sage-dark tabular-nums">
             {c.value === undefined ? "--" : String(c.value).padStart(2, "0")}
           </div>
-          <div className="font-pixel text-[8px] mt-2 text-ink/50">{c.label}</div>
+          <div className="font-pixel text-xs mt-2 text-ink/50">{c.label}</div>
         </div>
       ))}
     </div>

@@ -306,14 +306,14 @@ export default function WelcomeGame() {
 
       {/* Title & instructions */}
       <div className="absolute top-4 inset-x-0 flex flex-col items-center pointer-events-none px-4">
-        <h1 className="font-pixel text-center text-[13px] sm:text-lg text-ink drop-shadow-[2px_2px_0_rgba(255,255,255,0.7)]">
+        <h1 className="font-pixel text-center text-base sm:text-lg text-ink drop-shadow-[2px_2px_0_rgba(255,255,255,0.7)]">
           ENID ♥ JASON
         </h1>
-        <p className="font-pixel text-center text-[8px] sm:text-[10px] mt-2 text-ink/80">
+        <p className="font-pixel text-center text-xs sm:text-sm mt-2 text-ink/80">
           23–25 APRIL 2027 · {WEDDING.venue.toUpperCase()}
         </p>
         {!arrived && (
-          <p className="font-pixel text-center text-[8px] sm:text-[10px] mt-4 text-ink/70 bg-cream/70 rounded px-3 py-2 max-w-md">
+          <p className="font-pixel text-center text-xs sm:text-sm mt-4 text-ink/70 bg-cream/70 rounded px-3 py-2 max-w-md">
             WALK RIGHT INTO LAKE GARDA TO ENTER →<br />
             (ARROW KEYS / WASD · SPACE TO JUMP)
           </p>
@@ -331,7 +331,7 @@ export default function WelcomeGame() {
           window.localStorage.setItem("ej-visited", "1");
           router.push("/home");
         }}
-        className="absolute top-3 right-3 font-pixel text-[10px] px-3 py-2 rounded-full border-2 border-ink/20 bg-cream/90 hover:bg-parchment cursor-pointer"
+        className="absolute top-3 right-3 font-pixel text-sm px-3 py-2 rounded-full border-2 border-ink/20 bg-cream/90 hover:bg-parchment cursor-pointer"
       >
         SKIP →
       </button>

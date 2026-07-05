@@ -148,7 +148,7 @@ export default function GuestMap() {
 
         // name tag
         const label = g.name.length > 14 ? `${g.name.slice(0, 13)}…` : g.name;
-        ctx.font = "8px 'Press Start 2P', monospace";
+        ctx.font = "600 12px 'Playfair Display', Georgia, serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         const tw = ctx.measureText(label).width + 10;
@@ -170,11 +170,11 @@ export default function GuestMap() {
   return (
     <div>
       <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
-        <span className="font-pixel text-[10px] text-sage-dark bg-sage/15 rounded-full px-4 py-2">
+        <span className="font-pixel text-sm text-sage-dark bg-sage/15 rounded-full px-4 py-2">
           {guestCount === null ? "LOADING GUESTS…" : `${guestCount} GUEST${guestCount === 1 ? "" : "S"} AT THE VILLA`}
         </span>
         {demoMode && (
-          <span className="font-pixel text-[9px] text-ink/50 bg-parchment rounded-full px-4 py-2">
+          <span className="font-pixel text-xs text-ink/50 bg-parchment rounded-full px-4 py-2">
             DEMO MODE — CONNECT SUPABASE FOR LIVE DATA
           </span>
         )}
