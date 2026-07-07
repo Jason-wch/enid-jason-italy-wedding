@@ -91,13 +91,13 @@ export function MusicToggle({ className = "" }: { className?: string }) {
       onClick={toggle}
       aria-label={enabled ? "Mute music" : "Play music"}
       title={enabled ? "Mute music" : "Play music"}
-      className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold/50 bg-cream/85 text-ink/80 hover:border-gold hover:text-ink transition-colors cursor-pointer ${className}`}
+      className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink/25 bg-cream/90 text-ink/70 hover:border-ink hover:text-ink transition-colors cursor-pointer ${className}`}
     >
-      <span className="text-base leading-none">♪</span>
+      <span className="text-sm leading-none">♪</span>
       {!enabled && (
         <span
           aria-hidden="true"
-          className="absolute h-px w-6 rotate-45 bg-terracotta"
+          className="absolute h-px w-5 rotate-45 bg-ink/60"
         />
       )}
     </button>

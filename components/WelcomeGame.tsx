@@ -17,20 +17,27 @@ import {
   type CharacterConfig,
 } from "@/lib/pixel/sprites";
 import {
+  drawBirds,
+  drawBoat,
   drawBush,
   drawCloud,
   drawCypress,
   drawGrass,
+  drawLemonTree,
   drawMountains,
+  drawOliveTree,
   drawPath,
+  drawPergola,
   drawSign,
   drawSky,
   drawSun,
+  drawTerraceWall,
   drawVilla,
   drawWater,
   PALETTE,
 } from "@/lib/pixel/scenery";
 import { WEDDING } from "@/lib/wedding";
+import { LogoMark } from "@/components/decor/Logo";
 
 const VIEW_W = 960;
 const VIEW_H = 540;
@@ -194,9 +201,15 @@ export default function WelcomeGame() {
       const cam = Math.max(0, Math.min(WORLD_W - VIEW_W, player.x - VIEW_W * 0.38));
 
       // --- draw ---
+      // the player walks toward a sunset hanging over the lake
+      const sunScreenX = 1100 - cam * 0.1;
+      const sunWorldX = sunScreenX + cam;
+
       ctx.imageSmoothingEnabled = false;
       drawSky(ctx, VIEW_W, VIEW_H);
-      drawSun(ctx, 820 - cam * 0.1, 90, 34);
+      drawSun(ctx, sunScreenX, 240, 38);
+      drawBirds(ctx, 320 - cam * 0.15, 96, t);
+      drawBirds(ctx, 760 - cam * 0.15, 140, t);
       drawCloud(ctx, 120 - cam * 0.2, 70, 12);
       drawCloud(ctx, 520 - cam * 0.2, 120, 9);
       drawCloud(ctx, 980 - cam * 0.2, 60, 11);
@@ -205,7 +218,7 @@ export default function WelcomeGame() {
       drawMountains(ctx, VIEW_W, 340, -cam * 0.55, false);
 
       // distant lake strip behind everything (it IS Lake Garda country)
-      drawWater(ctx, 0, 340, VIEW_W, 40, t);
+      drawWater(ctx, 0, 340, VIEW_W, 40, t, sunScreenX);
 
       ctx.save();
       ctx.translate(-cam, 0);
@@ -216,18 +229,22 @@ export default function WelcomeGame() {
       // shore slope
       ctx.fillStyle = PALETTE.path;
       ctx.fillRect(LAKE_X + 20, GROUND_Y, 40, VIEW_H - GROUND_Y);
-      drawWater(ctx, LAKE_X + 60, GROUND_Y + 16, WORLD_W - LAKE_X - 60 + VIEW_W, VIEW_H - GROUND_Y - 16, t);
+      drawWater(ctx, LAKE_X + 60, GROUND_Y + 16, WORLD_W - LAKE_X - 60 + VIEW_W, VIEW_H - GROUND_Y - 16, t, sunWorldX);
 
-      // scenery along the way (compact: a short stroll from villa to lake)
-      drawSign(ctx, 180, GROUND_Y, "VILLA SOSTAGA >");
+      // scenery along the way: cypress avenue, lemon grove terrace, the villa,
+      // a wisteria pergola with festoon lights, then down to the shore
       drawCypress(ctx, 120, GROUND_Y, 120);
-      drawCypress(ctx, 300, GROUND_Y, 150);
-      drawBush(ctx, 400, GROUND_Y, 22);
+      drawSign(ctx, 180, GROUND_Y, "VILLA SOSTAGA >");
+      drawTerraceWall(ctx, 255, GROUND_Y - 10, 180);
+      drawLemonTree(ctx, 300, GROUND_Y - 10, 2);
+      drawLemonTree(ctx, 375, GROUND_Y - 10, 2);
+      drawOliveTree(ctx, 445, GROUND_Y, 2);
       drawVilla(ctx, 500, GROUND_Y, 1);
-      drawCypress(ctx, 690, GROUND_Y, 140);
+      drawPergola(ctx, 705, GROUND_Y, 130);
       drawBush(ctx, 760, GROUND_Y, 26);
-      drawSign(ctx, 820, GROUND_Y, "LAKE GARDA >");
-      drawCypress(ctx, 870, GROUND_Y, 100);
+      drawSign(ctx, 862, GROUND_Y, "LAGO DI GARDA >");
+      drawCypress(ctx, 895, GROUND_Y, 100);
+      drawBoat(ctx, 1150, GROUND_Y + 24, t);
 
       // player (half-submerged when in the lake)
       const submerged = player.x + CHAR_W / 2 > LAKE_X + 60;
@@ -277,7 +294,7 @@ export default function WelcomeGame() {
 
   const touchBtn = (key: string, label: string, extra = "") => (
     <button
-      className={`font-pixel text-lg w-16 h-16 rounded-2xl border-2 border-ink/30 bg-cream/85 active:bg-villa select-none touch-none ${extra}`}
+      className={`font-pixel text-lg w-16 h-16 rounded-full border border-verde/60 bg-cream/90 text-verde-deep active:bg-verde active:text-cream select-none touch-none ${extra}`}
       onPointerDown={(e) => {
         e.preventDefault();
         press(key, true);
@@ -292,7 +309,7 @@ export default function WelcomeGame() {
   );
 
   return (
-    <div className="fixed inset-0 bg-[#aed7f0] flex items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 bg-[#a9c3d6] flex items-center justify-center overflow-hidden">
       <canvas
         ref={canvasRef}
         width={VIEW_W}
@@ -302,21 +319,31 @@ export default function WelcomeGame() {
 
       {/* Title & instructions */}
       <div className="absolute top-4 inset-x-0 flex flex-col items-center pointer-events-none px-4">
-        <h1 className="font-pixel text-center text-base sm:text-lg text-ink drop-shadow-[2px_2px_0_rgba(255,255,255,0.7)]">
-          ENID ♥ JASON
-        </h1>
-        <p className="font-pixel text-center text-xs sm:text-sm mt-2 text-ink/80">
-          23–25 APRIL 2027 · {WEDDING.venue.toUpperCase()}
-        </p>
+        <div className="tile-frame px-6 py-4 text-center !bg-cream/95">
+          <div className="flex justify-center text-gold">
+            <LogoMark size={26} />
+          </div>
+          <h1 className="font-pixel text-center text-sm sm:text-base text-ink mt-2">
+            Enid &amp; Jason
+          </h1>
+          <p
+            className="font-sans text-center text-[0.6rem] font-medium tracking-[0.25em] uppercase mt-1 text-stone"
+            style={{ textIndent: "0.25em" }}
+          >
+            23–25 April 2027 · {WEDDING.venue}
+          </p>
+        </div>
         {!arrived && (
-          <p className="font-pixel text-center text-xs sm:text-sm mt-4 text-ink/70 bg-cream/70 rounded px-3 py-2 max-w-md">
-            WALK RIGHT INTO LAKE GARDA TO ENTER →<br />
-            (ARROW KEYS / WASD · SPACE TO JUMP)
+          <p className="text-center italic text-sm sm:text-base mt-4 text-ink/80 bg-cream/80 rounded-full px-5 py-2 max-w-md">
+            Cammina verso il lago — walk right into Lake Garda →
+            <span className="not-italic block text-[0.62rem] tracking-[0.2em] uppercase mt-1 text-ink/55">
+              arrow keys / WASD · space to jump
+            </span>
           </p>
         )}
         {arrived && (
-          <p className="font-pixel text-center text-[10px] sm:text-sm mt-6 text-lake-deep bg-cream/90 rounded px-4 py-3 animate-float-slow">
-            BENVENUTI! WELCOME TO OUR WEDDING ♥
+          <p className="font-pixel text-center text-xs sm:text-base mt-6 text-verde-deep bg-cream/95 border border-gold/50 rounded px-5 py-3 animate-float-slow">
+            Benvenuti! Welcome to our wedding ♥
           </p>
         )}
       </div>
@@ -327,9 +354,9 @@ export default function WelcomeGame() {
           window.localStorage.setItem("ej-visited", "1");
           router.push("/home");
         }}
-        className="absolute top-3 right-3 font-pixel text-sm px-3 py-2 rounded-full border-2 border-ink/20 bg-cream/90 hover:bg-parchment cursor-pointer"
+        className="absolute top-3 right-3 text-[0.72rem] tracking-[0.25em] uppercase px-4 py-2 rounded-full border border-ink/25 bg-cream/90 hover:border-ink hover:text-ink cursor-pointer transition-colors"
       >
-        SKIP →
+        Salta →
       </button>
 
       {/* Touch controls */}

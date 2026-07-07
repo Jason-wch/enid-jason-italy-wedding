@@ -1,4 +1,6 @@
 export { default as Monogram } from "./Monogram";
+export { default as Logo, LogoMark } from "./Logo";
+export { default as PhotoPlaceholder } from "./PhotoPlaceholder";
 export { default as OliveBranch } from "./OliveBranch";
 export { default as LemonSprig } from "./LemonSprig";
 export { default as CypressRow } from "./CypressRow";

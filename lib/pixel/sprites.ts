@@ -28,17 +28,18 @@ export const SKINS: { label: string; colors: [string, string] }[] = [
 export const HAIR_COLORS: { label: string; colors: [string, string] }[] = [
   { label: "Black", colors: ["#332d30", "#4d444a"] },
   { label: "Brown", colors: ["#5b3a21", "#7a5233"] },
-  { label: "Blonde", colors: ["#e8c464", "#c9a13f"] },
+  { label: "Blonde", colors: ["#e7c95f", "#c2a244"] },
   { label: "Auburn", colors: ["#a8432c", "#c25c40"] },
-  { label: "Pink", colors: ["#e88ab8", "#c765a0"] },
-  { label: "Blue", colors: ["#4f7fb5", "#6d9bcc"] },
+  { label: "Pink", colors: ["#d8a48f", "#c07f6a"] },
+  { label: "Blue", colors: ["#5f8496", "#83aebe"] },
 ];
 
+/* Kept in sync with PALETTE_SWATCHES in app/dress-code/page.tsx. */
 export const OUTFIT_COLORS: { label: string; colors: [string, string] }[] = [
-  { label: "Ivory", colors: ["#f2ead8", "#cdbe97"] },
-  { label: "Sage", colors: ["#93a884", "#6e8560"] },
-  { label: "Dusty Blue", colors: ["#7f9cbf", "#5f7fa6"] },
-  { label: "Terracotta", colors: ["#c2704e", "#a2583a"] },
+  { label: "Ivory", colors: ["#f2ead8", "#cfc09a"] },
+  { label: "Sage", colors: ["#97a383", "#6e8058"] },
+  { label: "Dusty Blue", colors: ["#83aebe", "#5f8496"] },
+  { label: "Terracotta", colors: ["#c76b4b", "#a4553a"] },
   { label: "Plum", colors: ["#8a5f8f", "#6f4a75"] },
   { label: "Navy", colors: ["#3f5a78", "#2e4863"] },
 ];

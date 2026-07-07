@@ -1,5 +1,4 @@
 import Reveal from "@/components/Reveal";
-import { OrnamentRule } from "@/components/decor";
 
 export const metadata = {
   title: "Dress Code — Enid & Jason",
@@ -32,13 +31,13 @@ export default function DressCodePage() {
       <Reveal className="text-center">
         <p className="eyebrow eyebrow-rule">Cosa indossare</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">Dress code</h1>
-        <p className="display-italic text-5xl sm:text-6xl mt-10 text-verde leading-tight">
+        <p className="display-italic text-5xl sm:text-6xl mt-10 leading-tight">
           Garden Formal
         </p>
-        <p className="mt-6 text-xl italic text-ink/60 max-w-xl mx-auto">
+        <p className="body-sans mt-6 max-w-xl mx-auto">
           Elegante ma comodo — elegant, romantic, and dressed for a lakeside garden.
         </p>
-        <OrnamentRule className="mt-10" />
+        <div className="hairline max-w-16 mx-auto mt-10" />
       </Reveal>
 
       <div className="mt-16 space-y-14">
@@ -48,27 +47,23 @@ export default function DressCodePage() {
             delay={i * 80}
             className="grid sm:grid-cols-[14rem_1fr] gap-4 sm:gap-10 items-baseline border-t border-ink/10 pt-10"
           >
-            <h2 className="font-heading text-3xl text-verde">{s.title}</h2>
-            <p className="text-xl leading-relaxed text-ink/80">{s.body}</p>
+            <h2 className="font-heading text-3xl">{s.title}</h2>
+            <p className="body-sans">{s.body}</p>
           </Reveal>
         ))}
 
-        <Reveal>
-          <div className="stripe-band max-w-xs mx-auto" style={{ height: 6 }} />
-        </Reveal>
-
         {/* Colour palette */}
         <Reveal className="grid sm:grid-cols-[14rem_1fr] gap-4 sm:gap-10 border-t border-ink/10 pt-10">
-          <h2 className="font-heading text-3xl text-verde">Colour palette</h2>
+          <h2 className="font-heading text-3xl">Colour palette</h2>
           <div>
-            <p className="text-xl leading-relaxed text-ink/80">
+            <p className="body-sans">
               Wear whatever colours make you feel great — but if you&apos;d like to match the
               scenery (and your pixel character!), here&apos;s our palette:
             </p>
             <div className="flex gap-5 flex-wrap mt-8">
               {PALETTE_SWATCHES.map((s) => (
                 <div key={s.name} className="text-center group">
-                  <div className="rounded-full p-1.5 border border-gold/40 transition-transform duration-500 group-hover:-translate-y-1">
+                  <div className="rounded-full p-1.5 border border-ink/15 transition-transform duration-500 group-hover:-translate-y-1">
                     <div
                       className="w-16 h-16 rounded-full border border-ink/10"
                       style={{ backgroundColor: s.hex }}
@@ -84,8 +79,8 @@ export default function DressCodePage() {
         </Reveal>
 
         <Reveal className="grid sm:grid-cols-[14rem_1fr] gap-4 sm:gap-10 items-baseline border-t border-ink/10 pt-10">
-          <h2 className="font-heading text-3xl text-verde">Please avoid</h2>
-          <p className="text-xl leading-relaxed text-ink/80">
+          <h2 className="font-heading text-3xl">Please avoid</h2>
+          <p className="body-sans">
             White, ivory or cream head-to-toe (that&apos;s Enid&apos;s corner of the palette),
             and anything you can&apos;t dance in. Everything else is fair game.
           </p>

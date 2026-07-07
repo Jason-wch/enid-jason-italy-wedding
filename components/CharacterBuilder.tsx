@@ -95,13 +95,11 @@ export default function CharacterBuilder({ value, onChange }: Props) {
   return (
     <div className="bg-white/60 border border-ink/10 p-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-[0.68rem] tracking-[0.3em] uppercase text-verde font-semibold">
-          Il tuo personaggio
-        </h3>
+        <h3 className="eyebrow !text-ink/70">Il tuo personaggio</h3>
         <button
           type="button"
           onClick={() => onChange(randomCharacter())}
-          className="text-[0.62rem] tracking-[0.22em] uppercase px-4 py-2 rounded-full border border-ink/20 hover:border-verde hover:text-verde transition-colors cursor-pointer"
+          className="font-sans text-[0.6rem] font-medium tracking-[0.22em] uppercase px-4 py-2 border border-ink/25 hover:border-ink transition-colors cursor-pointer"
         >
           ⚄ A caso
         </button>
@@ -109,7 +107,7 @@ export default function CharacterBuilder({ value, onChange }: Props) {
 
       {/* Golden-hour arched niche, like a little fresco */}
       <div className="flex justify-center my-5">
-        <div className="arch flex items-end justify-center bg-gradient-to-b from-[#f2d3a0] via-[#ecd9b4] to-sage/25 px-14 pt-12 pb-5 border border-gold/30">
+        <div className="arch flex items-end justify-center bg-gradient-to-b from-[#f2d3a0] via-[#ecd9b4] to-sage/25 px-14 pt-12 pb-5 border border-ink/15">
           <CharacterSprite config={value} scale={7} />
         </div>
       </div>

@@ -18,14 +18,20 @@ import {
   SPRITE_W,
 } from "@/lib/pixel/sprites";
 import {
+  drawBirds,
+  drawBoat,
   drawBush,
   drawCloud,
   drawCypress,
   drawGrass,
+  drawLemonTree,
   drawMountains,
+  drawOliveTree,
   drawPath,
+  drawPergola,
   drawSky,
   drawSun,
+  drawTerraceWall,
   drawVilla,
   drawWater,
 } from "@/lib/pixel/scenery";
@@ -103,28 +109,35 @@ export default function GuestMap() {
     const render = (t: number) => {
       ctx.imageSmoothingEnabled = false;
 
+      const sunX = MAP_W - 160;
       drawSky(ctx, MAP_W, 360);
-      drawSun(ctx, MAP_W - 140, 80, 30);
+      drawSun(ctx, sunX, 100, 32);
+      drawBirds(ctx, 240, 70, t);
       drawCloud(ctx, 90, 60, 10);
       drawCloud(ctx, 460, 110, 8);
       drawCloud(ctx, 820, 50, 12);
       drawMountains(ctx, MAP_W, 300, 0, true);
       drawMountains(ctx, MAP_W, 330, 60, false);
-      drawWater(ctx, 0, 330, MAP_W, 40, t);
+      drawWater(ctx, 0, 330, MAP_W, 40, t, sunX);
 
       // gardens
       drawGrass(ctx, 0, 370, MAP_W, MAP_H - 370);
       // lake inlet on the right
-      drawWater(ctx, MAP_W - 240, 430, 240, MAP_H - 430, t);
-      ctx.fillStyle = "#d9c9a3";
+      drawWater(ctx, MAP_W - 240, 430, 240, MAP_H - 430, t, sunX);
+      ctx.fillStyle = "#dcc79d";
       ctx.fillRect(MAP_W - 252, 430, 12, MAP_H - 430);
+      drawBoat(ctx, MAP_W - 120, 480, t);
 
+      // scenery lives on the baseline band (y=372) above the guest lawn
       drawVilla(ctx, 70, 372, 0.9);
       drawPath(ctx, 0, 372, MAP_W - 240, 20);
-      drawCypress(ctx, 330, 372, 100);
-      drawCypress(ctx, 380, 372, 80);
+      drawPergola(ctx, 315, 372, 120);
+      drawLemonTree(ctx, 495, 366, 2);
+      drawCypress(ctx, 555, 372, 100);
+      drawOliveTree(ctx, 700, 372, 2);
       drawCypress(ctx, 620, 372, 110);
       drawCypress(ctx, 900, 372, 95);
+      drawTerraceWall(ctx, 740, 384, 160);
       drawBush(ctx, 450, 372, 18);
       drawBush(ctx, 760, 372, 22);
       drawBush(ctx, 1020, 372, 18);
@@ -148,15 +161,15 @@ export default function GuestMap() {
 
         // name tag
         const label = g.name.length > 14 ? `${g.name.slice(0, 13)}…` : g.name;
-        ctx.font = "600 12px 'Playfair Display', Georgia, serif";
+        ctx.font = "500 12px 'Cormorant', Georgia, serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         const tw = ctx.measureText(label).width + 10;
         const tx = x + CHAR_W / 2;
         const ty = y + bob - 12;
-        ctx.fillStyle = "rgba(46, 42, 38, 0.75)";
+        ctx.fillStyle = "rgba(37, 46, 32, 0.78)";
         ctx.fillRect(tx - tw / 2, ty - 8, tw, 16);
-        ctx.fillStyle = "#faf6ee";
+        ctx.fillStyle = "#f9f5ea";
         ctx.fillText(label, tx, ty + 1);
       }
 
@@ -169,17 +182,18 @@ export default function GuestMap() {
 
   return (
     <div>
-      <div className="flex items-center justify-center gap-3 flex-wrap mb-4">
-        <span className="font-pixel text-sm text-sage-dark bg-sage/15 rounded-full px-4 py-2">
-          {guestCount === null ? "LOADING GUESTS…" : `${guestCount} GUEST${guestCount === 1 ? "" : "S"} AT THE VILLA`}
+      <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
+        <span className="font-pixel text-xs text-ink/70 border border-ink/20 px-4 py-2">
+          {guestCount === null ? "Loading guests…" : `${guestCount} ospit${guestCount === 1 ? "e" : "i"} alla villa`}
         </span>
         {demoMode && (
-          <span className="font-pixel text-xs text-ink/50 bg-parchment rounded-full px-4 py-2">
-            DEMO MODE — CONNECT SUPABASE FOR LIVE DATA
+          <span className="font-pixel text-xs text-ink/45 bg-parchment px-4 py-2">
+            Demo mode — connect Supabase for live data
           </span>
         )}
       </div>
-      <div className="rounded-2xl overflow-hidden border-4 border-gold/30 shadow-lg">
+      {/* Simple gallery mat */}
+      <div className="tile-frame p-2 sm:p-3">
         <canvas
           ref={canvasRef}
           width={MAP_W}

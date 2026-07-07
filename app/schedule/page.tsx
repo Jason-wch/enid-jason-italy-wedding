@@ -1,16 +1,9 @@
 import Reveal from "@/components/Reveal";
 import { buildIcs, EVENTS, googleCalendarUrl, WEDDING } from "@/lib/wedding";
-import { LemonSprig, OliveBranch, Monogram, OrnamentRule } from "@/components/decor";
 
 export const metadata = {
   title: "Schedule — Enid & Jason",
 };
-
-const DAY_ART = [
-  <LemonSprig key="fri" width={58} className="opacity-90" />,
-  <Monogram key="sat" size={34} className="text-verde" />,
-  <OliveBranch key="sun" width={70} className="opacity-90" />,
-];
 
 export default function SchedulePage() {
   const icsHref = `data:text/calendar;charset=utf-8,${encodeURIComponent(buildIcs())}`;
@@ -47,26 +40,24 @@ export default function SchedulePage() {
             delay={i * 80}
             className="group relative grid sm:grid-cols-[7rem_1fr] gap-6 sm:gap-12 py-12 border-b border-ink/10 first:border-t sm:border-0"
           >
-            {/* Leaf node on the spine (sm+) */}
+            {/* Node on the spine (sm+) */}
             <span
-              className="hidden sm:block absolute left-[3.5rem] top-[3.6rem] -translate-x-1/2"
+              className="hidden sm:block absolute left-[3.5rem] top-[3.7rem] -translate-x-1/2 h-2 w-2 rounded-full bg-ink"
               aria-hidden="true"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14">
-                <path d="M7 1 L 12 7 L 7 13 L 2 7 Z" fill="var(--color-gold)" />
-              </svg>
-            </span>
+            />
             <div className="flex sm:flex-col items-baseline sm:items-start gap-3 sm:bg-cream sm:relative sm:z-10 sm:pb-3">
-              <span className="display-italic text-4xl text-terracotta/80">
+              <span className="display-italic text-4xl text-stone">
                 {String(i + 1).padStart(2, "0")}
               </span>
-              <span className="text-[0.68rem] tracking-[0.3em] uppercase text-ink/45 sm:mt-2">
+              <span
+                className="font-sans text-[0.62rem] font-medium tracking-[0.3em] uppercase text-stone sm:mt-2"
+                style={{ textIndent: "0.3em" }}
+              >
                 {ev.day}
               </span>
-              <span className="hidden sm:block sm:mt-4">{DAY_ART[i % DAY_ART.length]}</span>
             </div>
             <div>
-              <h2 className="font-heading text-4xl sm:text-5xl leading-tight group-hover:text-verde transition-colors duration-500">
+              <h2 className="font-heading text-4xl sm:text-5xl leading-tight group-hover:text-stone transition-colors duration-500">
                 {ev.title}
               </h2>
               <p className="mt-3 italic text-lg text-ink/55">{ev.timeLabel}</p>
@@ -77,16 +68,16 @@ export default function SchedulePage() {
                 href={googleCalendarUrl(ev)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block mt-6 text-[0.72rem] tracking-[0.3em] uppercase text-ink/60 border-b border-gold/50 pb-1 hover:text-verde hover:border-gold transition-colors"
+                className="dash-link mt-6"
               >
-                + Add to Google Calendar
+                Add to Google Calendar
               </a>
             </div>
           </Reveal>
         ))}
       </div>
 
-      <OrnamentRule className="mt-10" />
+      <div className="hairline mt-10" />
 
       {/* Getting there */}
       <div className="mt-24">
@@ -111,7 +102,7 @@ export default function SchedulePage() {
               />
             </div>
           </div>
-          <p className="mt-4 text-center italic text-lg text-ink/55">
+          <p className="photo-caption justify-center font-heading text-xl text-stone">
             Villa Sostaga, Gargnano — sul Lago di Garda
           </p>
         </Reveal>

@@ -197,7 +197,7 @@ export default function AdminPage() {
           {authError && <p className="text-terracotta">{authError}</p>}
           <button
             type="submit"
-            className="w-full font-pixel text-sm px-6 py-4 rounded-xl bg-sage text-cream hover:bg-sage-dark transition-colors cursor-pointer"
+            className="w-full font-pixel text-sm px-6 py-4 rounded-xl bg-verde text-cream hover:bg-verde-deep transition-colors cursor-pointer"
           >
             Unlock
           </button>
@@ -238,7 +238,7 @@ export default function AdminPage() {
           </button>
           <button
             onClick={exportCsv}
-            className="font-pixel text-xs px-4 py-2.5 rounded-full bg-sage text-cream hover:bg-sage-dark cursor-pointer"
+            className="font-pixel text-xs px-4 py-2.5 rounded-full bg-verde text-cream hover:bg-verde-deep cursor-pointer"
           >
             ⤓ Export CSV
           </button>
@@ -265,7 +265,7 @@ export default function AdminPage() {
         </div>
         <button
           onClick={() => void addParty()}
-          className="mt-4 font-pixel text-sm px-6 py-3 rounded-full bg-sage text-cream hover:bg-sage-dark cursor-pointer"
+          className="mt-4 font-pixel text-sm px-6 py-3 rounded-full bg-verde text-cream hover:bg-verde-deep cursor-pointer"
         >
           + Add party
         </button>

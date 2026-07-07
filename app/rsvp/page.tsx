@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import CharacterBuilder from "@/components/CharacterBuilder";
 import CharacterSprite from "@/components/CharacterSprite";
-import { Monogram, LemonSprig, OrnamentRule } from "@/components/decor";
+import { LogoMark } from "@/components/decor/Logo";
 import { mockLookup, mockSubmit } from "@/lib/mock";
 import { normalizeCharacter, type CharacterConfig } from "@/lib/pixel/sprites";
 import type { PartyWithGuests, RsvpSubmission } from "@/lib/types";
@@ -189,11 +189,11 @@ export default function RsvpPage() {
             : "Thank you for letting us know — your message means a lot."}
         </p>
         {anyone && (
-          <p className="mt-3 text-lg italic text-verde">
+          <p className="mt-3 font-heading text-lg italic text-stone">
             Ci vediamo sul lago — see you on the lake.
           </p>
         )}
-        <OrnamentRule className="mt-10" />
+        <div className="hairline max-w-16 mx-auto mt-10" />
         {usedMock && (
           <p className="mt-4 text-ink/45 text-base">
             (Demo mode: saved locally in your browser — connect Supabase to collect real RSVPs.)
@@ -217,17 +217,16 @@ export default function RsvpPage() {
   if (step === "lookup") {
     return (
       <div className="max-w-xl mx-auto px-4 py-24 text-center">
-        <div className="flex justify-center text-verde">
-          <Monogram size={48} />
+        <div className="flex justify-center">
+          <LogoMark size={40} className="text-gold" />
         </div>
         <p className="eyebrow eyebrow-rule mt-8">Ci sarete?</p>
-        <h1 className="font-heading text-6xl sm:text-7xl mt-6">R·S·V·P</h1>
-        <p className="mt-8 text-xl italic text-ink/60 max-w-md mx-auto">
+        <h1 className="font-heading text-6xl sm:text-7xl mt-6">R.S.V.P.</h1>
+        <p className="mt-8 font-heading text-xl italic text-stone max-w-md mx-auto">
           Scrivete il vostro nome — enter your full name as it appears on your invitation,
           and we&apos;ll find your party.
         </p>
-        <div className="tile-frame relative !bg-parchment mt-14 px-6 sm:px-10 pt-10 pb-12">
-          <LemonSprig width={64} className="absolute -top-7 left-4 -rotate-6" />
+        <div className="mt-14 px-2">
           <form onSubmit={lookup} className="space-y-8">
             <input
               required
@@ -268,7 +267,7 @@ export default function RsvpPage() {
       <div className="text-center">
         <p className="eyebrow eyebrow-rule">Il vostro invito</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">
-          <span className="display-italic text-verde">Benvenuti,</span> {party?.name}
+          <span className="display-italic text-stone">Benvenuti,</span> {party?.name}
         </h1>
         <p className="mt-6 text-xl italic text-ink/60 max-w-2xl mx-auto">
           Let us know who&apos;s joining us — and design the pixel character that will
