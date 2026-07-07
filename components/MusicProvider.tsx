@@ -91,9 +91,15 @@ export function MusicToggle({ className = "" }: { className?: string }) {
       onClick={toggle}
       aria-label={enabled ? "Mute music" : "Play music"}
       title={enabled ? "Mute music" : "Play music"}
-      className={`text-[0.68rem] tracking-[0.25em] uppercase px-4 py-2 rounded-full border border-ink/20 bg-cream/80 hover:border-ink/60 transition-colors cursor-pointer ${className}`}
+      className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-gold/50 bg-cream/85 text-ink/80 hover:border-gold hover:text-ink transition-colors cursor-pointer ${className}`}
     >
-      {enabled ? "♪ On" : "♪ Off"}
+      <span className="text-base leading-none">♪</span>
+      {!enabled && (
+        <span
+          aria-hidden="true"
+          className="absolute h-px w-6 rotate-45 bg-terracotta"
+        />
+      )}
     </button>
   );
 }

@@ -1,4 +1,5 @@
 import Reveal from "@/components/Reveal";
+import { OrnamentRule } from "@/components/decor";
 
 export const metadata = {
   title: "FAQ — Enid & Jason",
@@ -44,7 +45,9 @@ export default function FaqPage() {
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <Reveal className="text-center">
         <p className="eyebrow eyebrow-rule">Domande</p>
-        <h1 className="font-heading text-5xl sm:text-6xl mt-6">Questions</h1>
+        <h1 className="font-heading text-5xl sm:text-6xl mt-6">
+          Questions &amp; <span className="display-italic">answers</span>
+        </h1>
         <p className="mt-6 text-xl italic text-ink/60">
           Everything you might be wondering about the weekend.
         </p>
@@ -53,25 +56,27 @@ export default function FaqPage() {
       <div className="mt-16 border-t border-ink/10">
         {FAQS.map((f, i) => (
           <Reveal key={f.q} delay={Math.min(i * 60, 240)}>
-            <details className="group border-b border-ink/10">
-              <summary className="cursor-pointer list-none flex justify-between items-baseline gap-6 py-7">
-                <span className="font-heading text-2xl sm:text-[1.7rem] leading-snug group-hover:text-sage-dark transition-colors duration-500">
+            <details className="group border-b border-ink/10 open:bg-parchment/50 transition-colors duration-500">
+              <summary className="cursor-pointer list-none flex justify-between items-center gap-6 py-7 group-open:px-4 transition-[padding] duration-500">
+                <span className="font-heading text-2xl sm:text-[1.7rem] leading-snug group-hover:text-verde transition-colors duration-500">
                   {f.q}
                 </span>
-                <span className="font-heading text-2xl text-gold shrink-0 transition-transform duration-500 group-open:rotate-45">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/60 font-heading text-xl text-gold transition-transform duration-500 group-open:rotate-45">
                   +
                 </span>
               </summary>
-              <p className="pb-8 -mt-1 text-xl leading-relaxed text-ink/75 max-w-2xl">{f.a}</p>
+              <p className="pb-8 -mt-1 text-xl leading-relaxed text-ink/75 max-w-2xl group-open:px-4">
+                {f.a}
+              </p>
             </details>
           </Reveal>
         ))}
       </div>
 
       <Reveal className="text-center mt-14">
+        <OrnamentRule className="mb-8" />
         <p className="italic text-lg text-ink/55">
-          Something else on your mind? Write it in your RSVP message and we&apos;ll get back to
-          you.
+          Altre domande? Write it in your RSVP message — vi risponderemo presto.
         </p>
       </Reveal>
     </div>

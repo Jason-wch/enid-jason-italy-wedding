@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import CharacterBuilder from "@/components/CharacterBuilder";
 import CharacterSprite from "@/components/CharacterSprite";
+import { Monogram, LemonSprig, OrnamentRule } from "@/components/decor";
 import { mockLookup, mockSubmit } from "@/lib/mock";
 import { normalizeCharacter, type CharacterConfig } from "@/lib/pixel/sprites";
 import type { PartyWithGuests, RsvpSubmission } from "@/lib/types";
@@ -174,13 +175,25 @@ export default function RsvpPage() {
         )}
         <p className="eyebrow eyebrow-rule mt-12">{anyone ? "Evviva" : "Ci mancherai"}</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">
-          {anyone ? "Grazie mille!" : "We'll miss you"}
+          {anyone ? (
+            <>
+              Grazie <span className="display-italic">mille!</span>
+            </>
+          ) : (
+            "We'll miss you"
+          )}
         </h1>
         <p className="mt-8 text-xl italic text-ink/70 max-w-lg mx-auto">
           {anyone
             ? "Your RSVP is in — your characters have just arrived at the villa."
             : "Thank you for letting us know — your message means a lot."}
         </p>
+        {anyone && (
+          <p className="mt-3 text-lg italic text-verde">
+            Ci vediamo sul lago — see you on the lake.
+          </p>
+        )}
+        <OrnamentRule className="mt-10" />
         {usedMock && (
           <p className="mt-4 text-ink/45 text-base">
             (Demo mode: saved locally in your browser — connect Supabase to collect real RSVPs.)
@@ -203,38 +216,48 @@ export default function RsvpPage() {
   // -- Name lookup step ------------------------------------------------------
   if (step === "lookup") {
     return (
-      <div className="max-w-xl mx-auto px-4 py-28 text-center">
-        <p className="eyebrow eyebrow-rule">Ci sarete?</p>
-        <h1 className="font-heading text-6xl sm:text-7xl mt-6">RSVP</h1>
+      <div className="max-w-xl mx-auto px-4 py-24 text-center">
+        <div className="flex justify-center text-verde">
+          <Monogram size={48} />
+        </div>
+        <p className="eyebrow eyebrow-rule mt-8">Ci sarete?</p>
+        <h1 className="font-heading text-6xl sm:text-7xl mt-6">R·S·V·P</h1>
         <p className="mt-8 text-xl italic text-ink/60 max-w-md mx-auto">
-          Enter your full name as it appears on your invitation, and we&apos;ll find your
-          party.
+          Scrivete il vostro nome — enter your full name as it appears on your invitation,
+          and we&apos;ll find your party.
         </p>
-        <form onSubmit={lookup} className="mt-14 space-y-8">
-          <input
-            required
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (lookupStatus !== "idle") setLookupStatus("idle");
-            }}
-            className="input-line"
-            placeholder="e.g. Rosa Rossi"
-            autoFocus
-          />
-          {lookupStatus === "notfound" && (
-            <p className="text-terracotta italic">
-              We couldn&apos;t find that name. Please check the spelling (or try another name
-              in your party). Still stuck? Just reach out to Enid or Jason.
-            </p>
-          )}
-          {lookupStatus === "error" && (
-            <p className="text-terracotta italic">Something went wrong — please try again.</p>
-          )}
-          <button type="submit" disabled={lookupStatus === "searching"} className="btn btn-dark">
-            {lookupStatus === "searching" ? "Searching…" : "Find my invitation"}
-          </button>
-        </form>
+        <div className="tile-frame relative !bg-parchment mt-14 px-6 sm:px-10 pt-10 pb-12">
+          <LemonSprig width={64} className="absolute -top-7 left-4 -rotate-6" />
+          <form onSubmit={lookup} className="space-y-8">
+            <input
+              required
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (lookupStatus !== "idle") setLookupStatus("idle");
+              }}
+              className="input-line"
+              placeholder="e.g. Rosa Rossi"
+              autoFocus
+            />
+            {lookupStatus === "notfound" && (
+              <p className="text-terracotta italic">
+                We couldn&apos;t find that name. Please check the spelling (or try another
+                name in your party). Still stuck? Just reach out to Enid or Jason.
+              </p>
+            )}
+            {lookupStatus === "error" && (
+              <p className="text-terracotta italic">Something went wrong — please try again.</p>
+            )}
+            <button
+              type="submit"
+              disabled={lookupStatus === "searching"}
+              className="btn btn-terracotta"
+            >
+              {lookupStatus === "searching" ? "Cercando…" : "Find my invitation"}
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
@@ -243,8 +266,10 @@ export default function RsvpPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-24">
       <div className="text-center">
-        <p className="eyebrow eyebrow-rule">Benvenuti</p>
-        <h1 className="font-heading text-5xl sm:text-6xl mt-6">{party?.name}</h1>
+        <p className="eyebrow eyebrow-rule">Il vostro invito</p>
+        <h1 className="font-heading text-5xl sm:text-6xl mt-6">
+          <span className="display-italic text-verde">Benvenuti,</span> {party?.name}
+        </h1>
         <p className="mt-6 text-xl italic text-ink/60 max-w-2xl mx-auto">
           Let us know who&apos;s joining us — and design the pixel character that will
           represent each guest on our map (and in the welcome game!).
@@ -256,7 +281,7 @@ export default function RsvpPage() {
           const a = answers[g.id];
           const attending = a?.attending === "yes";
           return (
-            <div key={g.id} className="border-t border-ink/10 pt-10">
+            <div key={g.id} className="tile-frame px-5 sm:px-8 py-8">
               <div className="flex items-baseline justify-between gap-4 flex-wrap">
                 <h2 className="font-heading text-3xl sm:text-4xl">{g.full_name}</h2>
                 <div className="flex gap-3">
@@ -330,7 +355,7 @@ export default function RsvpPage() {
           );
         })}
 
-        <div className="border-t border-ink/10 pt-10">
+        <div className="tile-frame px-5 sm:px-8 py-8">
           <label className={label}>Message for the couple</label>
           <textarea
             value={message}
@@ -356,8 +381,8 @@ export default function RsvpPage() {
           >
             ← Not you?
           </button>
-          <button type="submit" disabled={saveStatus === "saving"} className="btn btn-dark">
-            {saveStatus === "saving" ? "Sending…" : "Send RSVP ♥"}
+          <button type="submit" disabled={saveStatus === "saving"} className="btn btn-terracotta">
+            {saveStatus === "saving" ? "Un momento…" : "Invia · Send RSVP ♥"}
           </button>
         </div>
       </form>
