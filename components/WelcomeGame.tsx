@@ -294,7 +294,7 @@ export default function WelcomeGame() {
 
   const touchBtn = (key: string, label: string, extra = "") => (
     <button
-      className={`font-pixel text-lg w-16 h-16 rounded-full border border-verde/60 bg-cream/90 text-verde-deep active:bg-verde active:text-cream select-none touch-none ${extra}`}
+      className={`font-pixel text-lg w-16 h-16 rounded-full border border-ink/30 bg-cream/90 text-ink active:bg-ink active:text-cream select-none touch-none ${extra}`}
       onPointerDown={(e) => {
         e.preventDefault();
         press(key, true);
@@ -309,40 +309,53 @@ export default function WelcomeGame() {
   );
 
   return (
-    <div className="fixed inset-0 bg-[#a9c3d6] flex items-center justify-center overflow-hidden">
+    <div
+      className="fixed inset-0 flex items-center justify-center overflow-hidden touch-none select-none"
+      style={{
+        // Letterbox bands read as sky (above) and deep water (below) on
+        // portrait screens where the 16:9 canvas can't fill the viewport.
+        background: "linear-gradient(to bottom, #a9c3d6 0 50%, #4d7690 50% 100%)",
+      }}
+    >
       <canvas
         ref={canvasRef}
         width={VIEW_W}
         height={VIEW_H}
-        className="pixelated w-full h-full object-contain"
+        className="pixelated w-full h-full object-contain touch-none"
       />
 
       {/* Title & instructions */}
-      <div className="absolute top-4 inset-x-0 flex flex-col items-center pointer-events-none px-4">
-        <div className="tile-frame px-6 py-4 text-center !bg-cream/95">
+      <div
+        className="absolute inset-x-0 flex flex-col items-center pointer-events-none px-4"
+        style={{ top: "max(1rem, env(safe-area-inset-top))" }}
+      >
+        <div className="tile-frame max-w-[76vw] px-4 sm:px-6 py-3 sm:py-4 text-center !bg-cream/95">
           <div className="flex justify-center text-gold">
             <LogoMark size={26} />
           </div>
-          <h1 className="font-pixel text-center text-sm sm:text-base text-ink mt-2">
+          <h1 className="font-pixel text-center text-xs sm:text-base text-ink mt-2">
             Enid &amp; Jason
           </h1>
           <p
-            className="font-sans text-center text-[0.6rem] font-medium tracking-[0.25em] uppercase mt-1 text-stone"
+            className="font-sans text-center text-[0.55rem] sm:text-[0.6rem] font-medium tracking-[0.25em] uppercase mt-1 text-stone"
             style={{ textIndent: "0.25em" }}
           >
             23–25 April 2027 · {WEDDING.venue}
           </p>
         </div>
         {!arrived && (
-          <p className="text-center italic text-sm sm:text-base mt-4 text-ink/80 bg-cream/80 rounded-full px-5 py-2 max-w-md">
+          <p className="text-center italic text-sm sm:text-base mt-3 sm:mt-4 text-ink/80 bg-cream/80 rounded-2xl px-5 py-2 max-w-[92vw] sm:max-w-md">
             Cammina verso il lago — walk right into Lake Garda →
-            <span className="not-italic block text-[0.62rem] tracking-[0.2em] uppercase mt-1 text-ink/55">
+            <span className="not-italic hidden pointer-fine:block text-[0.62rem] tracking-[0.2em] uppercase mt-1 text-ink/55">
               arrow keys / WASD · space to jump
+            </span>
+            <span className="not-italic hidden pointer-coarse:block text-[0.62rem] tracking-[0.2em] uppercase mt-1 text-ink/55">
+              use the buttons below · ▲ to jump
             </span>
           </p>
         )}
         {arrived && (
-          <p className="font-pixel text-center text-xs sm:text-base mt-6 text-verde-deep bg-cream/95 border border-gold/50 rounded px-5 py-3 animate-float-slow">
+          <p className="font-pixel text-center text-xs sm:text-base mt-4 sm:mt-6 text-ink bg-cream/95 border border-ink/20 px-5 py-3 max-w-[92vw] animate-float-slow">
             Benvenuti! Welcome to our wedding ♥
           </p>
         )}
@@ -354,13 +367,24 @@ export default function WelcomeGame() {
           window.localStorage.setItem("ej-visited", "1");
           router.push("/home");
         }}
-        className="absolute top-3 right-3 text-[0.72rem] tracking-[0.25em] uppercase px-4 py-2 rounded-full border border-ink/25 bg-cream/90 hover:border-ink hover:text-ink cursor-pointer transition-colors"
+        className="absolute font-sans text-[0.66rem] font-medium tracking-[0.25em] uppercase px-4 py-2.5 rounded-full border border-ink/25 bg-cream/90 hover:border-ink hover:text-ink cursor-pointer transition-colors"
+        style={{
+          top: "max(0.75rem, env(safe-area-inset-top))",
+          right: "max(0.75rem, env(safe-area-inset-right))",
+        }}
       >
         Salta →
       </button>
 
-      {/* Touch controls */}
-      <div className="absolute bottom-5 inset-x-0 flex justify-between px-6 sm:hidden">
+      {/* Touch controls — any touch-primary device (phones AND tablets) */}
+      <div
+        className="absolute inset-x-0 bottom-0 hidden pointer-coarse:flex justify-between items-end px-6"
+        style={{
+          paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))",
+          paddingLeft: "max(1.5rem, env(safe-area-inset-left))",
+          paddingRight: "max(1.5rem, env(safe-area-inset-right))",
+        }}
+      >
         <div className="flex gap-3">
           {touchBtn("touch-left", "◀")}
           {touchBtn("touch-right", "▶")}

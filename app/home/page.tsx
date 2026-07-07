@@ -13,7 +13,7 @@ export default function HomePage() {
   return (
     <div>
       {/* Hero — full-bleed photograph, statement bottom-left */}
-      <section className="relative h-[88vh] min-h-[540px] overflow-hidden">
+      <section className="relative h-[88svh] min-h-[540px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
             src="/images/hero.png"

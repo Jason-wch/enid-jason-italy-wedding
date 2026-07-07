@@ -192,15 +192,21 @@ export default function GuestMap() {
           </span>
         )}
       </div>
-      {/* Simple gallery mat */}
+      {/* Simple gallery mat. On phones the full map would be unreadably
+          small, so it keeps a minimum size and pans horizontally. */}
       <div className="tile-frame p-2 sm:p-3">
-        <canvas
-          ref={canvasRef}
-          width={MAP_W}
-          height={MAP_H}
-          className="pixelated w-full h-auto block"
-        />
+        <div className="overflow-x-auto overscroll-x-contain">
+          <canvas
+            ref={canvasRef}
+            width={MAP_W}
+            height={MAP_H}
+            className="pixelated block h-auto w-full min-w-[640px] sm:min-w-0"
+          />
+        </div>
       </div>
+      <p className="sm:hidden text-center font-sans text-[0.58rem] font-medium tracking-[0.22em] uppercase text-ink/40 mt-3">
+        Swipe to explore the garden →
+      </p>
     </div>
   );
 }

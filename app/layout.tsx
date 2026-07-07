@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { MusicProvider } from "@/components/MusicProvider";
 import SiteChrome from "@/components/SiteChrome";
@@ -7,6 +7,14 @@ export const metadata: Metadata = {
   title: "Enid & Jason — Lake Garda, 23–25 April 2027",
   description:
     "Join Enid & Jason at Villa Sostaga Boutique Hotel on Lake Garda, Italy, 23–25 April 2027. RSVP, build your pixel character, and find all the wedding details.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  // Lets the game and touch controls extend into notch/home-indicator areas
+  // using env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
