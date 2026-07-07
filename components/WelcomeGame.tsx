@@ -22,9 +22,12 @@ import {
   drawBush,
   drawCloud,
   drawCypress,
+  drawFloatingIsland,
   drawGrass,
+  drawLadder,
   drawLemonTree,
   drawMountains,
+  drawMushroom,
   drawOliveTree,
   drawPath,
   drawPergola,
@@ -32,6 +35,7 @@ import {
   drawSky,
   drawSun,
   drawTerraceWall,
+  drawTree,
   drawVilla,
   drawWater,
   PALETTE,
@@ -201,49 +205,59 @@ export default function WelcomeGame() {
       const cam = Math.max(0, Math.min(WORLD_W - VIEW_W, player.x - VIEW_W * 0.38));
 
       // --- draw ---
-      // the player walks toward a sunset hanging over the lake
-      const sunScreenX = 1100 - cam * 0.1;
+      const sunScreenX = 800 - cam * 0.06;
       const sunWorldX = sunScreenX + cam;
 
       ctx.imageSmoothingEnabled = false;
       drawSky(ctx, VIEW_W, VIEW_H);
-      drawSun(ctx, sunScreenX, 240, 38);
+      drawSun(ctx, sunScreenX, 78, 30);
       drawBirds(ctx, 320 - cam * 0.15, 96, t);
       drawBirds(ctx, 760 - cam * 0.15, 140, t);
-      drawCloud(ctx, 120 - cam * 0.2, 70, 12);
-      drawCloud(ctx, 520 - cam * 0.2, 120, 9);
-      drawCloud(ctx, 980 - cam * 0.2, 60, 11);
-      drawCloud(ctx, 1600 - cam * 0.2, 100, 10);
-      drawMountains(ctx, VIEW_W, 300, -cam * 0.35, true);
-      drawMountains(ctx, VIEW_W, 340, -cam * 0.55, false);
+      // big puffy clouds
+      drawCloud(ctx, 90 - cam * 0.2, 58, 15);
+      drawCloud(ctx, 470 - cam * 0.2, 120, 11);
+      drawCloud(ctx, 900 - cam * 0.2, 48, 13);
+      drawCloud(ctx, 1420 - cam * 0.2, 96, 12);
+      // floating grass islands drifting in the sky
+      drawFloatingIsland(ctx, 300 - cam * 0.3, 128, 150);
+      drawLadder(ctx, 292 - cam * 0.3, 140, 52);
+      drawMushroom(ctx, 340 - cam * 0.3, 128, 1.2);
+      drawFloatingIsland(ctx, 820 - cam * 0.3, 84, 116);
+      drawTree(ctx, 820 - cam * 0.3, 84, 0.62);
+      drawFloatingIsland(ctx, 1280 - cam * 0.3, 150, 96);
+      // hazy blue ridges + rolling green hills
+      drawMountains(ctx, VIEW_W, 306, -cam * 0.35, true);
+      drawMountains(ctx, VIEW_W, 348, -cam * 0.55, false);
 
       // distant lake strip behind everything (it IS Lake Garda country)
-      drawWater(ctx, 0, 340, VIEW_W, 40, t, sunScreenX);
+      drawWater(ctx, 0, 352, VIEW_W, 32, t, sunScreenX);
 
       ctx.save();
       ctx.translate(-cam, 0);
 
-      // ground: grass until the lake shore, then water
+      // ground: grass over soil until the lake shore, then water
       drawGrass(ctx, 0, GROUND_Y, LAKE_X + 60, VIEW_H - GROUND_Y);
-      drawPath(ctx, 0, GROUND_Y + 14, LAKE_X + 20, 26);
+      drawPath(ctx, 0, GROUND_Y + 18, LAKE_X + 20, 24);
       // shore slope
       ctx.fillStyle = PALETTE.path;
       ctx.fillRect(LAKE_X + 20, GROUND_Y, 40, VIEW_H - GROUND_Y);
       drawWater(ctx, LAKE_X + 60, GROUND_Y + 16, WORLD_W - LAKE_X - 60 + VIEW_W, VIEW_H - GROUND_Y - 16, t, sunWorldX);
 
-      // scenery along the way: cypress avenue, lemon grove terrace, the villa,
-      // a wisteria pergola with festoon lights, then down to the shore
-      drawCypress(ctx, 120, GROUND_Y, 120);
-      drawSign(ctx, 180, GROUND_Y, "VILLA SOSTAGA >");
+      // scenery along the way: big trees, mushrooms, the lemon terrace,
+      // the villa, a wisteria pergola, then down to the shore
+      drawTree(ctx, 105, GROUND_Y, 1.15);
+      drawMushroom(ctx, 158, GROUND_Y, 1.15);
+      drawSign(ctx, 205, GROUND_Y, "VILLA SOSTAGA");
       drawTerraceWall(ctx, 255, GROUND_Y - 10, 180);
       drawLemonTree(ctx, 300, GROUND_Y - 10, 2);
       drawLemonTree(ctx, 375, GROUND_Y - 10, 2);
-      drawOliveTree(ctx, 445, GROUND_Y, 2);
+      drawOliveTree(ctx, 448, GROUND_Y, 2);
       drawVilla(ctx, 500, GROUND_Y, 1);
       drawPergola(ctx, 705, GROUND_Y, 130);
-      drawBush(ctx, 760, GROUND_Y, 26);
-      drawSign(ctx, 862, GROUND_Y, "LAGO DI GARDA >");
-      drawCypress(ctx, 895, GROUND_Y, 100);
+      drawBush(ctx, 758, GROUND_Y, 22);
+      drawMushroom(ctx, 800, GROUND_Y, 0.95);
+      drawSign(ctx, 858, GROUND_Y, "LAGO DI GARDA");
+      drawCypress(ctx, 896, GROUND_Y, 100);
       drawBoat(ctx, 1150, GROUND_Y + 24, t);
 
       // player (half-submerged when in the lake)
@@ -294,7 +308,7 @@ export default function WelcomeGame() {
 
   const touchBtn = (key: string, label: string, extra = "") => (
     <button
-      className={`font-pixel text-lg w-16 h-16 rounded-full border border-ink/30 bg-cream/90 text-ink active:bg-ink active:text-cream select-none touch-none ${extra}`}
+      className={`font-sans text-xl font-medium w-16 h-16 rounded-full bg-white/95 text-ink shadow-[0_6px_20px_-6px_rgba(20,50,80,0.45)] border border-black/5 active:scale-95 active:bg-sky-100 transition-transform select-none touch-none ${extra}`}
       onPointerDown={(e) => {
         e.preventDefault();
         press(key, true);
@@ -314,7 +328,7 @@ export default function WelcomeGame() {
       style={{
         // Letterbox bands read as sky (above) and deep water (below) on
         // portrait screens where the 16:9 canvas can't fill the viewport.
-        background: "linear-gradient(to bottom, #a9c3d6 0 50%, #4d7690 50% 100%)",
+        background: "linear-gradient(to bottom, #4fb3ef 0 50%, #2a7cc2 50% 100%)",
       }}
     >
       <canvas
@@ -329,7 +343,7 @@ export default function WelcomeGame() {
         className="absolute inset-x-0 flex flex-col items-center pointer-events-none px-4"
         style={{ top: "max(1rem, env(safe-area-inset-top))" }}
       >
-        <div className="tile-frame max-w-[76vw] px-4 sm:px-6 py-3 sm:py-4 text-center !bg-cream/95">
+        <div className="max-w-[76vw] px-5 sm:px-7 py-3 sm:py-4 text-center rounded-2xl bg-white/95 shadow-[0_10px_36px_-12px_rgba(20,50,80,0.45)] border border-black/5">
           <div className="flex justify-center text-gold">
             <LogoMark size={26} />
           </div>
@@ -344,18 +358,18 @@ export default function WelcomeGame() {
           </p>
         </div>
         {!arrived && (
-          <p className="text-center italic text-sm sm:text-base mt-3 sm:mt-4 text-ink/80 bg-cream/80 rounded-2xl px-5 py-2 max-w-[92vw] sm:max-w-md">
+          <p className="text-center italic text-sm sm:text-base mt-3 sm:mt-4 text-ink/85 bg-white/85 rounded-full shadow-[0_8px_24px_-10px_rgba(20,50,80,0.4)] px-6 py-2.5 max-w-[92vw] sm:max-w-md">
             Cammina verso il lago — walk right into Lake Garda →
-            <span className="not-italic hidden pointer-fine:block text-[0.62rem] tracking-[0.2em] uppercase mt-1 text-ink/55">
+            <span className="not-italic hidden pointer-fine:block font-sans text-[0.6rem] font-medium tracking-[0.2em] uppercase mt-1 text-stone">
               arrow keys / WASD · space to jump
             </span>
-            <span className="not-italic hidden pointer-coarse:block text-[0.62rem] tracking-[0.2em] uppercase mt-1 text-ink/55">
+            <span className="not-italic hidden pointer-coarse:block font-sans text-[0.6rem] font-medium tracking-[0.2em] uppercase mt-1 text-stone">
               use the buttons below · ▲ to jump
             </span>
           </p>
         )}
         {arrived && (
-          <p className="font-pixel text-center text-xs sm:text-base mt-4 sm:mt-6 text-ink bg-cream/95 border border-ink/20 px-5 py-3 max-w-[92vw] animate-float-slow">
+          <p className="font-pixel text-center text-xs sm:text-base mt-4 sm:mt-6 text-ink bg-white/95 rounded-2xl shadow-[0_10px_36px_-12px_rgba(20,50,80,0.45)] border border-black/5 px-6 py-3.5 max-w-[92vw] animate-float-slow">
             Benvenuti! Welcome to our wedding ♥
           </p>
         )}
@@ -367,7 +381,7 @@ export default function WelcomeGame() {
           window.localStorage.setItem("ej-visited", "1");
           router.push("/home");
         }}
-        className="absolute font-sans text-[0.66rem] font-medium tracking-[0.25em] uppercase px-4 py-2.5 rounded-full border border-ink/25 bg-cream/90 hover:border-ink hover:text-ink cursor-pointer transition-colors"
+        className="absolute font-sans text-[0.66rem] font-medium tracking-[0.25em] uppercase px-5 py-2.5 rounded-full bg-white/95 text-ink shadow-[0_8px_24px_-10px_rgba(20,50,80,0.45)] border border-black/5 hover:bg-white cursor-pointer transition-colors"
         style={{
           top: "max(0.75rem, env(safe-area-inset-top))",
           right: "max(0.75rem, env(safe-area-inset-right))",

@@ -23,15 +23,19 @@ import {
   drawBush,
   drawCloud,
   drawCypress,
+  drawFloatingIsland,
   drawGrass,
+  drawLadder,
   drawLemonTree,
   drawMountains,
+  drawMushroom,
   drawOliveTree,
   drawPath,
   drawPergola,
   drawSky,
   drawSun,
   drawTerraceWall,
+  drawTree,
   drawVilla,
   drawWater,
 } from "@/lib/pixel/scenery";
@@ -109,22 +113,26 @@ export default function GuestMap() {
     const render = (t: number) => {
       ctx.imageSmoothingEnabled = false;
 
-      const sunX = MAP_W - 160;
+      const sunX = MAP_W - 170;
       drawSky(ctx, MAP_W, 360);
-      drawSun(ctx, sunX, 100, 32);
+      drawSun(ctx, sunX, 76, 30);
       drawBirds(ctx, 240, 70, t);
-      drawCloud(ctx, 90, 60, 10);
-      drawCloud(ctx, 460, 110, 8);
-      drawCloud(ctx, 820, 50, 12);
-      drawMountains(ctx, MAP_W, 300, 0, true);
-      drawMountains(ctx, MAP_W, 330, 60, false);
-      drawWater(ctx, 0, 330, MAP_W, 40, t, sunX);
+      // puffy clouds + a floating island drifting over the garden
+      drawCloud(ctx, 80, 52, 13);
+      drawCloud(ctx, 450, 112, 9);
+      drawCloud(ctx, 800, 40, 12);
+      drawFloatingIsland(ctx, 620, 96, 130);
+      drawLadder(ctx, 612, 108, 46);
+      drawMushroom(ctx, 655, 96, 1);
+      drawMountains(ctx, MAP_W, 306, 0, true);
+      drawMountains(ctx, MAP_W, 340, 60, false);
+      drawWater(ctx, 0, 344, MAP_W, 26, t, sunX);
 
-      // gardens
+      // gardens — grass over soil
       drawGrass(ctx, 0, 370, MAP_W, MAP_H - 370);
       // lake inlet on the right
       drawWater(ctx, MAP_W - 240, 430, 240, MAP_H - 430, t, sunX);
-      ctx.fillStyle = "#dcc79d";
+      ctx.fillStyle = "#e0c089";
       ctx.fillRect(MAP_W - 252, 430, 12, MAP_H - 430);
       drawBoat(ctx, MAP_W - 120, 480, t);
 
@@ -133,14 +141,15 @@ export default function GuestMap() {
       drawPath(ctx, 0, 372, MAP_W - 240, 20);
       drawPergola(ctx, 315, 372, 120);
       drawLemonTree(ctx, 495, 366, 2);
-      drawCypress(ctx, 555, 372, 100);
+      drawTree(ctx, 570, 372, 1.05);
       drawOliveTree(ctx, 700, 372, 2);
+      drawMushroom(ctx, 655, 372, 1);
       drawCypress(ctx, 620, 372, 110);
-      drawCypress(ctx, 900, 372, 95);
+      drawTree(ctx, 905, 372, 0.9);
       drawTerraceWall(ctx, 740, 384, 160);
       drawBush(ctx, 450, 372, 18);
       drawBush(ctx, 760, 372, 22);
-      drawBush(ctx, 1020, 372, 18);
+      drawMushroom(ctx, 1020, 372, 1.1);
 
       // guests, sorted by y so lower characters draw in front
       const guests = [...guestsRef.current].sort((a, b) => guestPos(a).y - guestPos(b).y);
@@ -159,18 +168,24 @@ export default function GuestMap() {
           blink: Math.floor(t / 190 + seed) % 24 === 0,
         });
 
-        // name tag
+        // name tag — rounded navy pill, like an MMO nametag
         const label = g.name.length > 14 ? `${g.name.slice(0, 13)}…` : g.name;
-        ctx.font = "500 12px 'Cormorant', Georgia, serif";
+        ctx.font = "500 11px 'Inter', sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        const tw = ctx.measureText(label).width + 10;
+        const tw = ctx.measureText(label).width + 14;
         const tx = x + CHAR_W / 2;
         const ty = y + bob - 12;
-        ctx.fillStyle = "rgba(37, 46, 32, 0.78)";
-        ctx.fillRect(tx - tw / 2, ty - 8, tw, 16);
-        ctx.fillStyle = "#f9f5ea";
-        ctx.fillText(label, tx, ty + 1);
+        ctx.fillStyle = "rgba(23, 42, 63, 0.85)";
+        ctx.beginPath();
+        if (typeof ctx.roundRect === "function") {
+          ctx.roundRect(tx - tw / 2, ty - 9, tw, 18, 9);
+        } else {
+          ctx.rect(tx - tw / 2, ty - 9, tw, 18);
+        }
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(label, tx, ty + 0.5);
       }
 
       raf = requestAnimationFrame(render);
@@ -183,19 +198,19 @@ export default function GuestMap() {
   return (
     <div>
       <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
-        <span className="font-pixel text-xs text-ink/70 border border-ink/20 px-4 py-2">
+        <span className="font-pixel text-xs text-ink bg-white rounded-full shadow-[0_6px_20px_-8px_rgba(20,50,80,0.35)] border border-black/5 px-5 py-2.5">
           {guestCount === null ? "Loading guests…" : `${guestCount} ospit${guestCount === 1 ? "e" : "i"} alla villa`}
         </span>
         {demoMode && (
-          <span className="font-pixel text-xs text-ink/45 bg-parchment px-4 py-2">
+          <span className="font-pixel text-xs text-stone bg-parchment rounded-full px-5 py-2.5">
             Demo mode — connect Supabase for live data
           </span>
         )}
       </div>
-      {/* Simple gallery mat. On phones the full map would be unreadably
+      {/* Rounded game frame. On phones the full map would be unreadably
           small, so it keeps a minimum size and pans horizontally. */}
-      <div className="tile-frame p-2 sm:p-3">
-        <div className="overflow-x-auto overscroll-x-contain">
+      <div className="rounded-2xl bg-white p-2 sm:p-3 shadow-[0_24px_60px_-24px_rgba(20,50,80,0.4)] border border-black/5">
+        <div className="overflow-x-auto overscroll-x-contain rounded-xl">
           <canvas
             ref={canvasRef}
             width={MAP_W}

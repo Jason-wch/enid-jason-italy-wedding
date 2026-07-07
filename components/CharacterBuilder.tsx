@@ -105,9 +105,9 @@ export default function CharacterBuilder({ value, onChange }: Props) {
         </button>
       </div>
 
-      {/* Golden-hour arched niche, like a little fresco */}
+      {/* Bright sky niche matching the game and guest map */}
       <div className="flex justify-center my-5">
-        <div className="arch flex items-end justify-center bg-gradient-to-b from-[#f2d3a0] via-[#ecd9b4] to-sage/25 px-14 pt-12 pb-5 border border-ink/15">
+        <div className="arch flex items-end justify-center bg-gradient-to-b from-[#4fb3ef] via-[#8ed3f7] to-[#7cc94f] px-14 pt-12 pb-5 shadow-[inset_0_2px_10px_rgba(20,50,80,0.15)]">
           <CharacterSprite config={value} scale={7} />
         </div>
       </div>
