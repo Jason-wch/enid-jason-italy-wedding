@@ -6,7 +6,7 @@ import SiteChrome from "@/components/SiteChrome";
 export const metadata: Metadata = {
   title: "Enid & Jason — Lake Garda, 23–25 April 2027",
   description:
-    "Join Enid & Jason at Villa Sostaga Boutique Hotel on Lake Garda, Italy, 23–25 April 2027. RSVP, build your pixel character, and find all the wedding details.",
+    "Join Enid & Jason at Villa Sostaga Boutique Hotel on Lake Garda, Italy, 23–25 April 2027. RSVP, build your MapleStory-style character, and find all the wedding details.",
 };
 
 export const viewport: Viewport = {

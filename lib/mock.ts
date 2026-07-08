@@ -7,7 +7,7 @@
  */
 
 import { normalizeName } from "@/lib/names";
-import { DEFAULT_CHARACTER } from "@/lib/pixel/sprites";
+import { DEFAULT_CHARACTER } from "@/lib/maple/characters";
 import type {
   GuestChar,
   Guest,

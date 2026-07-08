@@ -4,7 +4,7 @@ export const metadata = {
   title: "Dress Code — Enid & Jason",
 };
 
-/* Kept in sync with OUTFIT_COLORS in lib/pixel/sprites.ts. */
+/* Kept in sync with OUTFIT_COLORS in lib/maple/characters.ts. */
 const PALETTE_SWATCHES = [
   { name: "Ivory", hex: "#f2ead8" },
   { name: "Sage", hex: "#97a383" },
@@ -58,7 +58,7 @@ export default function DressCodePage() {
           <div>
             <p className="body-sans">
               Wear whatever colours make you feel great — but if you&apos;d like to match the
-              scenery (and your pixel character!), here&apos;s our palette:
+              scenery (and your character!), here&apos;s our palette:
             </p>
             <div className="flex gap-5 flex-wrap mt-8">
               {PALETTE_SWATCHES.map((s) => (

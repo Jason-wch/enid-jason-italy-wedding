@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { getServerSupabase, isSupabaseConfigured } from "@/lib/supabaseServer";
-import { normalizeCharacter } from "@/lib/pixel/sprites";
+import { normalizeCharacter } from "@/lib/maple/characters";
 
 /**
  * Submit RSVPs for a whole party. Updates each guest row in the party with
- * their attending status, dietary needs and pixel character, and stores the
+ * their attending status, dietary needs and character, and stores the
  * party's message. Validates that every guest belongs to the given party.
  */
 export async function POST(req: Request) {

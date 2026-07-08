@@ -1,9 +1,10 @@
 "use client";
 
 /**
- * Welcome minigame: a MapleStory-style side-scroller. Walk (and jump) your
- * pixel character past cypress trees and Villa Sostaga, and dive into
- * Lake Garda to enter the wedding website.
+ * Welcome minigame: a MapleStory-style side-scroller in smooth vector art.
+ * Walk (and jump) your chibi character down Villa Sostaga's gravel drive,
+ * past the yellow villa and the gazebo terrace, and dive into Lake Garda
+ * to enter the wedding website.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -15,31 +16,28 @@ import {
   SPRITE_H,
   SPRITE_W,
   type CharacterConfig,
-} from "@/lib/pixel/sprites";
+} from "@/lib/maple/characters";
 import {
   drawBirds,
   drawBoat,
-  drawBush,
   drawCloud,
   drawCypress,
+  drawFlowerBed,
   drawFloatingIsland,
+  drawGazebo,
   drawGrass,
   drawLadder,
-  drawLemonTree,
   drawMountains,
   drawMushroom,
   drawOliveTree,
-  drawPath,
-  drawPergola,
   drawSign,
   drawSky,
   drawSun,
-  drawTerraceWall,
   drawTree,
   drawVilla,
   drawWater,
   PALETTE,
-} from "@/lib/pixel/scenery";
+} from "@/lib/maple/scenery";
 import { WEDDING } from "@/lib/wedding";
 import { LogoMark } from "@/components/decor/Logo";
 
@@ -55,18 +53,65 @@ const CHAR_H = SPRITE_H * CHAR_SCALE;
 
 type Splash = { x: number; y: number; vx: number; vy: number; life: number };
 
+/** Pre-renders the static foreground strip (ground + scenery) once. */
+function buildForeground(res: number): HTMLCanvasElement {
+  const off = document.createElement("canvas");
+  off.width = WORLD_W * res;
+  off.height = VIEW_H * res;
+  const ctx = off.getContext("2d")!;
+  ctx.setTransform(res, 0, 0, res, 0, 0);
+
+  // ground: lawn until the shore, then open water (drawn live)
+  drawGrass(ctx, 0, GROUND_Y, LAKE_X + 60, VIEW_H - GROUND_Y);
+  // sandy slope into the lake
+  ctx.fillStyle = "#e0c089";
+  ctx.beginPath();
+  ctx.moveTo(LAKE_X + 18, GROUND_Y);
+  ctx.lineTo(LAKE_X + 60, GROUND_Y + 16);
+  ctx.lineTo(LAKE_X + 60, VIEW_H);
+  ctx.lineTo(LAKE_X + 18, VIEW_H);
+  ctx.closePath();
+  ctx.fill();
+
+  // the walk to the villa
+  drawCypress(ctx, 48, GROUND_Y, 120);
+  drawTree(ctx, 118, GROUND_Y, 1.0);
+  drawSign(ctx, 205, GROUND_Y, "VILLA SOSTAGA");
+  drawMushroom(ctx, 262, GROUND_Y, 1.0);
+  drawFlowerBed(ctx, 292, GROUND_Y, 58);
+  drawOliveTree(ctx, 385, GROUND_Y, 1.05);
+  drawCypress(ctx, 432, GROUND_Y, 104);
+
+  // the villa itself (draws its own porch, steps and potted olives)
+  drawVilla(ctx, 458, GROUND_Y, 0.95);
+
+  // gazebo terrace down to the shore
+  drawGazebo(ctx, 706, GROUND_Y, 0.82);
+  drawFlowerBed(ctx, 792, GROUND_Y, 46);
+  drawMushroom(ctx, 812, GROUND_Y, 0.85);
+  drawSign(ctx, 852, GROUND_Y, "LAKE GARDA");
+  drawCypress(ctx, 893, GROUND_Y, 92);
+
+  return off;
+}
+
 export default function WelcomeGame() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const keysRef = useRef<Set<string>>(new Set());
   const [arrived, setArrived] = useState(false);
-  const arrivedRef = useRef(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    // Render at up to 2x for crisp smooth vector art.
+    const RES = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+    canvas.width = VIEW_W * RES;
+    canvas.height = VIEW_H * RES;
+    const foreground = buildForeground(RES);
 
     let character: CharacterConfig = DEFAULT_CHARACTER;
     try {
@@ -83,8 +128,7 @@ export default function WelcomeGame() {
       onGround: true,
       facing: 1,
       moving: false,
-      frameTimer: 0,
-      walkFrame: false,
+      walkPhase: 0,
     };
     const splashes: Splash[] = [];
     let fade = 0;
@@ -147,7 +191,8 @@ export default function WelcomeGame() {
 
       const feetX = player.x + CHAR_W / 2;
       const inLake = feetX > LAKE_X + 40;
-      const floorY = inLake ? GROUND_Y + 26 : GROUND_Y;
+      const floorY = inLake ? GROUND_Y + 56 : GROUND_Y; // chest-deep in the lake
+      if (player.y < floorY - CHAR_H - 0.5) player.onGround = false; // walked off a ledge
       if (player.y >= floorY - CHAR_H) {
         if (!player.onGround && inLake && !finishing) {
           // splash on landing in water
@@ -167,18 +212,11 @@ export default function WelcomeGame() {
       }
 
       if (player.moving && player.onGround) {
-        player.frameTimer += dt * 16.667;
-        if (player.frameTimer > 130) {
-          player.frameTimer = 0;
-          player.walkFrame = !player.walkFrame;
-        }
-      } else {
-        player.walkFrame = false;
+        player.walkPhase += dt * 0.32;
       }
 
       if (!finishing && feetX >= ARRIVE_X) {
         finishing = true;
-        arrivedRef.current = true;
         setArrived(true);
         for (let i = 0; i < 40; i++) {
           splashes.push({
@@ -191,7 +229,7 @@ export default function WelcomeGame() {
         }
         setTimeout(finish, 2600);
       }
-      if (finishing) fade = Math.min(1, fade + 0.006 * dt * 16.667 * 0.06);
+      if (finishing) fade = Math.min(1, fade + 0.006 * dt);
 
       for (let i = splashes.length - 1; i >= 0; i--) {
         const s = splashes[i];
@@ -205,10 +243,12 @@ export default function WelcomeGame() {
       const cam = Math.max(0, Math.min(WORLD_W - VIEW_W, player.x - VIEW_W * 0.38));
 
       // --- draw ---
+      ctx.setTransform(RES, 0, 0, RES, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+
       const sunScreenX = 800 - cam * 0.06;
       const sunWorldX = sunScreenX + cam;
 
-      ctx.imageSmoothingEnabled = false;
       drawSky(ctx, VIEW_W, VIEW_H);
       drawSun(ctx, sunScreenX, 78, 30);
       drawBirds(ctx, 320 - cam * 0.15, 96, t);
@@ -221,64 +261,76 @@ export default function WelcomeGame() {
       // floating grass islands drifting in the sky
       drawFloatingIsland(ctx, 300 - cam * 0.3, 128, 150);
       drawLadder(ctx, 292 - cam * 0.3, 140, 52);
-      drawMushroom(ctx, 340 - cam * 0.3, 128, 1.2);
+      drawMushroom(ctx, 340 - cam * 0.3, 128, 1.1);
       drawFloatingIsland(ctx, 820 - cam * 0.3, 84, 116);
-      drawTree(ctx, 820 - cam * 0.3, 84, 0.62);
+      drawTree(ctx, 820 - cam * 0.3, 84, 0.6);
       drawFloatingIsland(ctx, 1280 - cam * 0.3, 150, 96);
-      // hazy blue ridges + rolling green hills
+      // hazy blue pre-Alps + rolling green hills
       drawMountains(ctx, VIEW_W, 306, -cam * 0.35, true);
       drawMountains(ctx, VIEW_W, 348, -cam * 0.55, false);
+      // the great lake behind the villa terrace — Villa Sostaga overlooks it
+      drawWater(ctx, 0, 352, VIEW_W, GROUND_Y - 352, t, sunScreenX);
 
-      // distant lake strip behind everything (it IS Lake Garda country)
-      drawWater(ctx, 0, 352, VIEW_W, 32, t, sunScreenX);
+      // pre-rendered foreground strip
+      ctx.drawImage(
+        foreground,
+        cam * RES,
+        0,
+        VIEW_W * RES,
+        VIEW_H * RES,
+        0,
+        0,
+        VIEW_W,
+        VIEW_H
+      );
 
       ctx.save();
       ctx.translate(-cam, 0);
 
-      // ground: grass over soil until the lake shore, then water
-      drawGrass(ctx, 0, GROUND_Y, LAKE_X + 60, VIEW_H - GROUND_Y);
-      drawPath(ctx, 0, GROUND_Y + 18, LAKE_X + 20, 24);
-      // shore slope
-      ctx.fillStyle = PALETTE.path;
-      ctx.fillRect(LAKE_X + 20, GROUND_Y, 40, VIEW_H - GROUND_Y);
-      drawWater(ctx, LAKE_X + 60, GROUND_Y + 16, WORLD_W - LAKE_X - 60 + VIEW_W, VIEW_H - GROUND_Y - 16, t, sunWorldX);
+      // animated lake water
+      drawWater(
+        ctx,
+        LAKE_X + 60,
+        GROUND_Y + 16,
+        WORLD_W - LAKE_X - 60 + VIEW_W,
+        VIEW_H - GROUND_Y - 16,
+        t,
+        sunWorldX
+      );
 
-      // scenery along the way: big trees, mushrooms, the lemon terrace,
-      // the villa, a wisteria pergola, then down to the shore
-      drawTree(ctx, 105, GROUND_Y, 1.15);
-      drawMushroom(ctx, 158, GROUND_Y, 1.15);
-      drawSign(ctx, 205, GROUND_Y, "VILLA SOSTAGA");
-      drawTerraceWall(ctx, 255, GROUND_Y - 10, 180);
-      drawLemonTree(ctx, 300, GROUND_Y - 10, 2);
-      drawLemonTree(ctx, 375, GROUND_Y - 10, 2);
-      drawOliveTree(ctx, 448, GROUND_Y, 2);
-      drawVilla(ctx, 500, GROUND_Y, 1);
-      drawPergola(ctx, 705, GROUND_Y, 130);
-      drawBush(ctx, 758, GROUND_Y, 22);
-      drawMushroom(ctx, 800, GROUND_Y, 0.95);
-      drawSign(ctx, 858, GROUND_Y, "LAKE GARDA");
-      drawCypress(ctx, 896, GROUND_Y, 100);
-      drawBoat(ctx, 1150, GROUND_Y + 24, t);
-
-      // player (half-submerged when in the lake)
+      // player (chest-deep once in the lake)
       const submerged = player.x + CHAR_W / 2 > LAKE_X + 60;
       drawCharacter(ctx, character, {
-        x: Math.round(player.x),
-        y: Math.round(player.y),
+        x: player.x,
+        y: player.y,
         scale: CHAR_SCALE,
-        frame: player.walkFrame ? "walk" : "stand",
+        frame: player.moving && player.onGround ? "walk" : "stand",
+        phase: player.walkPhase,
         flip: player.facing === -1,
         blink: Math.floor(t / 200) % 18 === 0,
+        shadow: player.onGround && !submerged,
       });
       if (submerged) {
-        drawWater(ctx, LAKE_X + 60, GROUND_Y + 40, WORLD_W - LAKE_X + VIEW_W, VIEW_H - GROUND_Y - 40, t);
+        // redraw the water surface over the body below the waterline
+        drawWater(
+          ctx,
+          LAKE_X + 60,
+          GROUND_Y + 16,
+          WORLD_W - LAKE_X + VIEW_W,
+          VIEW_H - GROUND_Y - 16,
+          t,
+          sunWorldX
+        );
       }
+      drawBoat(ctx, 1150, GROUND_Y + 34, t);
 
-      // splash particles
-      ctx.fillStyle = PALETTE.lakeShine;
+      // splash droplets
       for (const s of splashes) {
         ctx.globalAlpha = Math.max(0, s.life);
-        ctx.fillRect(s.x, s.y, 4, 4);
+        ctx.fillStyle = PALETTE.lakeShine;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
       }
       ctx.globalAlpha = 1;
 
@@ -328,14 +380,14 @@ export default function WelcomeGame() {
       style={{
         // Letterbox bands read as sky (above) and deep water (below) on
         // portrait screens where the 16:9 canvas can't fill the viewport.
-        background: "linear-gradient(to bottom, #4fb3ef 0 50%, #2a7cc2 50% 100%)",
+        background: "linear-gradient(to bottom, #57b6f2 0 50%, #1f6cb4 50% 100%)",
       }}
     >
       <canvas
         ref={canvasRef}
         width={VIEW_W}
         height={VIEW_H}
-        className="pixelated w-full h-full object-contain touch-none"
+        className="w-full h-full object-contain touch-none"
       />
 
       {/* Title & instructions */}
@@ -387,7 +439,7 @@ export default function WelcomeGame() {
           right: "max(0.75rem, env(safe-area-inset-right))",
         }}
       >
-        Salta →
+        Skip →
       </button>
 
       {/* Touch controls — any touch-primary device (phones AND tablets) */}

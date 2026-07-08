@@ -9,7 +9,7 @@ import {
   randomCharacter,
   SKINS,
   type CharacterConfig,
-} from "@/lib/pixel/sprites";
+} from "@/lib/maple/characters";
 
 type Props = {
   value: CharacterConfig;
@@ -95,19 +95,19 @@ export default function CharacterBuilder({ value, onChange }: Props) {
   return (
     <div className="bg-white/60 border border-ink/10 p-6">
       <div className="flex items-center justify-between">
-        <h3 className="eyebrow !text-ink/70">Il tuo personaggio</h3>
+        <h3 className="eyebrow !text-ink/70">Your character</h3>
         <button
           type="button"
           onClick={() => onChange(randomCharacter())}
           className="font-sans text-[0.6rem] font-medium tracking-[0.22em] uppercase px-4 py-2 border border-ink/25 hover:border-ink transition-colors cursor-pointer"
         >
-          ⚄ A caso
+          ⚄ Random
         </button>
       </div>
 
       {/* Bright sky niche matching the game and guest map */}
       <div className="flex justify-center my-5">
-        <div className="arch flex items-end justify-center bg-gradient-to-b from-[#4fb3ef] via-[#8ed3f7] to-[#7cc94f] px-14 pt-12 pb-5 shadow-[inset_0_2px_10px_rgba(20,50,80,0.15)]">
+        <div className="arch flex items-end justify-center bg-gradient-to-b from-[#57b6f2] via-[#a5ddf9] to-[#7ccb52] px-14 pt-12 pb-5 shadow-[inset_0_2px_10px_rgba(20,50,80,0.15)]">
           <CharacterSprite config={value} scale={7} />
         </div>
       </div>

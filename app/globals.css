@@ -144,10 +144,6 @@ body {
   width: 3.4rem;
 }
 
-canvas.pixelated {
-  image-rendering: pixelated;
-}
-
 /* ---------------------------------------------------------------------------
    Buttons — thin rectangular outlines, letterspaced caps
 --------------------------------------------------------------------------- */
@@ -292,7 +288,7 @@ canvas.pixelated {
   background: white;
 }
 
-/* Arch-topped mask — kept for the pixel character niche. */
+/* Arch-topped mask — the character-builder niche. */
 .arch {
   border-radius: 9999px 9999px 0 0;
   overflow: hidden;

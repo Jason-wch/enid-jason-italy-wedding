@@ -1,4 +1,4 @@
-import type { CharacterConfig } from "@/lib/pixel/sprites";
+import type { CharacterConfig } from "@/lib/maple/characters";
 
 /** null = not yet responded. */
 export type Attending = "yes" | "no" | null;

@@ -6,7 +6,7 @@ import CharacterBuilder from "@/components/CharacterBuilder";
 import CharacterSprite from "@/components/CharacterSprite";
 import { LogoMark } from "@/components/decor/Logo";
 import { mockLookup, mockSubmit } from "@/lib/mock";
-import { normalizeCharacter, type CharacterConfig } from "@/lib/pixel/sprites";
+import { normalizeCharacter, type CharacterConfig } from "@/lib/maple/characters";
 import type { PartyWithGuests, RsvpSubmission } from "@/lib/types";
 
 type Answer = {
@@ -270,7 +270,7 @@ export default function RsvpPage() {
           <span className="display-italic text-stone">Welcome,</span> {party?.name}
         </h1>
         <p className="mt-6 text-xl italic text-ink/60 max-w-2xl mx-auto">
-          Let us know who&apos;s joining us — and design the pixel character that will
+          Let us know who&apos;s joining us — and design the MapleStory-style character that will
           represent each guest on our map (and in the welcome game!).
         </p>
       </div>

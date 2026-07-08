@@ -204,16 +204,16 @@ export default function HomePage() {
 
       <div className="hairline max-w-7xl mx-auto" />
 
-      {/* The pixel garden */}
+      {/* The guest garden */}
       <section className="max-w-6xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
         <div className="grid sm:grid-cols-2 gap-10 sm:gap-16 items-center">
           <Reveal>
             <p className="eyebrow">A little game</p>
             <h2 className="font-heading text-4xl sm:text-5xl mt-5 leading-tight">
-              The pixel garden
+              The guest garden
             </h2>
             <p className="body-sans mt-6 max-w-xl">
-              Every guest who RSVPs designs a little pixel character, and they all hang
+              Every guest who RSVPs designs a little MapleStory-style character, and they all hang
               out together in the villa gardens — live. There is also a tiny welcome
               game: walk along the shore and dive into Lake Garda. A little bit of magic.
             </p>
@@ -228,7 +228,7 @@ export default function HomePage() {
           </Reveal>
           <Reveal delay={140}>
             <PhotoPlaceholder
-              label="Pixel guest garden — see it live on the guest map"
+              label="The guest garden — see it live on the guest map"
               className="aspect-[16/10]"
             />
           </Reveal>

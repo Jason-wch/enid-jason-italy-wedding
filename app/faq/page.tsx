@@ -27,7 +27,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "When should I RSVP by?",
-    a: "Please RSVP by 31 December 2026 so we can finalise numbers with the villa. Don't forget to build your pixel character while you're at it!",
+    a: "Please RSVP by 31 December 2026 so we can finalise numbers with the villa. Don't forget to build your MapleStory-style character while you're at it!",
   },
   {
     q: "What language will the ceremony be in?",

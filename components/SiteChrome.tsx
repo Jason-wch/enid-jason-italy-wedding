@@ -177,7 +177,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             className="mt-6 font-sans text-[0.58rem] font-medium tracking-[0.26em] uppercase text-ink/35"
             style={{ textIndent: "0.26em" }}
           >
-            Made with love — and a little pixel magic
+            Made with love — and a little MapleStory magic
           </p>
         </div>
       </footer>

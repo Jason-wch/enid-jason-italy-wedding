@@ -6,11 +6,11 @@ import {
   SPRITE_H,
   SPRITE_W,
   type CharacterConfig,
-} from "@/lib/pixel/sprites";
+} from "@/lib/maple/characters";
 
 type Props = {
   config: CharacterConfig;
-  /** Pixel size of one sprite cell. Canvas is 16*scale x 22*scale. */
+  /** Unit size in CSS px. The sprite box is 16*scale x 22*scale. */
   scale?: number;
   animate?: boolean;
   className?: string;
@@ -27,12 +27,16 @@ export default function CharacterSprite({ config, scale = 6, animate = true, cla
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.imageSmoothingEnabled = false;
 
-    let raf = 0;
-    const render = (t: number) => {
+    // Render at 2x for crisp vector art on retina screens.
+    const RES = 2;
+    canvas.width = SPRITE_W * scale * RES;
+    canvas.height = (SPRITE_H * scale + scale) * RES;
+
+    const drawFrame = (t: number) => {
+      ctx.setTransform(RES, 0, 0, RES, 0, 0);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const bob = animate && Math.floor(t / 500) % 2 === 1 ? scale : 0;
+      const bob = animate ? (Math.sin(t / 480) + 1) * 0.5 * scale : 0;
       drawCharacter(ctx, configRef.current, {
         x: 0,
         y: bob,
@@ -40,6 +44,11 @@ export default function CharacterSprite({ config, scale = 6, animate = true, cla
         frame: "stand",
         blink: animate && Math.floor(t / 180) % 22 === 0,
       });
+    };
+
+    let raf = 0;
+    const render = (t: number) => {
+      drawFrame(t);
       raf = requestAnimationFrame(render);
     };
 
@@ -47,15 +56,14 @@ export default function CharacterSprite({ config, scale = 6, animate = true, cla
       raf = requestAnimationFrame(render);
       return () => cancelAnimationFrame(raf);
     }
-    drawCharacter(ctx, configRef.current, { x: 0, y: 0, scale, frame: "stand" });
+    drawFrame(0);
   }, [scale, animate, config]);
 
   return (
     <canvas
       ref={canvasRef}
-      width={SPRITE_W * scale}
-      height={SPRITE_H * scale + scale}
-      className={`pixelated ${className ?? ""}`}
+      style={{ width: SPRITE_W * scale, height: SPRITE_H * scale + scale }}
+      className={className}
     />
   );
 }

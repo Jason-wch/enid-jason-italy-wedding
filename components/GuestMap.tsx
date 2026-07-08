@@ -1,9 +1,10 @@
 "use client";
 
 /**
- * Live guest map: every RSVP'd guest's pixel character hangs out in the
- * Villa Sostaga gardens. New guests pop in live via Supabase Realtime
- * Broadcast (sent by the RSVP API route), with polling as a fallback.
+ * Live guest map: every RSVP'd guest's MapleStory-style character hangs out
+ * in the Villa Sostaga gardens above Lake Garda. New guests pop in live via
+ * Supabase Realtime Broadcast (sent by the RSVP API route), with polling as
+ * a fallback.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -16,29 +17,27 @@ import {
   normalizeCharacter,
   SPRITE_H,
   SPRITE_W,
-} from "@/lib/pixel/sprites";
+} from "@/lib/maple/characters";
 import {
   drawBirds,
   drawBoat,
-  drawBush,
   drawCloud,
   drawCypress,
+  drawFlowerBed,
   drawFloatingIsland,
+  drawGazebo,
   drawGrass,
+  drawGravel,
   drawLadder,
-  drawLemonTree,
   drawMountains,
   drawMushroom,
   drawOliveTree,
-  drawPath,
-  drawPergola,
   drawSky,
   drawSun,
-  drawTerraceWall,
   drawTree,
   drawVilla,
   drawWater,
-} from "@/lib/pixel/scenery";
+} from "@/lib/maple/scenery";
 
 const MAP_W = 1100;
 const MAP_H = 680;
@@ -46,8 +45,11 @@ const CHAR_SCALE = 3;
 const CHAR_W = SPRITE_W * CHAR_SCALE;
 const CHAR_H = SPRITE_H * CHAR_SCALE;
 
-// Lawn area where guests stand (below the villa, above/left of the lake edge).
-const LAWN = { x: 40, y: 400, w: MAP_W - 320, h: 200 };
+// Lawn area where guests stand (below the villa, left of the lake inlet).
+const LAWN = { x: 40, y: 408, w: MAP_W - 320, h: 200 };
+
+// Lake inlet on the right edge of the gardens.
+const INLET = { x: MAP_W - 240, y: 430 };
 
 function guestPos(g: GuestChar): { x: number; y: number } {
   const mx = Number.isFinite(g.map_x) ? g.map_x : (hashString(g.id) % 1000) / 1000;
@@ -56,6 +58,80 @@ function guestPos(g: GuestChar): { x: number; y: number } {
     x: LAWN.x + mx * (LAWN.w - CHAR_W),
     y: LAWN.y + my * (LAWN.h - CHAR_H),
   };
+}
+
+/** Pre-renders everything that never moves: sky, villa, gardens. */
+function buildBackground(res: number): HTMLCanvasElement {
+  const off = document.createElement("canvas");
+  off.width = MAP_W * res;
+  off.height = MAP_H * res;
+  const ctx = off.getContext("2d")!;
+  ctx.setTransform(res, 0, 0, res, 0, 0);
+
+  const sunX = MAP_W - 170;
+  drawSky(ctx, MAP_W, 380);
+  drawSun(ctx, sunX, 76, 30);
+  // puffy clouds + a floating island drifting over the garden
+  drawCloud(ctx, 80, 52, 13);
+  drawCloud(ctx, 450, 112, 9);
+  drawCloud(ctx, 800, 40, 12);
+  drawFloatingIsland(ctx, 620, 96, 130);
+  drawLadder(ctx, 612, 110, 46);
+  drawMushroom(ctx, 655, 96, 0.95);
+  drawMountains(ctx, MAP_W, 306, 0, true);
+  drawMountains(ctx, MAP_W, 342, 60, false);
+  // calm distant lake strip (villa overlaps it, so it lives in the static bg)
+  drawWater(ctx, 0, 346, MAP_W, 28, 0, sunX);
+
+  // gardens — a proper green lawn all the way down
+  drawGrass(ctx, 0, 372, MAP_W, MAP_H - 372);
+  ctx.fillStyle = "#74c24b";
+  ctx.fillRect(0, 385, MAP_W, MAP_H - 385);
+  // mottled grass texture
+  for (let i = 0; i < 90; i++) {
+    const gx = (i * 173) % MAP_W;
+    const gy = 400 + ((i * 97) % (MAP_H - 410));
+    ctx.globalAlpha = 0.14;
+    ctx.fillStyle = i % 3 === 0 ? "#5fae3d" : "#8fd964";
+    ctx.beginPath();
+    ctx.ellipse(gx, gy, 16, 5, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  // scattered daisies along the edges of the lawn
+  for (let i = 0; i < 14; i++) {
+    const gx = 30 + ((i * 211) % (MAP_W - 300));
+    const gy = i % 2 === 0 ? 630 + ((i * 13) % 40) : 398 + ((i * 7) % 14);
+    ctx.fillStyle = i % 3 === 0 ? "#f08aa8" : "#ffffff";
+    ctx.beginPath();
+    ctx.arc(gx, gy, 2.4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffe27a";
+    ctx.beginPath();
+    ctx.arc(gx, gy, 1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // sandy shore edges of the inlet
+  ctx.fillStyle = "#e0c089";
+  ctx.fillRect(INLET.x - 14, INLET.y - 10, 14, MAP_H - INLET.y + 10);
+  ctx.fillRect(INLET.x - 14, INLET.y - 10, MAP_W - INLET.x + 14, 10);
+
+  // scenery band along the top of the gardens
+  drawVilla(ctx, 56, 386, 0.72);
+  drawGravel(ctx, 0, 388, 270, 18);
+  drawGazebo(ctx, 296, 386, 0.62);
+  drawFlowerBed(ctx, 402, 386, 48);
+  drawOliveTree(ctx, 486, 384, 0.95);
+  drawCypress(ctx, 540, 386, 108);
+  drawTree(ctx, 600, 386, 0.95);
+  drawMushroom(ctx, 660, 386, 0.9);
+  drawCypress(ctx, 704, 386, 96);
+  drawFlowerBed(ctx, 760, 386, 44);
+  drawFlowerBed(ctx, 900, 386, 52);
+  drawTree(ctx, 990, 386, 0.85);
+  drawMushroom(ctx, 1046, 386, 1.0);
+
+  return off;
 }
 
 export default function GuestMap() {
@@ -109,63 +185,40 @@ export default function GuestMap() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const RES = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+    canvas.width = MAP_W * RES;
+    canvas.height = MAP_H * RES;
+    const background = buildBackground(RES);
+
     let raf = 0;
     const render = (t: number) => {
-      ctx.imageSmoothingEnabled = false;
+      ctx.setTransform(RES, 0, 0, RES, 0, 0);
+      ctx.imageSmoothingEnabled = true;
 
-      const sunX = MAP_W - 170;
-      drawSky(ctx, MAP_W, 360);
-      drawSun(ctx, sunX, 76, 30);
+      ctx.drawImage(background, 0, 0, MAP_W, MAP_H);
+
+      // animated bits: birds, the lake inlet and its little boat
       drawBirds(ctx, 240, 70, t);
-      // puffy clouds + a floating island drifting over the garden
-      drawCloud(ctx, 80, 52, 13);
-      drawCloud(ctx, 450, 112, 9);
-      drawCloud(ctx, 800, 40, 12);
-      drawFloatingIsland(ctx, 620, 96, 130);
-      drawLadder(ctx, 612, 108, 46);
-      drawMushroom(ctx, 655, 96, 1);
-      drawMountains(ctx, MAP_W, 306, 0, true);
-      drawMountains(ctx, MAP_W, 340, 60, false);
-      drawWater(ctx, 0, 344, MAP_W, 26, t, sunX);
-
-      // gardens — grass over soil
-      drawGrass(ctx, 0, 370, MAP_W, MAP_H - 370);
-      // lake inlet on the right
-      drawWater(ctx, MAP_W - 240, 430, 240, MAP_H - 430, t, sunX);
-      ctx.fillStyle = "#e0c089";
-      ctx.fillRect(MAP_W - 252, 430, 12, MAP_H - 430);
-      drawBoat(ctx, MAP_W - 120, 480, t);
-
-      // scenery lives on the baseline band (y=372) above the guest lawn
-      drawVilla(ctx, 70, 372, 0.9);
-      drawPath(ctx, 0, 372, MAP_W - 240, 20);
-      drawPergola(ctx, 315, 372, 120);
-      drawLemonTree(ctx, 495, 366, 2);
-      drawTree(ctx, 570, 372, 1.05);
-      drawOliveTree(ctx, 700, 372, 2);
-      drawMushroom(ctx, 655, 372, 1);
-      drawCypress(ctx, 620, 372, 110);
-      drawTree(ctx, 905, 372, 0.9);
-      drawTerraceWall(ctx, 740, 384, 160);
-      drawBush(ctx, 450, 372, 18);
-      drawBush(ctx, 760, 372, 22);
-      drawMushroom(ctx, 1020, 372, 1.1);
+      drawBirds(ctx, 900, 120, t);
+      drawWater(ctx, INLET.x, INLET.y, 240, MAP_H - INLET.y, t, MAP_W - 170);
+      drawBoat(ctx, MAP_W - 120, 490, t);
 
       // guests, sorted by y so lower characters draw in front
       const guests = [...guestsRef.current].sort((a, b) => guestPos(a).y - guestPos(b).y);
       for (const g of guests) {
         const { x, y } = guestPos(g);
         const seed = hashString(g.id);
-        const bob = Math.floor(t / 400 + seed) % 2 === 1 ? CHAR_SCALE : 0;
+        const bob = Math.sin(t / 640 + seed) * 2;
         const flip = seed % 2 === 0;
 
         drawCharacter(ctx, g.character, {
-          x: Math.round(x),
-          y: Math.round(y + bob),
+          x,
+          y: y + bob,
           scale: CHAR_SCALE,
           frame: "stand",
           flip,
           blink: Math.floor(t / 190 + seed) % 24 === 0,
+          shadow: true,
         });
 
         // name tag — rounded navy pill, like an MMO nametag
@@ -215,7 +268,7 @@ export default function GuestMap() {
             ref={canvasRef}
             width={MAP_W}
             height={MAP_H}
-            className="pixelated block h-auto w-full min-w-[640px] sm:min-w-0"
+            className="block h-auto w-full min-w-[640px] sm:min-w-0"
           />
         </div>
       </div>
