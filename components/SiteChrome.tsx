@@ -8,13 +8,13 @@ import { WEDDING } from "@/lib/wedding";
 import Logo, { LogoMark } from "@/components/decor/Logo";
 
 const LINKS = [
-  { href: "/home", label: "Home", it: "benvenuti" },
-  { href: "/schedule", label: "Schedule", it: "il programma" },
-  { href: "/rsvp", label: "RSVP", it: "ci sarete?" },
-  { href: "/guests", label: "Guest Map", it: "gli ospiti" },
-  { href: "/faq", label: "FAQ", it: "domande" },
-  { href: "/dress-code", label: "Dress Code", it: "l'eleganza" },
-  { href: "/registry", label: "Registry", it: "i regali" },
+  { href: "/home", label: "Home", sub: "welcome" },
+  { href: "/schedule", label: "Schedule", sub: "the program" },
+  { href: "/rsvp", label: "RSVP", sub: "will you be there?" },
+  { href: "/guests", label: "Guest Map", sub: "the guests" },
+  { href: "/faq", label: "FAQ", sub: "questions" },
+  { href: "/dress-code", label: "Dress Code", sub: "what to wear" },
+  { href: "/registry", label: "Registry", sub: "the gifts" },
 ];
 
 export default function SiteChrome({ children }: { children: ReactNode }) {
@@ -147,7 +147,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
                   >
                     {l.label}
                   </span>
-                  <span className="block font-heading italic text-base text-stone">{l.it}</span>
+                  <span className="block font-heading italic text-base text-stone">{l.sub}</span>
                 </Link>
               );
             })}
@@ -177,7 +177,7 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
             className="mt-6 font-sans text-[0.58rem] font-medium tracking-[0.26em] uppercase text-ink/35"
             style={{ textIndent: "0.26em" }}
           >
-            Fatto con amore — e un po&apos; di magia pixel
+            Made with love — and a little pixel magic
           </p>
         </div>
       </footer>

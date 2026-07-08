@@ -50,7 +50,7 @@ export default function Logo({
           className="font-sans mt-1.5 text-[0.5rem] font-medium leading-none tracking-[0.42em] uppercase text-stone"
           style={{ textIndent: "0.42em" }}
         >
-          Lago di Garda
+          Lake Garda
         </span>
       )}
     </span>

@@ -173,11 +173,11 @@ export default function RsvpPage() {
             ))}
           </div>
         )}
-        <p className="eyebrow eyebrow-rule mt-12">{anyone ? "Evviva" : "Ci mancherai"}</p>
+        <p className="eyebrow eyebrow-rule mt-12">{anyone ? "Hooray" : "We'll Miss You"}</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">
           {anyone ? (
             <>
-              Grazie <span className="display-italic">mille!</span>
+              Thank you <span className="display-italic">so much!</span>
             </>
           ) : (
             "We'll miss you"
@@ -190,7 +190,7 @@ export default function RsvpPage() {
         </p>
         {anyone && (
           <p className="mt-3 font-heading text-lg italic text-stone">
-            Ci vediamo sul lago — see you on the lake.
+            See you on the lake.
           </p>
         )}
         <div className="hairline max-w-16 mx-auto mt-10" />
@@ -220,11 +220,11 @@ export default function RsvpPage() {
         <div className="flex justify-center">
           <LogoMark size={40} className="text-gold" />
         </div>
-        <p className="eyebrow eyebrow-rule mt-8">Ci sarete?</p>
+        <p className="eyebrow eyebrow-rule mt-8">Will You Be There?</p>
         <h1 className="font-heading text-6xl sm:text-7xl mt-6">R.S.V.P.</h1>
         <p className="mt-8 font-heading text-xl italic text-stone max-w-md mx-auto">
-          Scrivete il vostro nome — enter your full name as it appears on your invitation,
-          and we&apos;ll find your party.
+          Enter your full name as it appears on your invitation, and we&apos;ll find your
+          party.
         </p>
         <div className="mt-14 px-2">
           <form onSubmit={lookup} className="space-y-8">
@@ -253,7 +253,7 @@ export default function RsvpPage() {
               disabled={lookupStatus === "searching"}
               className="btn btn-terracotta"
             >
-              {lookupStatus === "searching" ? "Cercando…" : "Find my invitation"}
+              {lookupStatus === "searching" ? "Searching…" : "Find my invitation"}
             </button>
           </form>
         </div>
@@ -265,9 +265,9 @@ export default function RsvpPage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-24">
       <div className="text-center">
-        <p className="eyebrow eyebrow-rule">Il vostro invito</p>
+        <p className="eyebrow eyebrow-rule">Your Invitation</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">
-          <span className="display-italic text-stone">Benvenuti,</span> {party?.name}
+          <span className="display-italic text-stone">Welcome,</span> {party?.name}
         </h1>
         <p className="mt-6 text-xl italic text-ink/60 max-w-2xl mx-auto">
           Let us know who&apos;s joining us — and design the pixel character that will
@@ -381,7 +381,7 @@ export default function RsvpPage() {
             ← Not you?
           </button>
           <button type="submit" disabled={saveStatus === "saving"} className="btn btn-terracotta">
-            {saveStatus === "saving" ? "Un momento…" : "Invia · Send RSVP ♥"}
+            {saveStatus === "saving" ? "One moment…" : "Send RSVP ♥"}
           </button>
         </div>
       </form>

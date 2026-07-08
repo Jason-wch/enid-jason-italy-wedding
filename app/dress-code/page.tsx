@@ -29,13 +29,13 @@ export default function DressCodePage() {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <Reveal className="text-center">
-        <p className="eyebrow eyebrow-rule">Cosa indossare</p>
+        <p className="eyebrow eyebrow-rule">What to Wear</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">Dress code</h1>
         <p className="display-italic text-5xl sm:text-6xl mt-10 leading-tight">
           Garden Formal
         </p>
         <p className="body-sans mt-6 max-w-xl mx-auto">
-          Elegante ma comodo — elegant, romantic, and dressed for a lakeside garden.
+          Elegant but comfortable, romantic, and dressed for a lakeside garden.
         </p>
         <div className="hairline max-w-16 mx-auto mt-10" />
       </Reveal>

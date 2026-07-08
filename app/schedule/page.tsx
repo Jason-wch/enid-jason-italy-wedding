@@ -13,12 +13,12 @@ export default function SchedulePage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <Reveal className="text-center">
-        <p className="eyebrow eyebrow-rule">Il programma</p>
+        <p className="eyebrow eyebrow-rule">The Schedule</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">
           The <span className="display-italic">weekend</span>
         </h1>
         <p className="mt-6 text-xl italic text-ink/60 max-w-xl mx-auto">
-          Three days on Lake Garda — ecco il programma.
+          Three days on Lake Garda — here&apos;s the schedule.
         </p>
         <div className="mt-8">
           <a href={icsHref} download="enid-jason-wedding.ics" className="btn btn-ghost">
@@ -82,7 +82,7 @@ export default function SchedulePage() {
       {/* Getting there */}
       <div className="mt-24">
         <Reveal className="text-center">
-          <p className="eyebrow eyebrow-rule">Come arrivare</p>
+          <p className="eyebrow eyebrow-rule">Getting There</p>
           <h2 className="font-heading text-4xl sm:text-5xl mt-6">
             Getting <span className="display-italic">there</span>
           </h2>
@@ -103,7 +103,7 @@ export default function SchedulePage() {
             </div>
           </div>
           <p className="photo-caption justify-center font-heading text-xl text-stone">
-            Villa Sostaga, Gargnano — sul Lago di Garda
+            Villa Sostaga, Gargnano — on Lake Garda
           </p>
         </Reveal>
         <Reveal delay={180} className="text-center mt-8">

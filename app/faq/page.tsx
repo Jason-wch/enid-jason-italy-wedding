@@ -31,7 +31,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "What language will the ceremony be in?",
-    a: "English, with a sprinkle of Italian for flavour. No translation headsets required.",
+    a: "English throughout. No translation headsets required.",
   },
   {
     q: "Is there a dress code?",
@@ -43,7 +43,7 @@ export default function FaqPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
       <Reveal className="text-center">
-        <p className="eyebrow eyebrow-rule">Domande</p>
+        <p className="eyebrow eyebrow-rule">Questions</p>
         <h1 className="font-heading text-5xl sm:text-6xl mt-6">
           Questions &amp; <span className="display-italic">answers</span>
         </h1>
@@ -73,7 +73,7 @@ export default function FaqPage() {
       <Reveal className="text-center mt-14">
         <div className="hairline max-w-16 mx-auto mb-8" />
         <p className="font-heading italic text-lg text-stone">
-          Altre domande? Write it in your RSVP message — vi risponderemo presto.
+          More questions? Write it in your RSVP message — we&apos;ll get back to you soon.
         </p>
       </Reveal>
     </div>

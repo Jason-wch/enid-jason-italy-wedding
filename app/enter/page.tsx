@@ -58,8 +58,7 @@ export default function EnterPage() {
             style={{ animationDelay: "0.75s" }}
           >
             <p className="body-sans">
-              The password is on your invitation — la parola d&apos;ordine è sul vostro
-              invito.
+              The password is on your invitation.
             </p>
             <input
               type="password"
@@ -74,11 +73,11 @@ export default function EnterPage() {
             />
             {status === "error" && (
               <p className="font-heading italic text-terracotta">
-                Non è quella giusta — please try again.
+                That&apos;s not quite right — please try again.
               </p>
             )}
             <button type="submit" disabled={status === "checking"} className="btn btn-dark">
-              {status === "checking" ? "Un momento…" : "Enter"}
+              {status === "checking" ? "One moment…" : "Enter"}
             </button>
           </form>
         </div>

@@ -199,7 +199,7 @@ export default function GuestMap() {
     <div>
       <div className="flex items-center justify-center gap-3 flex-wrap mb-5">
         <span className="font-pixel text-xs text-ink bg-white rounded-full shadow-[0_6px_20px_-8px_rgba(20,50,80,0.35)] border border-black/5 px-5 py-2.5">
-          {guestCount === null ? "Loading guests…" : `${guestCount} ospit${guestCount === 1 ? "e" : "i"} alla villa`}
+          {guestCount === null ? "Loading guests…" : `${guestCount} guest${guestCount === 1 ? "" : "s"} at the villa`}
         </span>
         {demoMode && (
           <span className="font-pixel text-xs text-stone bg-parchment rounded-full px-5 py-2.5">

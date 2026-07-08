@@ -23,11 +23,11 @@ export type WeddingEvent = {
 
 export const EVENTS: WeddingEvent[] = [
   {
-    id: "aperitivo",
+    id: "welcome-drinks",
     day: "Friday 23 April 2027",
-    title: "Welcome Aperitivo",
+    title: "Welcome Drinks",
     description:
-      "Kick off the weekend with spritzes and lake views on the villa terrace. Casual and relaxed — come say ciao!",
+      "Kick off the weekend with spritzes and lake views on the villa terrace. Casual and relaxed — come say hello!",
     start: "20270423T170000",
     end: "20270423T200000",
     timeLabel: "5:00 PM – 8:00 PM",
@@ -47,7 +47,7 @@ export const EVENTS: WeddingEvent[] = [
     day: "Sunday 25 April 2027",
     title: "Farewell Brunch",
     description:
-      "One last lazy morning together — coffee, cornetti and goodbyes before everyone heads home.",
+      "One last lazy morning together — coffee, pastries and goodbyes before everyone heads home.",
     start: "20270425T103000",
     end: "20270425T130000",
     timeLabel: "10:30 AM – 1:00 PM",

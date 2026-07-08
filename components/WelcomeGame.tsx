@@ -256,7 +256,7 @@ export default function WelcomeGame() {
       drawPergola(ctx, 705, GROUND_Y, 130);
       drawBush(ctx, 758, GROUND_Y, 22);
       drawMushroom(ctx, 800, GROUND_Y, 0.95);
-      drawSign(ctx, 858, GROUND_Y, "LAGO DI GARDA");
+      drawSign(ctx, 858, GROUND_Y, "LAKE GARDA");
       drawCypress(ctx, 896, GROUND_Y, 100);
       drawBoat(ctx, 1150, GROUND_Y + 24, t);
 
@@ -359,7 +359,7 @@ export default function WelcomeGame() {
         </div>
         {!arrived && (
           <p className="text-center italic text-sm sm:text-base mt-3 sm:mt-4 text-ink/85 bg-white/85 rounded-full shadow-[0_8px_24px_-10px_rgba(20,50,80,0.4)] px-6 py-2.5 max-w-[92vw] sm:max-w-md">
-            Cammina verso il lago — walk right into Lake Garda →
+            Walk right into Lake Garda →
             <span className="not-italic hidden pointer-fine:block font-sans text-[0.6rem] font-medium tracking-[0.2em] uppercase mt-1 text-stone">
               arrow keys / WASD · space to jump
             </span>
@@ -370,7 +370,7 @@ export default function WelcomeGame() {
         )}
         {arrived && (
           <p className="font-pixel text-center text-xs sm:text-base mt-4 sm:mt-6 text-ink bg-white/95 rounded-2xl shadow-[0_10px_36px_-12px_rgba(20,50,80,0.45)] border border-black/5 px-6 py-3.5 max-w-[92vw] animate-float-slow">
-            Benvenuti! Welcome to our wedding ♥
+            Welcome to our wedding ♥
           </p>
         )}
       </div>

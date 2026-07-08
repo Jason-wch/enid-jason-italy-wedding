@@ -16,8 +16,8 @@ export default function HomePage() {
       <section className="relative h-[88svh] min-h-[540px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/hero.png"
-            alt="Villa Sostaga gardens overlooking Lake Garda"
+            src="/images/couple-portrait-close.jpg"
+            alt="Enid and Jason"
             fill
             priority
             className="object-cover animate-ken-burns"
@@ -54,8 +54,8 @@ export default function HomePage() {
             We&apos;re getting married on Lake Garda. In April 2027, {WEDDING.venue} — a
             yellow villa perched above the water in Gargnano — becomes a place of the
             heart for our friends, for love and leisure, for the pleasures of the table
-            and the Italian art of dolce far niente. It is yours for a long weekend.
-            Welcome, benvenuti.
+            and the art of doing beautifully little. It is yours for a long weekend.
+            Welcome.
           </p>
         </Reveal>
         <Reveal delay={150} className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-6">
@@ -74,12 +74,14 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
         <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
           {[
-            { label: "La Villa", ph: "Villa Sostaga — photo to come" },
-            { label: "Il Lago", ph: "Lake Garda — photo to come" },
-            { label: "Gli Sposi", ph: "The two of us — photo to come" },
+            { label: "The Villa", src: "/images/villa-aerial.jpg", alt: "Villa Sostaga" },
+            { label: "The Lake", src: "/images/villa-pool-sunset.jpg", alt: "Lake Garda at sunset" },
+            { label: "The Couple", src: "/images/couple-portrait-seated.jpg", alt: "Enid and Jason" },
           ].map((tile, i) => (
             <Reveal key={tile.label} delay={i * 120} className="reveal">
-              <PhotoPlaceholder label={tile.ph} className="aspect-[3/4]" />
+              <div className="relative aspect-[3/4] overflow-hidden">
+                <Image src={tile.src} alt={tile.alt} fill className="object-cover" />
+              </div>
               <p className="photo-caption font-heading text-2xl text-ink/85">{tile.label}</p>
             </Reveal>
           ))}
@@ -90,10 +92,12 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-5 sm:px-8 pb-20 sm:pb-28">
         <div className="grid sm:grid-cols-[2fr_3fr] gap-10 sm:gap-14 items-start">
           <Reveal>
-            <PhotoPlaceholder label="Aperitivo — photo to come" className="aspect-[4/5]" />
-            <h3 className="font-heading text-3xl sm:text-4xl mt-8">A dash of la dolce vita</h3>
+            <div className="relative aspect-[4/5] overflow-hidden">
+              <Image src="/images/villa-terrace-lake.jpg" alt="The villa terrace overlooking Lake Garda" fill className="object-cover" />
+            </div>
+            <h3 className="font-heading text-3xl sm:text-4xl mt-8">A taste of the sweet life</h3>
             <p className="body-sans mt-4 max-w-md">
-              Three days of sunshine, spritzes and slow lunches: a welcome aperitivo on
+              Three days of sunshine, spritzes and slow lunches: welcome drinks on
               Friday evening, the ceremony and a very long dinner on Saturday, and a
               farewell brunch on Sunday morning before you drift back down the lake.
             </p>
@@ -102,12 +106,14 @@ export default function HomePage() {
             </Link>
           </Reveal>
           <Reveal delay={140}>
-            <PhotoPlaceholder label="The gardens — photo to come" className="aspect-[16/10]" />
+            <div className="relative aspect-[16/10] overflow-hidden">
+              <Image src="/images/couple-alps-cabin.jpg" alt="Enid and Jason walking hand in hand" fill className="object-cover" />
+            </div>
             <h3 className="font-heading text-3xl sm:text-4xl mt-8">
-              La villeggiatura is a great Italian tradition…
+              A summer holiday, the old way…
             </h3>
             <p className="body-sans mt-4 max-w-2xl">
-              In centuries past, Italian families would move to the lake for the whole
+              In centuries past, families would move to the lake for the whole
               season — friends, family and long tables under the pergola. We are
               borrowing the idea for a weekend. Come early, stay late, and let the lake
               set the pace. Rooms, travel and everything practical are in the FAQ.
@@ -125,13 +131,15 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
         <div className="grid sm:grid-cols-2 gap-10 sm:gap-16 items-center">
           <Reveal className="order-2 sm:order-1">
-            <PhotoPlaceholder label="Our story — photo to come" className="aspect-[4/3]" />
+            <div className="relative aspect-[4/3] overflow-hidden">
+              <Image src="/images/couple-alps-picnic.jpg" alt="Enid and Jason" fill className="object-cover" />
+            </div>
           </Reveal>
           <Reveal delay={120} className="order-1 sm:order-2">
             <h2 className="font-heading text-4xl sm:text-5xl leading-tight">
               A love letter to Lake Garda
             </h2>
-            <p className="eyebrow mt-4">La nostra storia</p>
+            <p className="eyebrow mt-4">Our story</p>
             <p className="font-heading text-xl sm:text-2xl leading-relaxed mt-8">
               “Dear friends,
               <br />
@@ -139,10 +147,9 @@ export default function HomePage() {
               chapter deserved a view.”
             </p>
             <p className="body-sans mt-6 max-w-xl">
-              This small but genuine declaration of amore is our invitation: a long
+              This small but genuine declaration of love is our invitation: a long
               weekend on the western shore of Lake Garda, with all of our favourite
-              people in one yellow villa. Non vediamo l&apos;ora — we can&apos;t wait to
-              see you there.
+              people in one yellow villa. We can&apos;t wait to see you there.
             </p>
             <Link href="/rsvp" className="btn btn-dark mt-10">
               RSVP now
@@ -156,13 +163,13 @@ export default function HomePage() {
       {/* The weekend, in brief */}
       <section className="max-w-5xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
         <Reveal className="text-center">
-          <p className="eyebrow eyebrow-rule">Il programma</p>
+          <p className="eyebrow eyebrow-rule">The Schedule</p>
           <h2 className="font-heading text-4xl sm:text-5xl mt-5">The weekend</h2>
         </Reveal>
 
         <div className="mt-16">
           {[
-            { n: "01", day: "Friday 23", what: "Welcome Aperitivo", time: "5 PM" },
+            { n: "01", day: "Friday 23", what: "Welcome Drinks", time: "5 PM" },
             { n: "02", day: "Saturday 24", what: "Ceremony & Party", time: "3 PM – late" },
             { n: "03", day: "Sunday 25", what: "Farewell Brunch", time: "10:30 AM" },
           ].map((d, i) => (
@@ -201,14 +208,14 @@ export default function HomePage() {
       <section className="max-w-6xl mx-auto px-5 sm:px-8 py-20 sm:py-28">
         <div className="grid sm:grid-cols-2 gap-10 sm:gap-16 items-center">
           <Reveal>
-            <p className="eyebrow">Un piccolo gioco</p>
+            <p className="eyebrow">A little game</p>
             <h2 className="font-heading text-4xl sm:text-5xl mt-5 leading-tight">
               The pixel garden
             </h2>
             <p className="body-sans mt-6 max-w-xl">
               Every guest who RSVPs designs a little pixel character, and they all hang
               out together in the villa gardens — live. There is also a tiny welcome
-              game: walk along the shore and dive into Lake Garda. Un po&apos; di magia.
+              game: walk along the shore and dive into Lake Garda. A little bit of magic.
             </p>
             <div className="mt-8 flex flex-wrap gap-x-8 gap-y-4">
               <Link href="/guests" className="dash-link">
