@@ -116,9 +116,12 @@ function drawHeadPx(R: PxFill, skin: [string, string]) {
 
 function drawFacePx(R: PxFill, blink?: boolean) {
   if (blink) {
-    R(5, 5, 1, 1, EYE);
-    R(11, 5, 1, 1, EYE);
+    R(4, 5, 2, 1, EYE);
+    R(11, 5, 2, 1, EYE);
   } else {
+    // white eyeball with the pupil sitting on it (inner edge)
+    R(4, 4, 2, 2, "#ffffff");
+    R(11, 4, 2, 2, "#ffffff");
     R(5, 4, 1, 2, EYE);
     R(11, 4, 1, 2, EYE);
   }

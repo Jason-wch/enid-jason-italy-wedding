@@ -7,7 +7,7 @@
  * gazebo terrace, and dive into Lake Garda to enter the wedding website.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   DEFAULT_CHARACTER,
@@ -41,7 +41,12 @@ import {
 import { WEDDING } from "@/lib/wedding";
 import { LogoMark } from "@/components/decor/Logo";
 
-const VIEW_W = 960;
+/**
+ * The view height is fixed; the view WIDTH follows the device's aspect ratio
+ * so the world fills the entire screen — no letterboxing on phones.
+ */
+const MAX_VIEW_W = 960;
+const MIN_VIEW_W = 240;
 const VIEW_H = 540;
 const WORLD_W = 1500;
 const GROUND_Y = 470;
@@ -107,8 +112,23 @@ export default function WelcomeGame() {
 
     // Integer resolution only, so every texel lands on whole device pixels.
     const RES = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
-    canvas.width = VIEW_W * RES;
+    // Match the viewport to the screen's aspect ratio: the game fills the
+    // whole phone screen (portrait shows a narrower slice of the world).
+    const viewWFor = () =>
+      Math.round(
+        Math.min(
+          MAX_VIEW_W,
+          Math.max(MIN_VIEW_W, VIEW_H * (window.innerWidth / Math.max(1, window.innerHeight)))
+        )
+      );
+    let viewW = viewWFor();
+    canvas.width = viewW * RES;
     canvas.height = VIEW_H * RES;
+    const onResize = () => {
+      viewW = viewWFor();
+      canvas.width = viewW * RES;
+    };
+    window.addEventListener("resize", onResize);
     const foreground = buildForeground(RES);
 
     let character: CharacterConfig = DEFAULT_CHARACTER;
@@ -238,17 +258,17 @@ export default function WelcomeGame() {
         if (s.life <= 0) splashes.splice(i, 1);
       }
 
-      const cam = Math.max(0, Math.min(WORLD_W - VIEW_W, player.x - VIEW_W * 0.38));
+      const cam = Math.max(0, Math.min(WORLD_W - viewW, player.x - viewW * 0.38));
 
       // --- draw ---
       ctx.setTransform(RES, 0, 0, RES, 0, 0);
       ctx.imageSmoothingEnabled = false;
 
-      const sunScreenX = 800 - cam * 0.06;
+      const sunScreenX = viewW * 0.83 - cam * 0.06;
       const sunWorldX = sunScreenX + cam;
 
       // sky only needs to reach the waterline (water + foreground cover the rest)
-      drawSky(ctx, VIEW_W, 400);
+      drawSky(ctx, viewW, 400);
       drawSun(ctx, sunScreenX, 158, 36);
       drawBirds(ctx, 320 - cam * 0.15, 96, t);
       drawBirds(ctx, 760 - cam * 0.15, 140, t);
@@ -265,21 +285,21 @@ export default function WelcomeGame() {
       drawTree(ctx, 820 - cam * 0.3, 84, 0.6);
       drawFloatingIsland(ctx, 1280 - cam * 0.3, 150, 96);
       // amber-hazed pre-Alps + rolling sunlit hills
-      drawMountains(ctx, VIEW_W, 306, -cam * 0.35, true);
-      drawMountains(ctx, VIEW_W, 348, -cam * 0.55, false);
+      drawMountains(ctx, viewW, 306, -cam * 0.35, true);
+      drawMountains(ctx, viewW, 348, -cam * 0.55, false);
       // the great lake behind the villa terrace — Villa Sostaga overlooks it
-      drawWater(ctx, 0, 352, VIEW_W, GROUND_Y - 352, t, sunScreenX);
+      drawWater(ctx, 0, 352, viewW, GROUND_Y - 352, t, sunScreenX);
 
       // pre-rendered foreground strip
       ctx.drawImage(
         foreground,
         cam * RES,
         0,
-        VIEW_W * RES,
+        viewW * RES,
         VIEW_H * RES,
         0,
         0,
-        VIEW_W,
+        viewW,
         VIEW_H
       );
 
@@ -291,7 +311,7 @@ export default function WelcomeGame() {
         ctx,
         LAKE_X + 60,
         GROUND_Y + 16,
-        WORLD_W - LAKE_X - 60 + VIEW_W,
+        WORLD_W - LAKE_X - 60 + viewW,
         VIEW_H - GROUND_Y - 16,
         t,
         sunWorldX
@@ -315,7 +335,7 @@ export default function WelcomeGame() {
           ctx,
           LAKE_X + 60,
           GROUND_Y + 16,
-          WORLD_W - LAKE_X + VIEW_W,
+          WORLD_W - LAKE_X + viewW,
           VIEW_H - GROUND_Y - 16,
           t,
           sunWorldX
@@ -338,7 +358,7 @@ export default function WelcomeGame() {
       // fade out at the end
       if (fade > 0) {
         ctx.fillStyle = `rgba(250, 246, 238, ${fade})`;
-        ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+        ctx.fillRect(0, 0, viewW, VIEW_H);
       }
 
       raf = requestAnimationFrame(step);
@@ -349,6 +369,7 @@ export default function WelcomeGame() {
       cancelAnimationFrame(raf);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("resize", onResize);
     };
   }, [router]);
 
@@ -357,9 +378,45 @@ export default function WelcomeGame() {
     else keysRef.current.delete(key);
   };
 
-  const touchBtn = (key: string, label: string, extra = "") => (
+  /** Stepped pixel arrow, drawn with crisp SVG rects for the 8-bit look. */
+  const pixelArrow = (dir: "left" | "right" | "up") => (
+    <svg
+      viewBox={dir === "up" ? "0 0 7 6" : "0 0 6 7"}
+      width={dir === "up" ? 30 : 26}
+      height={dir === "up" ? 26 : 30}
+      fill="currentColor"
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      {dir === "left" && (
+        <>
+          <rect x="4" y="0" width="2" height="7" />
+          <rect x="2" y="1" width="2" height="5" />
+          <rect x="0" y="2" width="2" height="3" />
+        </>
+      )}
+      {dir === "right" && (
+        <>
+          <rect x="0" y="0" width="2" height="7" />
+          <rect x="2" y="1" width="2" height="5" />
+          <rect x="4" y="2" width="2" height="3" />
+        </>
+      )}
+      {dir === "up" && (
+        <>
+          <rect x="2" y="0" width="3" height="2" />
+          <rect x="1" y="2" width="5" height="2" />
+          <rect x="0" y="4" width="7" height="2" />
+        </>
+      )}
+    </svg>
+  );
+
+  /** Chunky retro game button: hard pixel bevel + a fat drop ledge that
+      squashes flat while pressed, like an arcade cabinet button. */
+  const touchBtn = (key: string, content: ReactNode, extra: string) => (
     <button
-      className={`font-sans text-xl font-medium w-16 h-16 rounded-full bg-white/95 text-ink shadow-[0_6px_20px_-6px_rgba(20,50,80,0.45)] border border-black/5 active:scale-95 active:bg-sky-100 transition-transform select-none touch-none ${extra}`}
+      className={`flex flex-col items-center justify-center select-none touch-none border-4 ${extra}`}
       onPointerDown={(e) => {
         e.preventDefault();
         press(key, true);
@@ -369,24 +426,33 @@ export default function WelcomeGame() {
       onPointerCancel={() => press(key, false)}
       aria-label={key}
     >
-      {label}
+      {content}
     </button>
   );
+
+  const PAD =
+    "w-[4.6rem] h-[4.6rem] rounded-lg bg-[#f7e8c9] text-[#4a2f16] border-[#4a2f16] " +
+    "shadow-[inset_-4px_-4px_0_0_rgba(74,47,22,0.25),inset_4px_4px_0_0_rgba(255,255,255,0.7),0_6px_0_0_#4a2f16] " +
+    "active:translate-y-[6px] active:shadow-[inset_-4px_-4px_0_0_rgba(74,47,22,0.25),inset_4px_4px_0_0_rgba(255,255,255,0.7)]";
+  const JUMP =
+    "w-[5.4rem] h-[5.4rem] gap-1 rounded-full bg-[#e0484b] text-[#fff6e0] border-[#6d1f22] " +
+    "shadow-[inset_-4px_-6px_0_0_rgba(109,31,34,0.4),inset_4px_5px_0_0_rgba(255,255,255,0.3),0_6px_0_0_#6d1f22] " +
+    "active:translate-y-[6px] active:shadow-[inset_-4px_-6px_0_0_rgba(109,31,34,0.4),inset_4px_5px_0_0_rgba(255,255,255,0.3)]";
 
   return (
     <div
       className="fixed inset-0 flex items-center justify-center overflow-hidden touch-none select-none"
       style={{
-        // Letterbox bands read as golden sky (above) and deep water (below)
-        // on portrait screens where the 16:9 canvas can't fill the viewport.
+        // Fallback bands behind the canvas during rotation/resizes; the
+        // canvas viewport tracks the screen aspect, so it fills everything.
         background: "linear-gradient(to bottom, #ffb84d 0 50%, #2a7ab8 50% 100%)",
       }}
     >
       <canvas
         ref={canvasRef}
-        width={VIEW_W}
+        width={MAX_VIEW_W}
         height={VIEW_H}
-        className="w-full h-full object-contain touch-none [image-rendering:pixelated]"
+        className="w-full h-full object-cover touch-none [image-rendering:pixelated]"
       />
 
       {/* Title & instructions */}
@@ -450,11 +516,23 @@ export default function WelcomeGame() {
           paddingRight: "max(1.5rem, env(safe-area-inset-right))",
         }}
       >
-        <div className="flex gap-3">
-          {touchBtn("touch-left", "◀")}
-          {touchBtn("touch-right", "▶")}
+        <div className="flex gap-4">
+          {touchBtn("touch-left", pixelArrow("left"), PAD)}
+          {touchBtn("touch-right", pixelArrow("right"), PAD)}
         </div>
-        {touchBtn("touch-jump", "▲")}
+        {touchBtn(
+          "touch-jump",
+          <>
+            {pixelArrow("up")}
+            <span
+              className="font-sans text-[0.55rem] font-bold tracking-[0.2em] uppercase"
+              style={{ textIndent: "0.2em" }}
+            >
+              Jump
+            </span>
+          </>,
+          JUMP
+        )}
       </div>
     </div>
   );
