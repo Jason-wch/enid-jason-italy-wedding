@@ -105,13 +105,13 @@ export default function CharacterBuilder({ value, onChange }: Props) {
         </button>
       </div>
 
-      {/* Sunset sky niche matching the game and guest map */}
+      {/* Golden-hour sky niche matching the game and guest map */}
       <div className="flex justify-center my-5">
         <div
-          className="arch flex items-end justify-center px-14 pt-12 pb-5 shadow-[inset_0_2px_10px_rgba(20,50,80,0.25)]"
+          className="arch flex items-end justify-center px-14 pt-12 pb-5 shadow-[inset_0_2px_10px_rgba(120,80,20,0.2)]"
           style={{
             background:
-              "linear-gradient(to bottom, #241f4d 0%, #6d3d7c 32%, #b85276 55%, #ffab52 74%, #ffca7a 81%, #5f9c48 81.5%, #3f6a2e 100%)",
+              "linear-gradient(to bottom, #ffb84d 0%, #ffd985 40%, #fff3bd 66%, #fff9d6 76%, #85c554 76.5%, #5da23c 100%)",
           }}
         >
           <CharacterSprite config={value} scale={7} />

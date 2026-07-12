@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Welcome minigame: a MapleStory-style side-scroller in 16-bit pixel art,
- * set at sunset. Walk (and jump) your chibi character down Villa Sostaga's
- * gravel drive, past the yellow villa and the gazebo terrace, and dive into
- * Lake Garda to enter the wedding website.
+ * Welcome minigame: a MapleStory-style side-scroller in chunky 8-bit pixel
+ * art, set in a bright golden-hour glow. Walk (and jump) your chibi
+ * character down Villa Sostaga's gravel drive, past the yellow villa and the
+ * gazebo terrace, and dive into Lake Garda to enter the wedding website.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -65,10 +65,10 @@ function buildForeground(res: number): HTMLCanvasElement {
   // ground: lawn until the shore, then open water (drawn live)
   drawGrass(ctx, 0, GROUND_Y, LAKE_X + 60, VIEW_H - GROUND_Y);
   // stepped sandy slope into the lake
-  ctx.fillStyle = "#c9a06b";
+  ctx.fillStyle = "#e0c089";
   ctx.fillRect(LAKE_X + 18, GROUND_Y, 42, VIEW_H - GROUND_Y);
   ctx.fillRect(LAKE_X + 33, GROUND_Y + 6, 27, VIEW_H - GROUND_Y - 6);
-  ctx.fillStyle = "#a87f4e";
+  ctx.fillStyle = "#c9a06b";
   ctx.fillRect(LAKE_X + 45, GROUND_Y + 12, 15, VIEW_H - GROUND_Y - 12);
 
   // the walk to the villa
@@ -249,7 +249,7 @@ export default function WelcomeGame() {
 
       // sky only needs to reach the waterline (water + foreground cover the rest)
       drawSky(ctx, VIEW_W, 400);
-      drawSun(ctx, sunScreenX, 252, 34);
+      drawSun(ctx, sunScreenX, 158, 36);
       drawBirds(ctx, 320 - cam * 0.15, 96, t);
       drawBirds(ctx, 760 - cam * 0.15, 140, t);
       // big puffy clouds
@@ -264,7 +264,7 @@ export default function WelcomeGame() {
       drawFloatingIsland(ctx, 820 - cam * 0.3, 84, 116);
       drawTree(ctx, 820 - cam * 0.3, 84, 0.6);
       drawFloatingIsland(ctx, 1280 - cam * 0.3, 150, 96);
-      // dusky purple pre-Alps + rolling dusk-green hills
+      // amber-hazed pre-Alps + rolling sunlit hills
       drawMountains(ctx, VIEW_W, 306, -cam * 0.35, true);
       drawMountains(ctx, VIEW_W, 348, -cam * 0.55, false);
       // the great lake behind the villa terrace — Villa Sostaga overlooks it
@@ -377,9 +377,9 @@ export default function WelcomeGame() {
     <div
       className="fixed inset-0 flex items-center justify-center overflow-hidden touch-none select-none"
       style={{
-        // Letterbox bands read as dusk sky (above) and deep water (below) on
-        // portrait screens where the 16:9 canvas can't fill the viewport.
-        background: "linear-gradient(to bottom, #241f4d 0 50%, #222a55 50% 100%)",
+        // Letterbox bands read as golden sky (above) and deep water (below)
+        // on portrait screens where the 16:9 canvas can't fill the viewport.
+        background: "linear-gradient(to bottom, #ffb84d 0 50%, #2a7ab8 50% 100%)",
       }}
     >
       <canvas

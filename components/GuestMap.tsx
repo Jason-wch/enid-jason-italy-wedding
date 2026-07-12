@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Live guest map: every RSVP'd guest's 16-bit pixel character hangs out in
- * the Villa Sostaga gardens above Lake Garda at sunset. New guests pop in
- * live via Supabase Realtime Broadcast (sent by the RSVP API route), with
- * polling as a fallback.
+ * Live guest map: every RSVP'd guest's 8-bit pixel character hangs out in
+ * the Villa Sostaga gardens above Lake Garda, bathed in a golden-hour glow.
+ * New guests pop in live via Supabase Realtime Broadcast (sent by the RSVP
+ * API route), with polling as a fallback.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -71,7 +71,7 @@ function buildBackground(res: number): HTMLCanvasElement {
 
   const sunX = MAP_W - 170;
   drawSky(ctx, MAP_W, 380);
-  drawSun(ctx, sunX, 254, 32);
+  drawSun(ctx, sunX, 162, 34);
   // puffy clouds + a floating island drifting over the garden
   drawCloud(ctx, 80, 52, 13);
   drawCloud(ctx, 450, 112, 9);
@@ -84,37 +84,31 @@ function buildBackground(res: number): HTMLCanvasElement {
   // calm distant lake strip (villa overlaps it, so it lives in the static bg)
   drawWater(ctx, 0, 346, MAP_W, 28, 0, sunX);
 
-  // gardens — a dusk-lit lawn all the way down
+  // gardens — a bright sunlit lawn all the way down
   drawGrass(ctx, 0, 372, MAP_W, MAP_H - 372);
-  ctx.fillStyle = "#568c3e";
+  ctx.fillStyle = "#74c24b";
   ctx.fillRect(0, 385, MAP_W, MAP_H - 385);
-  // mottled pixel grass texture (snapped to a 3px grid)
-  for (let i = 0; i < 90; i++) {
-    const gx = Math.round(((i * 173) % MAP_W) / 3) * 3;
-    const gy = Math.round((400 + ((i * 97) % (MAP_H - 410))) / 3) * 3;
-    ctx.globalAlpha = 0.2;
-    ctx.fillStyle = i % 3 === 0 ? "#3f6a2e" : "#6ba14f";
-    ctx.fillRect(gx, gy, 15, 3);
-    ctx.fillRect(gx + 3, gy - 3, 6, 3);
+  // mottled fat-pixel grass texture (snapped to a 6px grid)
+  for (let i = 0; i < 70; i++) {
+    const gx = Math.round(((i * 173) % MAP_W) / 6) * 6;
+    const gy = Math.round((400 + ((i * 97) % (MAP_H - 410))) / 6) * 6;
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = i % 3 === 0 ? "#5fae3d" : "#8fd964";
+    ctx.fillRect(gx, gy, 18, 6);
   }
   ctx.globalAlpha = 1;
-  // scattered daisies catching the last light
+  // scattered fat-pixel daisies
   for (let i = 0; i < 14; i++) {
-    const gx = Math.round((30 + ((i * 211) % (MAP_W - 300))) / 3) * 3;
+    const gx = Math.round((30 + ((i * 211) % (MAP_W - 300))) / 6) * 6;
     const gy =
-      Math.round((i % 2 === 0 ? 630 + ((i * 13) % 40) : 398 + ((i * 7) % 14)) / 3) * 3;
-    ctx.fillStyle = i % 3 === 0 ? "#ef8fae" : "#ffe9d9";
-    ctx.fillRect(gx - 3, gy, 3, 3);
-    ctx.fillRect(gx + 3, gy, 3, 3);
-    ctx.fillRect(gx, gy - 3, 3, 3);
-    ctx.fillRect(gx, gy + 3, 3, 3);
-    ctx.fillStyle = "#ffd977";
-    ctx.fillRect(gx, gy, 3, 3);
+      Math.round((i % 2 === 0 ? 630 + ((i * 13) % 40) : 398 + ((i * 7) % 14)) / 6) * 6;
+    ctx.fillStyle = i % 3 === 0 ? "#f08aa8" : "#ffffff";
+    ctx.fillRect(gx, gy, 6, 6);
   }
   // sandy shore edges of the inlet
-  ctx.fillStyle = "#c9a06b";
-  ctx.fillRect(INLET.x - 15, INLET.y - 9, 15, MAP_H - INLET.y + 9);
-  ctx.fillRect(INLET.x - 15, INLET.y - 9, MAP_W - INLET.x + 15, 9);
+  ctx.fillStyle = "#e0c089";
+  ctx.fillRect(INLET.x - 12, INLET.y - 12, 12, MAP_H - INLET.y + 12);
+  ctx.fillRect(INLET.x - 12, INLET.y - 12, MAP_W - INLET.x + 12, 12);
 
   // scenery band along the top of the gardens
   drawVilla(ctx, 56, 386, 0.72);

@@ -1,86 +1,86 @@
 /**
- * MapleStory-style Lake Garda scenery at sunset, drawn as chunky 16-bit
- * pixel art: banded dusk sky with early stars, a low golden sun, purple
- * mountains, glinting water, and the yellow Villa Sostaga with its windows
- * lit for the evening — plus Maple staples: stepped clouds, floating grass
- * islands, ladders, glossy orange mushrooms and wooden arrow signs.
+ * 8-bit Lake Garda scenery at golden hour, drawn CryptoPunks-style: fat
+ * pixels, flat colors, hard edges. A bright yellow-glow sky over amber
+ * mountains, sparkling blue water, and the sunny Villa Sostaga — plus Maple
+ * staples: stepped clouds, floating grass islands, ladders, glossy orange
+ * mushrooms and wooden arrow signs.
  *
- * Everything snaps to a PX-sized texel grid for crisp retro edges.
+ * Everything snaps to a PX-sized texel grid (≈160x90 virtual resolution).
  */
 
 export const PALETTE = {
-  // Sunset sky (top → horizon)
-  skyTop: "#241f4d",
-  skyMid: "#93467e",
-  skyBottom: "#ffab52",
-  sun: "#ffd977",
-  cloud: "#c481ae",
-  cloudShade: "#8f5b93",
-  cloudLit: "#ffc38f",
-  // Distant scenery — dusky purples and dusk-lit hills
-  mountainFar: "#5b4878",
-  mountainNear: "#403663",
-  hill: "#4e7141",
-  hillDark: "#3a5731",
-  // Water — deep evening blues with warm glints
-  lake: "#3b4f8f",
-  lakeDeep: "#222a55",
-  lakeShine: "#ffd9a0",
-  lakeShineCool: "#8fa8d9",
-  // Ground — dusk grass over warm soil
-  grass: "#5f9c48",
-  grassDark: "#457233",
-  grassLip: "#a3c25e",
-  soil: "#7c5233",
-  soilDark: "#573823",
-  gravel: "#d9b98b",
-  gravelEdge: "#b08d5f",
-  stone: "#b39a7d",
-  stoneDark: "#8a7156",
-  // Villa Sostaga — sunset-lit walls, windows glowing
-  villaWall: "#f2b64b",
-  villaWallShade: "#c58a2e",
-  villaTrim: "#ffe9bd",
-  windowGlow: "#ffd97a",
+  // Golden-hour sky (top → horizon glow)
+  skyTop: "#ffb84d",
+  skyMid: "#ffd985",
+  skyBottom: "#fff9d6",
+  sun: "#fff3b0",
+  cloud: "#fff4dd",
+  cloudShade: "#f2d5a4",
+  cloudLit: "#fffcf0",
+  // Distant scenery — amber haze mountains, sunlit hills
+  mountainFar: "#d99a4e",
+  mountainNear: "#c07f3e",
+  hill: "#7dbb4f",
+  hillDark: "#5f9c3a",
+  // Water — bright blue with golden glints
+  lake: "#4aa3d8",
+  lakeDeep: "#2a7ab8",
+  lakeShine: "#fff3b0",
+  lakeShineCool: "#bfe4f8",
+  // Ground — sunlit grass over warm soil
+  grass: "#85c554",
+  grassDark: "#5da23c",
+  grassLip: "#c6e07a",
+  soil: "#a9713d",
+  soilDark: "#7c4e26",
+  gravel: "#ecd9ac",
+  gravelEdge: "#c8a878",
+  stone: "#c3b49a",
+  stoneDark: "#a08e72",
+  // Villa Sostaga — golden walls in the evening light
+  villaWall: "#f7c454",
+  villaWallShade: "#d69e2f",
+  villaTrim: "#fff3d6",
+  windowGlow: "#ffe9a8",
   shutter: "#2e6041",
-  shutterDark: "#1f4530",
-  roof: "#a34c33",
-  roofDark: "#7a3722",
-  roofLight: "#c66a45",
+  shutterDark: "#224731",
+  roof: "#c26a45",
+  roofDark: "#96482c",
+  roofLight: "#d98a5f",
   // Gazebo
-  canopy: "#e8d3ae",
-  canopyShade: "#c2a67e",
-  gazeboFrame: "#35594a",
-  glass: "#f0b56d",
+  canopy: "#f7edd6",
+  canopyShade: "#dcc79e",
+  gazeboFrame: "#3a614b",
+  glass: "#ffe2a0",
   // Flora
-  cypress: "#2c5a3d",
-  cypressDark: "#1e412b",
-  cypressLight: "#3f7048",
-  trunk: "#6f4a2c",
-  trunkDark: "#523419",
-  leaf: "#3f7d3a",
-  leafMid: "#579447",
-  leafLight: "#7fb35c",
-  olive: "#8aa06a",
-  oliveDark: "#6a8250",
-  pot: "#a95a3d",
-  potDark: "#7f3f28",
-  flowerRed: "#d84a52",
-  flowerPink: "#ef8fae",
-  flowerWhite: "#ffe9d9",
+  cypress: "#2f6b40",
+  cypressDark: "#245231",
+  cypressLight: "#4b8f57",
+  trunk: "#8a5a33",
+  trunkDark: "#68431f",
+  leaf: "#4e9b3c",
+  leafMid: "#67b84a",
+  leafLight: "#93d666",
+  olive: "#9dbb77",
+  oliveDark: "#7b9c58",
+  pot: "#c26744",
+  potDark: "#9c4c2f",
+  flowerRed: "#e0484b",
+  flowerPink: "#f08aa8",
+  flowerWhite: "#ffffff",
   // Props
-  wood: "#8f5f36",
-  woodLight: "#b3854f",
-  mushroomCap: "#e8842a",
-  mushroomSpot: "#ffdca8",
-  mushroomStalk: "#e9d5ae",
-  outline: "rgba(40, 24, 36, 0.55)",
+  wood: "#a9713d",
+  woodLight: "#c99257",
+  mushroomCap: "#f5921e",
+  mushroomSpot: "#ffe3b8",
+  mushroomStalk: "#f6e7c8",
+  outline: "rgba(80, 50, 20, 0.5)",
 };
 
 type Ctx = CanvasRenderingContext2D;
 
-/** Texel size — the whole world renders on a 3px grid (≈320x180 virtual). */
-const PX = 3;
+/** Texel size — fat 8-bit pixels on a 6px grid (≈160x90 virtual). */
+const PX = 6;
 
 const snap = (v: number) => Math.round(v / PX) * PX;
 
@@ -105,18 +105,15 @@ function block(ctx: Ctx, x: number, y: number, w: number, h: number, color: stri
 --------------------------------------------------------------------------- */
 
 const SKY_BANDS: [number, string][] = [
-  [0.0, "#241f4d"],
-  [0.16, "#332a63"],
-  [0.3, "#4a3572"],
-  [0.44, "#6d3d7c"],
-  [0.56, "#93467e"],
-  [0.68, "#b85276"],
-  [0.78, "#dd6a67"],
-  [0.87, "#f68a55"],
-  [0.94, "#ffab52"],
+  [0.0, "#ffb84d"],
+  [0.2, "#ffc766"],
+  [0.42, "#ffd985"],
+  [0.62, "#ffe8a4"],
+  [0.8, "#fff3bd"],
+  [0.92, "#fff9d6"],
 ];
 
-/** Banded sunset sky with dithered seams and a few early stars. */
+/** Flat banded golden-hour sky — hard 8-bit seams, no dithering. */
 export function drawSky(ctx: Ctx, w: number, h: number) {
   for (let i = 0; i < SKY_BANDS.length; i++) {
     const [f, color] = SKY_BANDS[i];
@@ -125,40 +122,23 @@ export function drawSky(ctx: Ctx, w: number, h: number) {
     const y1 = i + 1 < SKY_BANDS.length ? snap(next * h) : h;
     ctx.fillStyle = color;
     ctx.fillRect(0, y0, w, Math.max(PX, y1 - y0));
-    // checkered dither row blending into the band above
-    if (i > 0) {
-      ctx.fillStyle = SKY_BANDS[i - 1][1];
-      for (let dx = (i % 2) * PX; dx < w; dx += PX * 2) {
-        ctx.fillRect(dx, y0, PX, PX);
-      }
-    }
-  }
-  // early stars in the darkest part of the dusk
-  for (let i = 0; i < 18; i++) {
-    if (i % 5 === 0) continue;
-    const sx = snap((i * 233 + 41) % w);
-    const sy = snap((i * 127 + 31) % Math.max(PX, h * 0.32));
-    ctx.globalAlpha = i % 3 === 0 ? 0.9 : 0.55;
-    ctx.fillStyle = i % 2 === 0 ? "#ffe9c9" : "#cdbcff";
-    ctx.fillRect(sx, sy, PX, PX);
-    ctx.globalAlpha = 1;
   }
 }
 
-/** Big low pixel sun melting into the horizon. */
+/** Big bright pixel sun pouring yellow glow across the sky. */
 export function drawSun(ctx: Ctx, x: number, y: number, r: number) {
-  // soft banded glow
-  ctx.globalAlpha = 0.12;
-  pixelCircle(ctx, x, y, r * 2.3, "#ff9a3d");
-  ctx.globalAlpha = 0.16;
-  pixelCircle(ctx, x, y, r * 1.6, "#ffb45e");
+  // wide banded glow
+  ctx.globalAlpha = 0.2;
+  pixelCircle(ctx, x, y, r * 2.4, "#fff3b0");
+  ctx.globalAlpha = 0.3;
+  pixelCircle(ctx, x, y, r * 1.6, "#fff7c9");
   ctx.globalAlpha = 1;
   pixelCircle(ctx, x, y, r, PALETTE.sun);
-  pixelCircle(ctx, x - r * 0.2, y - r * 0.25, r * 0.55, "#ffedb0");
-  // warm rim on the lower edge
+  pixelCircle(ctx, x - r * 0.2, y - r * 0.25, r * 0.55, "#fffbe0");
+  // golden rim on the lower edge
   for (let yy = r * 0.55; yy < r; yy += PX) {
     const hw = Math.sqrt(Math.max(0, r * r - yy * yy));
-    px(ctx, x - hw, y + yy, hw * 2, PX, "#ffb350");
+    px(ctx, x - hw, y + yy, hw * 2, PX, "#ffd95e");
   }
 }
 
@@ -171,7 +151,7 @@ function pixelCircle(ctx: Ctx, x: number, y: number, r: number, color: string) {
   }
 }
 
-/** Stepped Maple cloud — lit peach on top, dusk purple below. */
+/** Stepped Maple cloud — bright cream lit by the golden sun. */
 export function drawCloud(ctx: Ctx, x: number, y: number, s: number) {
   px(ctx, x + s * 1.8, y, s * 2.6, s * 0.9, PALETTE.cloudLit);
   px(ctx, x + s * 0.6, y + s * 0.9, s * 4.6, s, PALETTE.cloud);
@@ -180,10 +160,10 @@ export function drawCloud(ctx: Ctx, x: number, y: number, s: number) {
   px(ctx, x + s * 0.4, y + s * 2.9, s * 5.2, s * 0.7, PALETTE.cloudShade);
 }
 
-/** Two-frame pixel birds heading home for the evening. */
+/** Two-frame pixel birds crossing the golden sky. */
 export function drawBirds(ctx: Ctx, x: number, y: number, t: number) {
   const up = Math.floor(t / 260) % 2 === 0;
-  const c = "rgba(40, 26, 48, 0.85)";
+  const c = "rgba(90, 60, 30, 0.75)";
   const bird = (bx: number, by: number) => {
     if (up) {
       px(ctx, bx - 6, by - 3, 3, 3, c);
@@ -201,8 +181,8 @@ export function drawBirds(ctx: Ctx, x: number, y: number, t: number) {
 }
 
 /**
- * Background ridges. `far` = dusky purple pre-Alps with a warm rim light;
- * otherwise rolling dusk-green hills right behind the playfield.
+ * Background ridges. `far` = amber-hazed pre-Alps with a bright rim light;
+ * otherwise rolling sunlit hills right behind the playfield.
  */
 export function drawMountains(ctx: Ctx, w: number, y: number, offset: number, far: boolean) {
   if (far) {
@@ -213,11 +193,11 @@ export function drawMountains(ctx: Ctx, w: number, y: number, offset: number, fa
     }
     ctx.fillStyle = PALETTE.mountainFar;
     ctx.fillRect(0, snap(y) - PX, w, PX * 2);
-    // warm haze where the sky meets the water
-    ctx.globalAlpha = 0.22;
-    ctx.fillStyle = "#ff9a55";
+    // golden haze where the sky meets the water
+    ctx.globalAlpha = 0.3;
+    ctx.fillStyle = "#fff3bd";
     ctx.fillRect(0, snap(y) - PX * 3, w, PX * 3);
-    ctx.globalAlpha = 0.12;
+    ctx.globalAlpha = 0.18;
     ctx.fillRect(0, snap(y) - PX * 6, w, PX * 3);
     ctx.globalAlpha = 1;
     return;
@@ -236,12 +216,12 @@ export function drawMountains(ctx: Ctx, w: number, y: number, offset: number, fa
   ctx.fillRect(0, snap(y) + PX, w, PX * 3);
 }
 
-/** Stepped pixel triangle with a rosy rim light on the top rows. */
+/** Stepped pixel triangle with a sunlit rim on the top rows. */
 function steppedPeak(ctx: Ctx, apexX: number, baseY: number, h: number, baseW: number, color: string) {
   for (let yy = baseY - h; yy < baseY; yy += PX) {
     const frac = (yy - (baseY - h)) / h;
     const hw = Math.max(PX / 2, (baseW / 2) * frac);
-    px(ctx, apexX - hw, yy, hw * 2, PX, frac < 0.16 ? "#b26a8f" : color);
+    px(ctx, apexX - hw, yy, hw * 2, PX, frac < 0.16 ? "#ffe9a0" : color);
   }
 }
 
@@ -249,7 +229,7 @@ function steppedPeak(ctx: Ctx, apexX: number, baseY: number, h: number, baseW: n
    Water
 --------------------------------------------------------------------------- */
 
-/** Deep evening lake with a golden sun column and stepped retro glints. */
+/** Bright blue lake with a golden sun column and stepped retro glints. */
 export function drawWater(
   ctx: Ctx,
   x: number,
@@ -259,19 +239,10 @@ export function drawWater(
   t: number,
   sunX?: number
 ) {
-  // banded depth instead of a gradient
+  // flat banded depth — hard 8-bit seams
   px(ctx, x, y, w, h * 0.3, PALETTE.lake);
-  px(ctx, x, y + h * 0.3, w, h * 0.32, "#2f3f76");
+  px(ctx, x, y + h * 0.3, w, h * 0.32, "#3a8fc9");
   px(ctx, x, y + h * 0.62, w, h - h * 0.62, PALETTE.lakeDeep);
-  // dithered seams
-  ctx.fillStyle = PALETTE.lake;
-  for (let dx = snap(x); dx < x + w; dx += PX * 2) {
-    ctx.fillRect(dx, snap(y + h * 0.3), PX, PX);
-  }
-  ctx.fillStyle = "#2f3f76";
-  for (let dx = snap(x) + PX; dx < x + w; dx += PX * 2) {
-    ctx.fillRect(dx, snap(y + h * 0.62), PX, PX);
-  }
 
   // golden column under the sun
   if (sunX !== undefined && sunX > x - 120 && sunX < x + w + 120) {
@@ -279,10 +250,10 @@ export function drawWater(
     ctx.beginPath();
     ctx.rect(x, y, w, h);
     ctx.clip();
-    ctx.globalAlpha = 0.14;
-    px(ctx, sunX - 45, y, 90, h, "#ffb45e");
-    ctx.globalAlpha = 0.28;
-    px(ctx, sunX - 18, y, 36, h, "#ffca7a");
+    ctx.globalAlpha = 0.2;
+    px(ctx, sunX - 45, y, 90, h, "#fff3b0");
+    ctx.globalAlpha = 0.35;
+    px(ctx, sunX - 18, y, 36, h, "#ffe79e");
     ctx.globalAlpha = 1;
     ctx.restore();
   }
@@ -307,15 +278,11 @@ export function drawWater(
    Ground
 --------------------------------------------------------------------------- */
 
-/** Dusk grass with a sunlit lip over warm soil — the Maple ground block. */
+/** Sunlit grass with a bright lip over warm soil — the Maple ground block. */
 export function drawGrass(ctx: Ctx, x: number, y: number, w: number, h: number) {
-  // soil, darker with depth
+  // soil, darker with depth — flat 8-bit bands
   px(ctx, x, y, w, h, PALETTE.soil);
   px(ctx, x, y + h * 0.45, w, h - h * 0.45, PALETTE.soilDark);
-  ctx.fillStyle = PALETTE.soil;
-  for (let dx = snap(x); dx < x + w; dx += PX * 2) {
-    ctx.fillRect(dx, snap(y + h * 0.45), PX, PX);
-  }
   // buried stones
   ctx.globalAlpha = 0.2;
   for (let i = 0; i < w / 46; i++) {
@@ -367,13 +334,9 @@ export function drawVilla(ctx: Ctx, x: number, baseY: number, s: number) {
   const top = baseY - wallH;
   const cx = x + W / 2;
 
-  // ---- walls (sunset-lit face, shaded right edge)
+  // ---- walls (sunlit face, flat shaded right edge)
   px(ctx, x, top, W, wallH, PALETTE.villaWall);
   px(ctx, x + W - 20 * s, top, 20 * s, wallH, PALETTE.villaWallShade);
-  ctx.fillStyle = PALETTE.villaWall;
-  for (let dy = snap(top); dy < baseY; dy += PX * 2) {
-    ctx.fillRect(snap(x + W - 20 * s), dy, PX, PX);
-  }
 
   // string courses between floors + stone plinth
   ctx.globalAlpha = 0.8;
@@ -425,10 +388,10 @@ export function drawVilla(ctx: Ctx, x: number, baseY: number, s: number) {
       px(ctx, wx + winW + 0.5 * s, wy + winH / 3, 5.5 * s, PX, PALETTE.shutterDark);
       px(ctx, wx - 6 * s, wy + (winH * 2) / 3, 5.5 * s, PX, PALETTE.shutterDark);
       px(ctx, wx + winW + 0.5 * s, wy + (winH * 2) / 3, 5.5 * s, PX, PALETTE.shutterDark);
-      // white surround + glowing glass
+      // white surround + sun-warmed glass
       px(ctx, wx - 1.5 * s, wy - 2.5 * s, winW + 3 * s, winH + 4 * s, PALETTE.villaTrim);
       px(ctx, wx, wy, winW, winH, PALETTE.windowGlow);
-      px(ctx, wx, wy, winW, winH / 3, "#ffe9a0");
+      px(ctx, wx, wy, winW, winH / 3, "#fff6cc");
       // mullions
       px(ctx, wx, wy + winH / 2, winW, PX, "rgba(140, 90, 40, 0.55)");
       px(ctx, wx + winW / 2, wy, PX, winH, "rgba(140, 90, 40, 0.55)");
@@ -623,7 +586,7 @@ export function drawMushroom(ctx: Ctx, x: number, baseY: number, s: number) {
       baseY - 23 * s + yy,
       hw * 2,
       PX,
-      frac < 0.35 ? "#f9a53f" : PALETTE.mushroomCap
+      frac < 0.35 ? "#ffb14e" : PALETTE.mushroomCap
     );
   }
   px(ctx, x - 12 * s, baseY - 9 * s, 24 * s, 2.5 * s, "#c96a1a");
@@ -695,7 +658,7 @@ export function drawSign(ctx: Ctx, x: number, baseY: number, text: string) {
   ctx.fillText(text, x - 4, y + h / 2 + 1);
 }
 
-/** Little wooden boat with a sunset-lit sail, bobbing on the lake. */
+/** Little wooden boat with a bright white sail, bobbing on the lake. */
 export function drawBoat(ctx: Ctx, x: number, waterY: number, t: number) {
   const bob = Math.round(Math.sin(t / 750)) * PX;
   const y = waterY + bob;
@@ -705,12 +668,12 @@ export function drawBoat(ctx: Ctx, x: number, waterY: number, t: number) {
   px(ctx, x - 14, y + 7, 28, 3, PALETTE.trunkDark);
   // mast
   px(ctx, x - 1, y - 26, PX, 26, PALETTE.trunkDark);
-  // stepped sail catching the last light
+  // stepped sail catching the golden light
   for (let yy = 0; yy < 19; yy += PX) {
-    px(ctx, x + 2, y - 24 + yy, 4 + yy * 0.55, PX, "#ffe2c4");
+    px(ctx, x + 2, y - 24 + yy, 4 + yy * 0.55, PX, "#fff6e0");
   }
-  // warm reflection
-  ctx.globalAlpha = 0.3;
-  px(ctx, x - 18, waterY + 13, 36, PX, "#ffb45e");
+  // golden reflection
+  ctx.globalAlpha = 0.35;
+  px(ctx, x - 18, waterY + 13, 36, PX, "#ffd977");
   ctx.globalAlpha = 1;
 }
