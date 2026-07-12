@@ -12,18 +12,18 @@ export const metadata = {
 export default function HomePage() {
   return (
     <div>
-      {/* Hero — full-bleed photograph, statement bottom-left */}
-      <section className="relative h-[88svh] min-h-[540px] overflow-hidden">
+      {/* Hero — full-screen photograph with the countdown and RSVP inside */}
+      <section className="relative h-[100svh] min-h-[600px] overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="/images/couple-portrait-close.jpg"
-            alt="Enid and Jason"
+            src="/images/couple-alps-picnic.jpg"
+            alt="Enid and Jason in the mountains"
             fill
             priority
             className="object-cover animate-ken-burns"
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/45 via-ink/5 to-ink/15" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/55 via-ink/5 to-ink/15" />
 
         <div className="absolute inset-x-0 bottom-0 px-5 sm:px-12 pb-12 sm:pb-16 text-cream">
           <h1
@@ -40,6 +40,15 @@ export default function HomePage() {
           >
             Enid &amp; Jason — {WEDDING.dates}, {WEDDING.venue}
           </p>
+          <div
+            className="mt-8 flex flex-wrap items-end gap-x-10 gap-y-6 animate-hero-in"
+            style={{ animationDelay: "0.9s" }}
+          >
+            <Countdown />
+            <Link href="/rsvp" className="btn btn-light">
+              RSVP
+            </Link>
+          </div>
         </div>
 
         <div className="absolute bottom-6 right-6 sm:right-10 text-cream/80 animate-scroll-cue">
@@ -57,14 +66,6 @@ export default function HomePage() {
             and the art of doing beautifully little. It is yours for a long weekend.
             Welcome.
           </p>
-        </Reveal>
-        <Reveal delay={150} className="mt-12 flex flex-wrap items-center gap-x-10 gap-y-6">
-          <div className="flex items-baseline gap-4">
-            <Countdown />
-          </div>
-          <Link href="/rsvp" className="btn btn-dark">
-            RSVP
-          </Link>
         </Reveal>
       </section>
 
@@ -132,7 +133,7 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-2 gap-10 sm:gap-16 items-center">
           <Reveal className="order-2 sm:order-1">
             <div className="relative aspect-[4/3] overflow-hidden">
-              <Image src="/images/couple-alps-picnic.jpg" alt="Enid and Jason" fill className="object-cover" />
+              <Image src="/images/couple-portrait-close.jpg" alt="Enid and Jason" fill className="object-cover" />
             </div>
           </Reveal>
           <Reveal delay={120} className="order-1 sm:order-2">

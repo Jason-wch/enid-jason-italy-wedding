@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Live guest map: every RSVP'd guest's MapleStory-style character hangs out
- * in the Villa Sostaga gardens above Lake Garda. New guests pop in live via
- * Supabase Realtime Broadcast (sent by the RSVP API route), with polling as
- * a fallback.
+ * Live guest map: every RSVP'd guest's 16-bit pixel character hangs out in
+ * the Villa Sostaga gardens above Lake Garda at sunset. New guests pop in
+ * live via Supabase Realtime Broadcast (sent by the RSVP API route), with
+ * polling as a fallback.
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -67,10 +67,11 @@ function buildBackground(res: number): HTMLCanvasElement {
   off.height = MAP_H * res;
   const ctx = off.getContext("2d")!;
   ctx.setTransform(res, 0, 0, res, 0, 0);
+  ctx.imageSmoothingEnabled = false;
 
   const sunX = MAP_W - 170;
   drawSky(ctx, MAP_W, 380);
-  drawSun(ctx, sunX, 76, 30);
+  drawSun(ctx, sunX, 254, 32);
   // puffy clouds + a floating island drifting over the garden
   drawCloud(ctx, 80, 52, 13);
   drawCloud(ctx, 450, 112, 9);
@@ -83,38 +84,37 @@ function buildBackground(res: number): HTMLCanvasElement {
   // calm distant lake strip (villa overlaps it, so it lives in the static bg)
   drawWater(ctx, 0, 346, MAP_W, 28, 0, sunX);
 
-  // gardens — a proper green lawn all the way down
+  // gardens — a dusk-lit lawn all the way down
   drawGrass(ctx, 0, 372, MAP_W, MAP_H - 372);
-  ctx.fillStyle = "#74c24b";
+  ctx.fillStyle = "#568c3e";
   ctx.fillRect(0, 385, MAP_W, MAP_H - 385);
-  // mottled grass texture
+  // mottled pixel grass texture (snapped to a 3px grid)
   for (let i = 0; i < 90; i++) {
-    const gx = (i * 173) % MAP_W;
-    const gy = 400 + ((i * 97) % (MAP_H - 410));
-    ctx.globalAlpha = 0.14;
-    ctx.fillStyle = i % 3 === 0 ? "#5fae3d" : "#8fd964";
-    ctx.beginPath();
-    ctx.ellipse(gx, gy, 16, 5, 0, 0, Math.PI * 2);
-    ctx.fill();
+    const gx = Math.round(((i * 173) % MAP_W) / 3) * 3;
+    const gy = Math.round((400 + ((i * 97) % (MAP_H - 410))) / 3) * 3;
+    ctx.globalAlpha = 0.2;
+    ctx.fillStyle = i % 3 === 0 ? "#3f6a2e" : "#6ba14f";
+    ctx.fillRect(gx, gy, 15, 3);
+    ctx.fillRect(gx + 3, gy - 3, 6, 3);
   }
   ctx.globalAlpha = 1;
-  // scattered daisies along the edges of the lawn
+  // scattered daisies catching the last light
   for (let i = 0; i < 14; i++) {
-    const gx = 30 + ((i * 211) % (MAP_W - 300));
-    const gy = i % 2 === 0 ? 630 + ((i * 13) % 40) : 398 + ((i * 7) % 14);
-    ctx.fillStyle = i % 3 === 0 ? "#f08aa8" : "#ffffff";
-    ctx.beginPath();
-    ctx.arc(gx, gy, 2.4, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#ffe27a";
-    ctx.beginPath();
-    ctx.arc(gx, gy, 1, 0, Math.PI * 2);
-    ctx.fill();
+    const gx = Math.round((30 + ((i * 211) % (MAP_W - 300))) / 3) * 3;
+    const gy =
+      Math.round((i % 2 === 0 ? 630 + ((i * 13) % 40) : 398 + ((i * 7) % 14)) / 3) * 3;
+    ctx.fillStyle = i % 3 === 0 ? "#ef8fae" : "#ffe9d9";
+    ctx.fillRect(gx - 3, gy, 3, 3);
+    ctx.fillRect(gx + 3, gy, 3, 3);
+    ctx.fillRect(gx, gy - 3, 3, 3);
+    ctx.fillRect(gx, gy + 3, 3, 3);
+    ctx.fillStyle = "#ffd977";
+    ctx.fillRect(gx, gy, 3, 3);
   }
   // sandy shore edges of the inlet
-  ctx.fillStyle = "#e0c089";
-  ctx.fillRect(INLET.x - 14, INLET.y - 10, 14, MAP_H - INLET.y + 10);
-  ctx.fillRect(INLET.x - 14, INLET.y - 10, MAP_W - INLET.x + 14, 10);
+  ctx.fillStyle = "#c9a06b";
+  ctx.fillRect(INLET.x - 15, INLET.y - 9, 15, MAP_H - INLET.y + 9);
+  ctx.fillRect(INLET.x - 15, INLET.y - 9, MAP_W - INLET.x + 15, 9);
 
   // scenery band along the top of the gardens
   drawVilla(ctx, 56, 386, 0.72);
@@ -185,7 +185,8 @@ export default function GuestMap() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const RES = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+    // Integer resolution only, so every texel lands on whole device pixels.
+    const RES = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
     canvas.width = MAP_W * RES;
     canvas.height = MAP_H * RES;
     const background = buildBackground(RES);
@@ -193,7 +194,7 @@ export default function GuestMap() {
     let raf = 0;
     const render = (t: number) => {
       ctx.setTransform(RES, 0, 0, RES, 0, 0);
-      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingEnabled = false;
 
       ctx.drawImage(background, 0, 0, MAP_W, MAP_H);
 
@@ -268,7 +269,7 @@ export default function GuestMap() {
             ref={canvasRef}
             width={MAP_W}
             height={MAP_H}
-            className="block h-auto w-full min-w-[640px] sm:min-w-0"
+            className="block h-auto w-full min-w-[640px] sm:min-w-0 [image-rendering:pixelated]"
           />
         </div>
       </div>

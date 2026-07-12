@@ -10,6 +10,7 @@ import Logo, { LogoMark } from "@/components/decor/Logo";
 const LINKS = [
   { href: "/home", label: "Home", sub: "welcome" },
   { href: "/schedule", label: "Schedule", sub: "the program" },
+  { href: "/getting-there", label: "Getting There", sub: "travel & arrival" },
   { href: "/rsvp", label: "RSVP", sub: "will you be there?" },
   { href: "/guests", label: "Guest Map", sub: "the guests" },
   { href: "/faq", label: "FAQ", sub: "questions" },
@@ -20,6 +21,7 @@ const LINKS = [
 export default function SiteChrome({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [atTop, setAtTop] = useState(true);
 
   // Close the mobile menu on navigation and lock scroll while it is open.
   useEffect(() => {
@@ -32,6 +34,15 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
       document.body.style.overflow = "";
     };
   }, [menuOpen]);
+
+  // On the home page the white menu bar slides away while the visitor is at
+  // the very top, letting the hero photograph own the whole screen.
+  useEffect(() => {
+    const onScroll = () => setAtTop(window.scrollY < 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // The password gate is a standalone fullscreen page with no site chrome.
   if (pathname === "/enter") {
@@ -50,9 +61,17 @@ export default function SiteChrome({ children }: { children: ReactNode }) {
     );
   }
 
+  const isHome = pathname === "/home";
+  const hideBar = isHome && atTop && !menuOpen;
+
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-ink/10">
+      <header
+        className={`${isHome ? "fixed inset-x-0" : "sticky"} top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-ink/10 transition-all duration-700 ${
+          hideBar ? "-translate-y-full opacity-0 pointer-events-none" : "translate-y-0 opacity-100"
+        }`}
+        style={{ transitionTimingFunction: "var(--ease-elegant)" }}
+      >
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <div className="grid grid-cols-[1fr_auto_1fr] items-center pt-4 pb-3">
             <div className="justify-self-start">

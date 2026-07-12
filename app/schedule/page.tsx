@@ -1,5 +1,6 @@
+import Link from "next/link";
 import Reveal from "@/components/Reveal";
-import { buildIcs, EVENTS, googleCalendarUrl, WEDDING } from "@/lib/wedding";
+import { buildIcs, EVENTS, googleCalendarUrl } from "@/lib/wedding";
 
 export const metadata = {
   title: "Schedule — Enid & Jason",
@@ -7,8 +8,6 @@ export const metadata = {
 
 export default function SchedulePage() {
   const icsHref = `data:text/calendar;charset=utf-8,${encodeURIComponent(buildIcs())}`;
-  const mapsEmbed = `https://www.google.com/maps?q=${encodeURIComponent(WEDDING.mapsQuery)}&output=embed`;
-  const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(WEDDING.mapsQuery)}`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
@@ -79,39 +78,15 @@ export default function SchedulePage() {
 
       <div className="hairline mt-10" />
 
-      {/* Getting there */}
-      <div className="mt-24">
-        <Reveal className="text-center">
-          <p className="eyebrow eyebrow-rule">Getting There</p>
-          <h2 className="font-heading text-4xl sm:text-5xl mt-6">
-            Getting <span className="display-italic">there</span>
-          </h2>
-          <p className="mt-5 text-lg italic text-ink/60">
-            {WEDDING.venue} · {WEDDING.venueAddress}
-          </p>
-        </Reveal>
-        <Reveal delay={120} className="mt-10">
-          <div className="tile-frame p-3">
-            <div className="overflow-hidden aspect-[4/3] sm:aspect-video">
-              <iframe
-                src={mapsEmbed}
-                className="w-full h-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Map of Villa Sostaga, Gargnano, Lake Garda"
-              />
-            </div>
-          </div>
-          <p className="photo-caption justify-center font-heading text-xl text-stone">
-            Villa Sostaga, Gargnano — on Lake Garda
-          </p>
-        </Reveal>
-        <Reveal delay={180} className="text-center mt-8">
-          <a href={mapsLink} target="_blank" rel="noopener noreferrer" className="btn btn-dark">
-            Open in Google Maps →
-          </a>
-        </Reveal>
-      </div>
+      {/* Travel details now live on their own page */}
+      <Reveal className="text-center mt-16">
+        <p className="font-heading italic text-lg text-stone">
+          Flights, driving directions and the map have moved to their own page.
+        </p>
+        <Link href="/getting-there" className="btn btn-dark mt-8">
+          Getting there →
+        </Link>
+      </Reveal>
     </div>
   );
 }

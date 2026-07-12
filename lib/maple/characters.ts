@@ -1,12 +1,12 @@
 /**
- * MapleStory-style chibi characters drawn as smooth vector art on canvas —
- * big glossy head, huge sparkly eyes, tiny body. No pixel grids.
+ * MapleStory-inspired chibi characters drawn as 16-bit pixel art on canvas —
+ * big head, tall sparkly eyes, tiny body, chunky SNES-era pixels.
  *
  * Characters use the same CharacterConfig shape stored in Supabase and
  * localStorage, so previously saved characters keep working.
  *
- * Coordinate system: a 16 x 22 "unit" box multiplied by `scale`, matching
- * the footprint of the old pixel sprites so all layout math stays valid.
+ * Coordinate system: a 16 x 22 "unit" box multiplied by `scale`. One pixel
+ * (texel) is half a unit, giving a 32 x 44 texel sprite.
  */
 
 export const SPRITE_W = 16;
@@ -116,146 +116,69 @@ const light = (c: string, t: number) => mix(c, "#ffffff", t);
 const dark = (c: string, t: number) => mix(c, "#241209", t);
 
 /* ---------------------------------------------------------------------------
-   Small vector helpers (all in the 16x22 unit space)
+   Pixel helpers — everything is drawn on a 32 x 44 texel grid where one
+   texel = 0.5 units. `R` fills whole texels only, keeping edges razor sharp.
 --------------------------------------------------------------------------- */
 
-function fillStroke(ctx: Ctx, fill: string, outline?: string, lw = 0.26) {
-  ctx.fillStyle = fill;
-  ctx.fill();
-  if (outline) {
-    ctx.strokeStyle = outline;
-    ctx.lineWidth = lw;
-    ctx.stroke();
-  }
-}
+const T = 0.5; // texel size in unit space
 
-/** Rounded limb between two points, with a thin darker outline. */
-function capsule(
-  ctx: Ctx,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  r: number,
-  fill: string,
-  outline?: string
-) {
-  ctx.lineCap = "round";
-  if (outline) {
-    ctx.strokeStyle = outline;
-    ctx.lineWidth = r * 2 + 0.44;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = fill;
-  ctx.lineWidth = r * 2;
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-}
+type PxFill = (x: number, y: number, w: number, h: number, color: string) => void;
 
-function ellipsePath(ctx: Ctx, cx: number, cy: number, rx: number, ry: number) {
-  ctx.beginPath();
-  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+/** Rectangle with 2-step "rounded" pixel corners. */
+function blockPx(R: PxFill, x: number, y: number, w: number, h: number, color: string) {
+  R(x + 2, y, w - 4, h, color);
+  R(x + 1, y + 1, w - 2, h - 2, color);
+  R(x, y + 2, w, h - 4, color);
 }
 
 /* ---------------------------------------------------------------------------
    Head & face
 --------------------------------------------------------------------------- */
 
-const HEAD = { cx: 8, cy: 6.35, rx: 5.7, ry: 5.3 };
-
-function drawHead(ctx: Ctx, skin: [string, string]) {
-  ellipsePath(ctx, HEAD.cx, HEAD.cy, HEAD.rx, HEAD.ry);
-  fillStroke(ctx, skin[0], dark(skin[0], 0.45), 0.3);
-  // soft cheek/jaw shading
-  ctx.globalAlpha = 0.4;
-  ellipsePath(ctx, 8, 10.9, 3.1, 0.85);
-  ctx.fillStyle = skin[1];
-  ctx.fill();
-  ctx.globalAlpha = 1;
+function drawHeadPx(R: PxFill, skin: [string, string]) {
+  const outline = dark(skin[0], 0.5);
+  blockPx(R, 4, 1, 24, 20, outline); // silhouette y1..20
+  blockPx(R, 5, 2, 22, 18, skin[0]); // face fill y2..19
+  // jaw shading
+  R(9, 18, 14, 1, skin[1]);
 }
 
-function drawFace(ctx: Ctx, blink?: boolean) {
-  const eyes: number[] = [5.85, 10.15];
-
+function drawFacePx(R: PxFill, ctx: Ctx, blink?: boolean) {
   // brows
-  ctx.strokeStyle = "rgba(58, 39, 26, 0.65)";
-  ctx.lineWidth = 0.22;
-  ctx.lineCap = "round";
-  for (const cx of eyes) {
-    ctx.beginPath();
-    ctx.moveTo(cx - 1.0, 5.6);
-    ctx.quadraticCurveTo(cx, 5.1, cx + 1.0, 5.55);
-    ctx.stroke();
-  }
+  R(10, 8, 4, 1, "rgba(58, 39, 26, 0.75)");
+  R(18, 8, 4, 1, "rgba(58, 39, 26, 0.75)");
 
   if (blink) {
-    // closed lashes — happy arcs
-    ctx.strokeStyle = "#2b1d13";
-    ctx.lineWidth = 0.34;
-    for (const cx of eyes) {
-      ctx.beginPath();
-      ctx.moveTo(cx - 1.0, 7.5);
-      ctx.quadraticCurveTo(cx, 8.5, cx + 1.0, 7.5);
-      ctx.stroke();
+    // happy closed lashes
+    for (const ex of [10, 19]) {
+      R(ex, 13, 3, 1, "#2b1d13");
+      R(ex - 1, 12, 1, 1, "#2b1d13");
+      R(ex + 3, 12, 1, 1, "#2b1d13");
     }
   } else {
-    for (const cx of eyes) {
-      // sclera
-      ellipsePath(ctx, cx, 7.75, 1.06, 1.6);
-      fillStroke(ctx, "#ffffff", "rgba(43, 28, 18, 0.5)", 0.16);
-      // iris — warm brown gradient, MapleStory style
-      const grad = ctx.createLinearGradient(0, 6.3, 0, 9.3);
-      grad.addColorStop(0, "#31221a");
-      grad.addColorStop(1, "#7a5136");
-      ctx.fillStyle = grad;
-      ellipsePath(ctx, cx, 7.85, 0.8, 1.36);
-      ctx.fill();
-      // pupil
-      ctx.fillStyle = "#1a0f09";
-      ellipsePath(ctx, cx, 7.95, 0.4, 0.72);
-      ctx.fill();
+    for (const ex of [10, 19]) {
+      // tall sclera + lash line
+      R(ex, 10, 3, 6, "#ffffff");
+      R(ex - 1, 9, 5, 1, "#20140c");
+      // iris: dark top, warm brown bottom — MapleStory eyes
+      R(ex, 11, 2, 2, "#31221a");
+      R(ex, 13, 2, 2, "#8a5c3c");
       // sparkle glints
-      ctx.fillStyle = "#ffffff";
-      ellipsePath(ctx, cx - 0.28, 7.05, 0.34, 0.4);
-      ctx.fill();
-      ctx.globalAlpha = 0.85;
-      ellipsePath(ctx, cx + 0.3, 8.55, 0.17, 0.2);
-      ctx.fill();
+      R(ex + 1, 11, 1, 1, "#ffffff");
+      ctx.globalAlpha = 0.8;
+      R(ex, 14, 1, 1, "#ffffff");
       ctx.globalAlpha = 1;
-      // top lash line
-      ctx.strokeStyle = "#20140c";
-      ctx.lineWidth = 0.4;
-      ctx.beginPath();
-      ctx.moveTo(cx - 1.12, 7.0);
-      ctx.quadraticCurveTo(cx, 6.1, cx + 1.12, 7.0);
-      ctx.stroke();
     }
   }
 
-  // little open smile
-  ctx.beginPath();
-  ctx.moveTo(7.15, 10.0);
-  ctx.quadraticCurveTo(8, 10.95, 8.85, 10.0);
-  ctx.quadraticCurveTo(8, 10.35, 7.15, 10.0);
-  ctx.closePath();
-  ctx.fillStyle = "#a34b40";
-  ctx.fill();
-  ctx.strokeStyle = "#8c4034";
-  ctx.lineWidth = 0.16;
-  ctx.stroke();
+  // little smile
+  R(14, 16, 4, 1, "#a34b40");
+  R(15, 17, 2, 1, "#8c4034");
 
   // blush
-  ctx.globalAlpha = 0.26;
-  ctx.fillStyle = "#ef8a6f";
-  ellipsePath(ctx, 4.7, 9.35, 0.85, 0.5);
-  ctx.fill();
-  ellipsePath(ctx, 11.3, 9.35, 0.85, 0.5);
-  ctx.fill();
+  ctx.globalAlpha = 0.4;
+  R(7, 14, 2, 1, "#ef8a6f");
+  R(23, 14, 2, 1, "#ef8a6f");
   ctx.globalAlpha = 1;
 }
 
@@ -266,199 +189,114 @@ function drawFace(ctx: Ctx, blink?: boolean) {
 function hairTones(hair: [string, string]) {
   return {
     base: hair[0],
-    shade: dark(hair[0], 0.22),
-    shine: light(hair[0], 0.32),
-    outline: dark(hair[0], 0.42),
+    shade: dark(hair[0], 0.26),
+    shine: light(hair[0], 0.33),
+    outline: dark(hair[0], 0.48),
   };
 }
 
-function drawHairBack(ctx: Ctx, style: number, hair: [string, string]) {
+function drawHairBackPx(R: PxFill, style: number, hair: [string, string]) {
   const t = hairTones(hair);
   if (style === 1) {
-    // Long — flowing mane behind the body with a wavy hem
-    ctx.beginPath();
-    ctx.moveTo(2.5, 4.4);
-    ctx.quadraticCurveTo(1.4, 9.0, 1.9, 13.2);
-    ctx.quadraticCurveTo(2.1, 14.6, 3.1, 13.8);
-    ctx.quadraticCurveTo(3.9, 15.4, 4.9, 14.2);
-    ctx.quadraticCurveTo(5.7, 15.6, 6.7, 14.4);
-    ctx.lineTo(9.3, 14.4);
-    ctx.quadraticCurveTo(10.3, 15.6, 11.1, 14.2);
-    ctx.quadraticCurveTo(12.1, 15.4, 12.9, 13.8);
-    ctx.quadraticCurveTo(13.9, 14.6, 14.1, 13.2);
-    ctx.quadraticCurveTo(14.6, 9.0, 13.5, 4.4);
-    ctx.quadraticCurveTo(8, 0.6, 2.5, 4.4);
-    ctx.closePath();
-    fillStroke(ctx, t.shade, t.outline, 0.24);
+    // Long — flowing mane behind the body with a toothed hem
+    blockPx(R, 3, 2, 26, 25, t.outline);
+    blockPx(R, 4, 3, 24, 23, t.shade);
+    for (const fx of [4, 8, 12, 16, 20, 24]) R(fx, 26, 3, 2, t.shade);
   } else if (style === 2) {
-    // Ponytail — swooping tail behind the head
-    ctx.beginPath();
-    ctx.moveTo(10.6, 2.0);
-    ctx.quadraticCurveTo(15.4, 3.2, 15.2, 8.0);
-    ctx.quadraticCurveTo(15.05, 11.4, 13.6, 13.4);
-    ctx.quadraticCurveTo(13.4, 11.2, 12.6, 9.6);
-    ctx.quadraticCurveTo(13.4, 6.4, 11.4, 4.2);
-    ctx.closePath();
-    fillStroke(ctx, t.shade, t.outline, 0.24);
+    // Ponytail — chunky tail swooping down the right
+    R(24, 3, 4, 3, t.outline);
+    R(26, 5, 5, 7, t.outline);
+    R(27, 12, 4, 6, t.outline);
+    R(25, 4, 3, 2, t.shade);
+    R(27, 6, 3, 6, t.shade);
+    R(28, 12, 2, 5, t.shade);
     // hair tie
-    ellipsePath(ctx, 12.35, 3.35, 0.62, 0.62);
-    fillStroke(ctx, "#c14b45", dark("#c14b45", 0.35), 0.18);
+    R(24, 4, 2, 2, "#c14b45");
   } else if (style === 3) {
     // Bob — rounded volume behind the head
-    ctx.beginPath();
-    ctx.moveTo(2.0, 6.0);
-    ctx.quadraticCurveTo(1.5, 11.0, 3.6, 11.6);
-    ctx.lineTo(12.4, 11.6);
-    ctx.quadraticCurveTo(14.5, 11.0, 14.0, 6.0);
-    ctx.quadraticCurveTo(8, 2.0, 2.0, 6.0);
-    ctx.closePath();
-    fillStroke(ctx, t.shade, t.outline, 0.24);
+    blockPx(R, 3, 3, 26, 21, t.outline);
+    blockPx(R, 4, 4, 24, 19, t.shade);
   }
 }
 
-function drawHairFront(ctx: Ctx, style: number, hair: [string, string]) {
+function drawHairFrontPx(R: PxFill, ctx: Ctx, style: number, hair: [string, string]) {
   const t = hairTones(hair);
-
-  const shineArc = (y1: number, ymid: number) => {
-    ctx.strokeStyle = t.shine;
-    ctx.globalAlpha = 0.8;
-    ctx.lineWidth = 0.5;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(4.4, y1);
-    ctx.quadraticCurveTo(8, ymid, 11.6, y1);
-    ctx.stroke();
+  const shine = (x: number, w: number) => {
+    ctx.globalAlpha = 0.85;
+    R(x, 2, w, 1, t.shine);
     ctx.globalAlpha = 1;
   };
 
   if (style === 0) {
-    // Short & Neat — glossy cap with a softly pointed fringe
-    ctx.beginPath();
-    ctx.moveTo(2.35, 7.3);
-    ctx.quadraticCurveTo(1.7, 2.4, 5.4, 1.0);
-    ctx.quadraticCurveTo(8, 0.2, 10.6, 1.0);
-    ctx.quadraticCurveTo(14.3, 2.4, 13.65, 7.3);
-    // fringe: rounded dips across the forehead, right to left
-    ctx.quadraticCurveTo(13.2, 4.9, 12.1, 4.7);
-    ctx.quadraticCurveTo(11.4, 5.9, 10.4, 4.5);
-    ctx.quadraticCurveTo(9.2, 5.9, 8.0, 4.4);
-    ctx.quadraticCurveTo(6.8, 5.9, 5.6, 4.5);
-    ctx.quadraticCurveTo(4.6, 5.9, 3.9, 4.7);
-    ctx.quadraticCurveTo(2.8, 4.9, 2.35, 7.3);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.26);
-    // sideburns
-    ctx.beginPath();
-    ctx.moveTo(2.4, 6.4);
-    ctx.quadraticCurveTo(2.2, 8.6, 2.9, 9.2);
-    ctx.quadraticCurveTo(3.5, 8.0, 3.4, 6.6);
-    ctx.closePath();
-    ctx.moveTo(13.6, 6.4);
-    ctx.quadraticCurveTo(13.8, 8.6, 13.1, 9.2);
-    ctx.quadraticCurveTo(12.5, 8.0, 12.6, 6.6);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.2);
-    shineArc(2.6, 1.2);
+    // Short & Neat — glossy cap with a toothed fringe + sideburns
+    blockPx(R, 4, 0, 24, 10, t.outline);
+    blockPx(R, 5, 1, 22, 8, t.base);
+    for (const fx of [5, 9, 14, 19, 24]) R(fx, 9, 3, 1, t.base);
+    R(5, 9, 2, 4, t.base);
+    R(25, 9, 2, 4, t.base);
+    shine(8, 10);
   } else if (style === 1) {
     // Long — middle-parted curtain bangs + face-framing locks
-    ctx.beginPath();
-    ctx.moveTo(2.3, 7.0);
-    ctx.quadraticCurveTo(1.8, 2.2, 5.6, 0.9);
-    ctx.quadraticCurveTo(8, 0.1, 10.4, 0.9);
-    ctx.quadraticCurveTo(14.2, 2.2, 13.7, 7.0);
-    // right lock down the face
-    ctx.quadraticCurveTo(13.9, 9.4, 12.9, 11.0);
-    ctx.quadraticCurveTo(12.3, 9.2, 12.4, 7.2);
-    ctx.quadraticCurveTo(12.2, 4.6, 10.6, 3.6);
-    // parted fringe sweeping from the center
-    ctx.quadraticCurveTo(9.0, 4.9, 8.35, 3.4);
-    ctx.quadraticCurveTo(8.0, 3.0, 7.65, 3.4);
-    ctx.quadraticCurveTo(7.0, 4.9, 5.4, 3.6);
-    ctx.quadraticCurveTo(3.8, 4.6, 3.6, 7.2);
-    ctx.quadraticCurveTo(3.7, 9.2, 3.1, 11.0);
-    ctx.quadraticCurveTo(2.1, 9.4, 2.3, 7.0);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.26);
-    shineArc(2.4, 1.0);
+    blockPx(R, 4, 0, 24, 9, t.outline);
+    blockPx(R, 5, 1, 22, 7, t.base);
+    // parted fringe sweeping out from the center
+    R(5, 7, 4, 4, t.base);
+    R(9, 7, 3, 2, t.base);
+    R(12, 7, 2, 1, t.base);
+    R(23, 7, 4, 4, t.base);
+    R(20, 7, 3, 2, t.base);
+    R(18, 7, 2, 1, t.base);
+    // face-framing locks
+    R(4, 8, 2, 14, t.base);
+    R(26, 8, 2, 14, t.base);
+    shine(8, 7);
+    shine(18, 5);
   } else if (style === 2) {
-    // Ponytail — swept-back cap with a side-swooped fringe
-    ctx.beginPath();
-    ctx.moveTo(2.35, 7.2);
-    ctx.quadraticCurveTo(1.75, 2.4, 5.5, 1.0);
-    ctx.quadraticCurveTo(8, 0.2, 10.5, 1.0);
-    ctx.quadraticCurveTo(14.25, 2.4, 13.65, 7.2);
-    // one big swoop across the forehead
-    ctx.quadraticCurveTo(13.4, 4.4, 11.6, 4.1);
-    ctx.quadraticCurveTo(7.4, 5.9, 4.4, 4.5);
-    ctx.quadraticCurveTo(3.0, 4.9, 2.35, 7.2);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.26);
-    // small side strand
-    ctx.beginPath();
-    ctx.moveTo(2.5, 6.2);
-    ctx.quadraticCurveTo(2.2, 8.8, 3.0, 9.6);
-    ctx.quadraticCurveTo(3.6, 8.2, 3.5, 6.4);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.2);
-    shineArc(2.5, 1.15);
+    // Ponytail — swept-back cap with one big side swoop
+    blockPx(R, 4, 0, 24, 9, t.outline);
+    blockPx(R, 5, 1, 22, 7, t.base);
+    R(18, 8, 7, 1, t.base);
+    R(11, 8, 7, 2, t.base);
+    R(6, 9, 5, 2, t.base);
+    R(5, 8, 2, 5, t.base);
+    shine(8, 10);
   } else if (style === 3) {
-    // Bob — face-framing curve with a straight fringe
-    ctx.beginPath();
-    ctx.moveTo(1.95, 6.2);
-    ctx.quadraticCurveTo(1.6, 2.2, 5.5, 0.95);
-    ctx.quadraticCurveTo(8, 0.15, 10.5, 0.95);
-    ctx.quadraticCurveTo(14.4, 2.2, 14.05, 6.2);
-    ctx.quadraticCurveTo(13.95, 10.2, 12.2, 11.3);
-    ctx.quadraticCurveTo(11.6, 11.6, 11.9, 10.4);
-    ctx.quadraticCurveTo(12.4, 8.6, 12.35, 6.9);
-    // straight fringe with soft dips
-    ctx.quadraticCurveTo(12.3, 5.2, 11.4, 4.7);
-    ctx.quadraticCurveTo(10.2, 5.5, 9.1, 4.9);
-    ctx.quadraticCurveTo(8.0, 5.6, 6.9, 4.9);
-    ctx.quadraticCurveTo(5.8, 5.5, 4.6, 4.7);
-    ctx.quadraticCurveTo(3.7, 5.2, 3.65, 6.9);
-    ctx.quadraticCurveTo(3.6, 8.6, 4.1, 10.4);
-    ctx.quadraticCurveTo(4.4, 11.6, 3.8, 11.3);
-    ctx.quadraticCurveTo(2.05, 10.2, 1.95, 6.2);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.26);
-    shineArc(2.5, 1.1);
+    // Bob — straight fringe with dips + face-framing curve
+    blockPx(R, 4, 0, 24, 10, t.outline);
+    blockPx(R, 5, 1, 22, 8, t.base);
+    R(5, 9, 4, 1, t.base);
+    R(10, 9, 5, 1, t.base);
+    R(17, 9, 5, 1, t.base);
+    R(23, 9, 4, 1, t.base);
+    R(4, 6, 2, 16, t.base);
+    R(26, 6, 2, 16, t.base);
+    R(5, 20, 2, 2, t.base);
+    R(25, 20, 2, 2, t.base);
+    shine(8, 10);
   } else {
     // Spiky — energetic tufts radiating from the crown
-    ctx.beginPath();
-    ctx.moveTo(2.4, 7.2);
-    // left spike
-    ctx.quadraticCurveTo(1.2, 4.4, 2.6, 2.6);
-    ctx.quadraticCurveTo(3.2, 3.6, 4.0, 3.0);
-    // up spikes
-    ctx.quadraticCurveTo(3.8, 0.9, 5.2, 0.2);
-    ctx.quadraticCurveTo(5.8, 1.6, 6.7, 1.4);
-    ctx.quadraticCurveTo(7.2, -0.4, 8.6, -0.2);
-    ctx.quadraticCurveTo(8.8, 1.3, 9.7, 1.5);
-    ctx.quadraticCurveTo(10.5, 0.2, 11.6, 0.8);
-    ctx.quadraticCurveTo(11.6, 2.2, 12.4, 2.8);
-    ctx.quadraticCurveTo(13.8, 3.0, 13.9, 4.6);
-    ctx.quadraticCurveTo(14.4, 5.8, 13.6, 7.2);
-    // jagged fringe
-    ctx.quadraticCurveTo(12.9, 5.0, 11.8, 4.9);
-    ctx.quadraticCurveTo(11.0, 5.8, 10.2, 4.5);
-    ctx.quadraticCurveTo(9.1, 5.8, 8.0, 4.4);
-    ctx.quadraticCurveTo(6.9, 5.8, 5.8, 4.5);
-    ctx.quadraticCurveTo(5.0, 5.8, 4.2, 4.9);
-    ctx.quadraticCurveTo(3.1, 5.0, 2.4, 7.2);
-    ctx.closePath();
-    fillStroke(ctx, t.base, t.outline, 0.26);
-    // shine ticks
-    ctx.strokeStyle = t.shine;
+    blockPx(R, 4, 1, 24, 9, t.outline);
+    // spikes (outline first, then fill)
+    for (const [sx, sw] of [
+      [5, 3],
+      [10, 3],
+      [15, 3],
+      [20, 3],
+      [25, 2],
+    ] as const) {
+      R(sx - 1, 0, sw + 2, 3, t.outline);
+      R(sx, 0, sw, 3, t.base);
+    }
+    R(2, 3, 2, 4, t.outline);
+    R(28, 3, 2, 4, t.outline);
+    R(3, 4, 2, 3, t.base);
+    R(27, 4, 2, 3, t.base);
+    blockPx(R, 5, 2, 22, 7, t.base);
+    // jagged fringe teeth
+    for (const fx of [5, 9, 13, 17, 21, 25]) R(fx, 9, 2, fx % 8 === 1 ? 2 : 1, t.base);
     ctx.globalAlpha = 0.85;
-    ctx.lineWidth = 0.42;
-    ctx.lineCap = "round";
-    ctx.beginPath();
-    ctx.moveTo(5.6, 2.2);
-    ctx.lineTo(6.1, 1.2);
-    ctx.moveTo(8.0, 1.6);
-    ctx.lineTo(8.2, 0.6);
-    ctx.stroke();
+    R(7, 1, 1, 2, t.shine);
+    R(12, 0, 1, 2, t.shine);
     ctx.globalAlpha = 1;
   }
 }
@@ -473,29 +311,8 @@ type Pose = {
   walking: boolean;
 };
 
-function drawShoe(ctx: Ctx, cx: number, color: string) {
-  ellipsePath(ctx, cx, 21.05, 1.18, 0.68);
-  fillStroke(ctx, color, dark(color, 0.4), 0.22);
-  // sole highlight
-  ctx.strokeStyle = light(color, 0.35);
-  ctx.lineWidth = 0.16;
-  ctx.beginPath();
-  ctx.moveTo(cx - 0.7, 20.7);
-  ctx.quadraticCurveTo(cx, 20.5, cx + 0.7, 20.7);
-  ctx.stroke();
-}
-
-function legPositions(pose: Pose): [number, number] {
-  const spread = pose.walking ? 0.55 + Math.abs(pose.swing) * 0.85 : 0;
-  return [6.95 - spread, 9.05 + spread];
-}
-
-function armPositions(pose: Pose): { lx: number; ly: number; rx: number; ry: number } {
-  const out = pose.walking ? 0.55 + Math.abs(pose.swing) * 0.6 : 0;
-  return { lx: 4.95 - out, ly: 15.3 - out * 0.4, rx: 11.05 + out, ry: 15.3 - out * 0.4 };
-}
-
-function drawBody(
+function drawBodyPx(
+  R: PxFill,
   ctx: Ctx,
   outfitIdx: number,
   outfit: [string, string],
@@ -504,262 +321,126 @@ function drawBody(
 ) {
   const o0 = outfit[0];
   const o1 = outfit[1];
-  const oOut = dark(o0, 0.42);
-  const sOut = dark(skin[0], 0.45);
-  const [legL, legR] = legPositions(pose);
-  const arm = armPositions(pose);
-  const shoulderY = 11.9;
 
+  // walk cycle: legs scissor apart, arms swing out (whole texels only)
+  const spread = pose.walking ? 1 + Math.round(Math.abs(pose.swing) * 2) : 0;
+  const armOut = pose.walking ? 1 + Math.round(Math.abs(pose.swing)) : 0;
+  const legL = 12 - spread;
+  const legR = 18 + spread;
+  const armLX = 8 - armOut;
+  const armRX = 22 + armOut;
+
+  const shoe = (x: number, color: string) => {
+    R(x - 1, 41, 5, 2, color);
+    R(x - 1, 41, 5, 1, light(color, 0.25));
+  };
+  const leg = (x: number, color: string, top = 32) => R(x, top, 3, 41 - top, color);
+  const arm = (x: number, color: string, hand = true) => {
+    R(x, 22, 2, 7, color);
+    if (hand) R(x, 29, 2, 2, skin[0]);
+  };
   const skinArms = () => {
-    capsule(ctx, 5.45, shoulderY, arm.lx, arm.ly, 0.62, skin[0], sOut);
-    capsule(ctx, 10.55, shoulderY, arm.rx, arm.ry, 0.62, skin[0], sOut);
+    arm(armLX, skin[0]);
+    arm(armRX, skin[0]);
   };
 
   if (outfitIdx === 0) {
     // ---- Suit: jacket, white shirt, tie, trousers
-    capsule(ctx, legL, 15.8, legL, 20.3, 0.78, o1, oOut);
-    capsule(ctx, legR, 15.8, legR, 20.3, 0.78, o1, oOut);
-    drawShoe(ctx, legL, "#3c2b1e");
-    drawShoe(ctx, legR, "#3c2b1e");
-    // jacket arms
-    capsule(ctx, 5.45, shoulderY, arm.lx, arm.ly, 0.68, o0, oOut);
-    capsule(ctx, 10.55, shoulderY, arm.rx, arm.ry, 0.68, o0, oOut);
-    // hands
-    ellipsePath(ctx, arm.lx, arm.ly + 0.55, 0.52, 0.52);
-    fillStroke(ctx, skin[0], sOut, 0.18);
-    ellipsePath(ctx, arm.rx, arm.ry + 0.55, 0.52, 0.52);
-    fillStroke(ctx, skin[0], sOut, 0.18);
-    // torso
-    ctx.beginPath();
-    ctx.moveTo(5.3, 11.4);
-    ctx.quadraticCurveTo(8, 10.9, 10.7, 11.4);
-    ctx.quadraticCurveTo(11.2, 14.2, 10.9, 16.6);
-    ctx.quadraticCurveTo(8, 17.2, 5.1, 16.6);
-    ctx.quadraticCurveTo(4.8, 14.2, 5.3, 11.4);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.26);
+    leg(legL, o1);
+    leg(legR, o1);
+    shoe(legL, "#3c2b1e");
+    shoe(legR, "#3c2b1e");
+    arm(armLX, o0);
+    arm(armRX, o0);
+    R(10, 21, 13, 11, o0); // jacket torso
     // shirt V
-    ctx.beginPath();
-    ctx.moveTo(6.9, 11.35);
-    ctx.lineTo(9.1, 11.35);
-    ctx.lineTo(8, 13.9);
-    ctx.closePath();
-    fillStroke(ctx, "#faf6ec", "rgba(90,70,50,0.35)", 0.14);
+    R(13, 21, 7, 1, "#faf6ec");
+    R(14, 22, 5, 1, "#faf6ec");
+    R(15, 23, 3, 1, "#faf6ec");
     // tie
-    ctx.beginPath();
-    ctx.moveTo(8, 11.9);
-    ctx.lineTo(8.38, 12.9);
-    ctx.lineTo(8, 14.2);
-    ctx.lineTo(7.62, 12.9);
-    ctx.closePath();
-    ctx.fillStyle = dark(o1, 0.25);
-    ctx.fill();
+    R(15, 22, 3, 1, dark(o1, 0.25));
+    R(16, 23, 1, 3, dark(o1, 0.25));
     // lapels
-    ctx.strokeStyle = dark(o0, 0.28);
-    ctx.lineWidth = 0.22;
-    ctx.beginPath();
-    ctx.moveTo(6.9, 11.4);
-    ctx.quadraticCurveTo(7.5, 12.6, 7.0, 13.9);
-    ctx.moveTo(9.1, 11.4);
-    ctx.quadraticCurveTo(8.5, 12.6, 9.0, 13.9);
-    ctx.stroke();
+    R(13, 22, 1, 3, dark(o0, 0.3));
+    R(19, 22, 1, 3, dark(o0, 0.3));
     // buttons
-    ctx.fillStyle = light(o0, 0.4);
-    ellipsePath(ctx, 7.35, 14.9, 0.14, 0.14);
-    ctx.fill();
-    ellipsePath(ctx, 7.35, 15.7, 0.14, 0.14);
-    ctx.fill();
+    R(14, 27, 1, 1, light(o0, 0.45));
+    R(14, 29, 1, 1, light(o0, 0.45));
   } else if (outfitIdx === 1) {
-    // ---- Sundress: bodice + flared skirt, bare arms
-    capsule(ctx, legL, 17.6, legL, 20.3, 0.72, skin[0], sOut);
-    capsule(ctx, legR, 17.6, legR, 20.3, 0.72, skin[0], sOut);
-    drawShoe(ctx, legL, "#f4eee0");
-    drawShoe(ctx, legR, "#f4eee0");
+    // ---- Sundress: bodice + flared skirt, bare arms & legs
+    leg(legL, skin[0]);
+    leg(legR, skin[0]);
+    shoe(legL, "#f4eee0");
+    shoe(legR, "#f4eee0");
     skinArms();
-    // bodice
-    ctx.beginPath();
-    ctx.moveTo(6.0, 11.6);
-    ctx.quadraticCurveTo(8, 11.1, 10.0, 11.6);
-    ctx.lineTo(10.1, 14.1);
-    ctx.lineTo(5.9, 14.1);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.24);
-    // straps
-    ctx.strokeStyle = o0;
-    ctx.lineWidth = 0.4;
-    ctx.beginPath();
-    ctx.moveTo(6.6, 11.7);
-    ctx.lineTo(6.6, 10.9);
-    ctx.moveTo(9.4, 11.7);
-    ctx.lineTo(9.4, 10.9);
-    ctx.stroke();
-    // skirt with scalloped hem
-    ctx.beginPath();
-    ctx.moveTo(5.9, 13.9);
-    ctx.quadraticCurveTo(4.6, 16.4, 4.35, 18.3);
-    ctx.quadraticCurveTo(5.55, 18.9, 6.8, 18.3);
-    ctx.quadraticCurveTo(8.0, 18.95, 9.2, 18.3);
-    ctx.quadraticCurveTo(10.45, 18.9, 11.65, 18.3);
-    ctx.quadraticCurveTo(11.4, 16.4, 10.1, 13.9);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.26);
-    // hem shade
-    ctx.strokeStyle = o1;
-    ctx.globalAlpha = 0.75;
-    ctx.lineWidth = 0.3;
-    ctx.beginPath();
-    ctx.moveTo(4.75, 17.7);
-    ctx.quadraticCurveTo(8, 18.7, 11.25, 17.7);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    // sash
-    ctx.fillStyle = o1;
-    ctx.fillRect(5.85, 13.72, 4.3, 0.55);
+    R(11, 21, 11, 5, o0); // bodice
+    R(12, 20, 1, 1, o0); // straps
+    R(20, 20, 1, 1, o0);
+    // flared skirt
+    for (let yy = 26; yy < 34; yy++) {
+      const g = Math.floor((yy - 26) / 2) + 1;
+      R(11 - g, yy, 11 + 2 * g, 1, o0);
+    }
+    R(7, 33, 19, 1, o1); // hem shade
+    for (const fx of [8, 12, 16, 20, 23]) R(fx, 34, 2, 1, o1); // scalloped hem
+    R(11, 25, 11, 1, o1); // sash
   } else if (outfitIdx === 2) {
     // ---- Tee & Shorts
-    capsule(ctx, legL, 17.3, legL, 20.3, 0.72, skin[0], sOut);
-    capsule(ctx, legR, 17.3, legR, 20.3, 0.72, skin[0], sOut);
-    drawShoe(ctx, legL, "#f2eee6");
-    drawShoe(ctx, legR, "#f2eee6");
-    // bare forearms
+    leg(legL, skin[0]);
+    leg(legR, skin[0]);
+    shoe(legL, "#f2eee6");
+    shoe(legR, "#f2eee6");
     skinArms();
-    // tee torso
-    ctx.beginPath();
-    ctx.moveTo(5.6, 11.5);
-    ctx.quadraticCurveTo(8, 11.0, 10.4, 11.5);
-    ctx.lineTo(10.5, 15.4);
-    ctx.quadraticCurveTo(8, 15.8, 5.5, 15.4);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.26);
-    // short sleeves over the shoulders
-    capsule(ctx, 5.5, 12.0, 4.9, 13.2, 0.72, o0, oOut);
-    capsule(ctx, 10.5, 12.0, 11.1, 13.2, 0.72, o0, oOut);
-    // collar
-    ctx.strokeStyle = light(o0, 0.35);
-    ctx.lineWidth = 0.26;
-    ctx.beginPath();
-    ctx.moveTo(7.1, 11.35);
-    ctx.quadraticCurveTo(8, 11.9, 8.9, 11.35);
-    ctx.stroke();
-    // shorts
-    ctx.beginPath();
-    ctx.moveTo(5.7, 15.2);
-    ctx.lineTo(10.3, 15.2);
-    ctx.lineTo(10.45, 17.5);
-    ctx.quadraticCurveTo(9.4, 17.8, 8.55, 17.5);
-    ctx.lineTo(8, 16.4);
-    ctx.lineTo(7.45, 17.5);
-    ctx.quadraticCurveTo(6.6, 17.8, 5.55, 17.5);
-    ctx.closePath();
-    fillStroke(ctx, o1, dark(o1, 0.35), 0.24);
+    R(10, 21, 13, 9, o0); // tee
+    R(8, 22, 2, 4, o0); // sleeves
+    R(22, 22, 2, 4, o0);
+    R(14, 21, 5, 1, light(o0, 0.35)); // collar
+    R(11, 29, 11, 3, o1); // shorts hip
+    R(legL, 32, 3, 2, o1); // short cuffs follow the legs
+    R(legR, 32, 3, 2, o1);
   } else if (outfitIdx === 3) {
     // ---- Overalls over a cream tee
-    capsule(ctx, legL, 15.6, legL, 20.3, 0.8, o0, oOut);
-    capsule(ctx, legR, 15.6, legR, 20.3, 0.8, o0, oOut);
-    drawShoe(ctx, legL, "#6d4a30");
-    drawShoe(ctx, legR, "#6d4a30");
     const tee = "#f4efe2";
-    // tee sleeves + bare arms
-    capsule(ctx, 5.5, 12.0, 4.95, 13.1, 0.7, tee, dark(tee, 0.3));
-    capsule(ctx, 10.5, 12.0, 11.05, 13.1, 0.7, tee, dark(tee, 0.3));
+    leg(legL, o0);
+    leg(legR, o0);
+    shoe(legL, "#6d4a30");
+    shoe(legR, "#6d4a30");
     skinArms();
-    // tee torso
-    ctx.beginPath();
-    ctx.moveTo(5.6, 11.5);
-    ctx.quadraticCurveTo(8, 11.0, 10.4, 11.5);
-    ctx.lineTo(10.5, 14.8);
-    ctx.lineTo(5.5, 14.8);
-    ctx.closePath();
-    fillStroke(ctx, tee, dark(tee, 0.3), 0.22);
-    // overalls hips
-    ctx.beginPath();
-    ctx.moveTo(5.5, 14.4);
-    ctx.lineTo(10.5, 14.4);
-    ctx.quadraticCurveTo(10.7, 16.4, 10.4, 16.9);
-    ctx.quadraticCurveTo(8, 17.4, 5.6, 16.9);
-    ctx.quadraticCurveTo(5.3, 16.4, 5.5, 14.4);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.24);
-    // bib
-    ctx.beginPath();
-    ctx.moveTo(6.5, 12.3);
-    ctx.lineTo(9.5, 12.3);
-    ctx.quadraticCurveTo(9.7, 13.6, 9.5, 14.6);
-    ctx.lineTo(6.5, 14.6);
-    ctx.quadraticCurveTo(6.3, 13.6, 6.5, 12.3);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.22);
-    // pocket
-    ctx.strokeStyle = dark(o0, 0.28);
-    ctx.lineWidth = 0.18;
-    ctx.beginPath();
-    ctx.moveTo(7.2, 13.2);
-    ctx.lineTo(8.8, 13.2);
-    ctx.quadraticCurveTo(8.8, 14.0, 8, 14.0);
-    ctx.quadraticCurveTo(7.2, 14.0, 7.2, 13.2);
-    ctx.stroke();
-    // straps
-    ctx.strokeStyle = o0;
-    ctx.lineWidth = 0.42;
-    ctx.beginPath();
-    ctx.moveTo(6.7, 12.4);
-    ctx.lineTo(5.9, 11.4);
-    ctx.moveTo(9.3, 12.4);
-    ctx.lineTo(10.1, 11.4);
-    ctx.stroke();
-    // buttons
-    ctx.fillStyle = "#e8c15a";
-    ellipsePath(ctx, 6.75, 12.55, 0.18, 0.18);
-    ctx.fill();
-    ellipsePath(ctx, 9.25, 12.55, 0.18, 0.18);
-    ctx.fill();
+    R(8, 22, 2, 3, tee); // tee sleeves over the arms
+    R(22, 22, 2, 3, tee);
+    R(10, 21, 13, 6, tee); // tee torso
+    R(11, 27, 11, 6, o0); // overalls hips
+    R(13, 23, 7, 5, o0); // bib
+    R(12, 21, 1, 2, o0); // straps
+    R(20, 21, 1, 2, o0);
+    R(15, 25, 3, 1, dark(o0, 0.3)); // pocket
+    R(13, 23, 1, 1, "#e8c15a"); // buttons
+    R(19, 23, 1, 1, "#e8c15a");
   } else {
-    // ---- Gown: floor-length, elegant
+    // ---- Gown: floor-length, elegant — no legs peeking out
     skinArms();
-    // skirt
-    ctx.beginPath();
-    ctx.moveTo(6.2, 13.8);
-    ctx.quadraticCurveTo(4.6, 17.4, 4.0, 21.0);
-    ctx.quadraticCurveTo(5.3, 21.7, 6.7, 21.15);
-    ctx.quadraticCurveTo(8.0, 21.75, 9.3, 21.15);
-    ctx.quadraticCurveTo(10.7, 21.7, 12.0, 21.0);
-    ctx.quadraticCurveTo(11.4, 17.4, 9.8, 13.8);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.26);
-    // side shade for drape
-    ctx.globalAlpha = 0.5;
-    ctx.beginPath();
-    ctx.moveTo(9.6, 14.2);
-    ctx.quadraticCurveTo(11.0, 17.6, 11.5, 20.8);
-    ctx.quadraticCurveTo(10.6, 21.2, 9.9, 21.0);
-    ctx.quadraticCurveTo(10.2, 17.4, 9.1, 14.4);
-    ctx.closePath();
-    ctx.fillStyle = o1;
-    ctx.fill();
-    ctx.globalAlpha = 1;
-    // bodice with sweetheart neckline
-    ctx.beginPath();
-    ctx.moveTo(6.2, 11.8);
-    ctx.quadraticCurveTo(7.1, 12.4, 8.0, 11.9);
-    ctx.quadraticCurveTo(8.9, 12.4, 9.8, 11.8);
-    ctx.lineTo(9.9, 14.1);
-    ctx.lineTo(6.1, 14.1);
-    ctx.closePath();
-    fillStroke(ctx, o0, oOut, 0.24);
-    // waistband
-    ctx.fillStyle = light(o0, 0.3);
-    ctx.fillRect(6.0, 13.75, 4.0, 0.5);
-    // sparkles
-    ctx.fillStyle = "rgba(255,255,255,0.65)";
-    for (const [sx, sy] of [
-      [5.6, 17.2],
-      [8.6, 18.8],
-      [7.0, 20.2],
-      [10.4, 19.6],
-    ] as const) {
-      ellipsePath(ctx, sx, sy, 0.16, 0.16);
-      ctx.fill();
+    R(11, 21, 11, 5, o0); // bodice
+    R(13, 21, 7, 1, light(o0, 0.25)); // neckline
+    R(11, 25, 11, 1, light(o0, 0.3)); // waistband
+    for (let yy = 26; yy < 43; yy++) {
+      const g = Math.min(5, Math.floor((yy - 26) / 3) + 1);
+      R(11 - g, yy, 11 + 2 * g, 1, o0);
+      // drape shading down the right side
+      ctx.globalAlpha = 0.55;
+      R(19 + g, yy, 2, 1, o1);
+      ctx.globalAlpha = 1;
     }
+    ctx.globalAlpha = 0.75;
+    for (const [sx, sy] of [
+      [9, 32],
+      [14, 36],
+      [19, 30],
+      [12, 40],
+      [21, 39],
+    ] as const) {
+      R(sx, sy, 1, 1, "#ffffff");
+    }
+    ctx.globalAlpha = 1;
   }
 }
 
@@ -773,7 +454,7 @@ export type DrawOptions = {
   /** Units-to-pixels multiplier. Footprint: 16*scale x 22*scale. */
   scale: number;
   frame?: "stand" | "walk";
-  /** Continuous walk phase (radians) for smooth leg/arm swing. */
+  /** Continuous walk phase (radians) for the leg/arm scissor. */
   phase?: number;
   flip?: boolean;
   blink?: boolean;
@@ -793,26 +474,30 @@ export function drawCharacter(ctx: Ctx, config: CharacterConfig, opts: DrawOptio
   };
 
   ctx.save();
-  ctx.translate(opts.x, opts.y);
+  // integer translate keeps texel edges on whole device pixels
+  ctx.translate(Math.round(opts.x), Math.round(opts.y));
   ctx.scale(opts.scale, opts.scale);
   if (opts.flip) {
     ctx.translate(SPRITE_W, 0);
     ctx.scale(-1, 1);
   }
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
+
+  const R: PxFill = (x, y, w, h, color) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * T, y * T, w * T, h * T);
+  };
 
   if (opts.shadow) {
-    ctx.fillStyle = "rgba(24, 48, 30, 0.18)";
-    ellipsePath(ctx, 8, 21.75, 4.3, 0.75);
-    ctx.fill();
+    ctx.fillStyle = "rgba(30, 18, 42, 0.28)";
+    ctx.fillRect(8 * T, 43 * T, 17 * T, 1 * T);
+    ctx.fillRect(10 * T, 42.5 * T, 13 * T, 0.5 * T);
   }
 
-  drawHairBack(ctx, c.hairStyle, hair);
-  drawBody(ctx, c.outfit, outfit, skin, pose);
-  drawHead(ctx, skin);
-  drawFace(ctx, opts.blink);
-  drawHairFront(ctx, c.hairStyle, hair);
+  drawHairBackPx(R, c.hairStyle, hair);
+  drawBodyPx(R, ctx, c.outfit, outfit, skin, pose);
+  drawHeadPx(R, skin);
+  drawFacePx(R, ctx, opts.blink);
+  drawHairFrontPx(R, ctx, c.hairStyle, hair);
 
   ctx.restore();
 }

@@ -28,7 +28,7 @@ export default function CharacterSprite({ config, scale = 6, animate = true, cla
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Render at 2x for crisp vector art on retina screens.
+    // Render at 2x so texels land on whole device pixels on retina screens.
     const RES = 2;
     canvas.width = SPRITE_W * scale * RES;
     canvas.height = (SPRITE_H * scale + scale) * RES;
@@ -62,7 +62,7 @@ export default function CharacterSprite({ config, scale = 6, animate = true, cla
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: SPRITE_W * scale, height: SPRITE_H * scale + scale }}
+      style={{ width: SPRITE_W * scale, height: SPRITE_H * scale + scale, imageRendering: "pixelated" }}
       className={className}
     />
   );

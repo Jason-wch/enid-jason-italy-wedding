@@ -1,10 +1,10 @@
 "use client";
 
 /**
- * Welcome minigame: a MapleStory-style side-scroller in smooth vector art.
- * Walk (and jump) your chibi character down Villa Sostaga's gravel drive,
- * past the yellow villa and the gazebo terrace, and dive into Lake Garda
- * to enter the wedding website.
+ * Welcome minigame: a MapleStory-style side-scroller in 16-bit pixel art,
+ * set at sunset. Walk (and jump) your chibi character down Villa Sostaga's
+ * gravel drive, past the yellow villa and the gazebo terrace, and dive into
+ * Lake Garda to enter the wedding website.
  */
 
 import { useEffect, useRef, useState } from "react";
@@ -60,18 +60,16 @@ function buildForeground(res: number): HTMLCanvasElement {
   off.height = VIEW_H * res;
   const ctx = off.getContext("2d")!;
   ctx.setTransform(res, 0, 0, res, 0, 0);
+  ctx.imageSmoothingEnabled = false;
 
   // ground: lawn until the shore, then open water (drawn live)
   drawGrass(ctx, 0, GROUND_Y, LAKE_X + 60, VIEW_H - GROUND_Y);
-  // sandy slope into the lake
-  ctx.fillStyle = "#e0c089";
-  ctx.beginPath();
-  ctx.moveTo(LAKE_X + 18, GROUND_Y);
-  ctx.lineTo(LAKE_X + 60, GROUND_Y + 16);
-  ctx.lineTo(LAKE_X + 60, VIEW_H);
-  ctx.lineTo(LAKE_X + 18, VIEW_H);
-  ctx.closePath();
-  ctx.fill();
+  // stepped sandy slope into the lake
+  ctx.fillStyle = "#c9a06b";
+  ctx.fillRect(LAKE_X + 18, GROUND_Y, 42, VIEW_H - GROUND_Y);
+  ctx.fillRect(LAKE_X + 33, GROUND_Y + 6, 27, VIEW_H - GROUND_Y - 6);
+  ctx.fillStyle = "#a87f4e";
+  ctx.fillRect(LAKE_X + 45, GROUND_Y + 12, 15, VIEW_H - GROUND_Y - 12);
 
   // the walk to the villa
   drawCypress(ctx, 48, GROUND_Y, 120);
@@ -107,8 +105,8 @@ export default function WelcomeGame() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Render at up to 2x for crisp smooth vector art.
-    const RES = Math.min(2, Math.max(1, window.devicePixelRatio || 1));
+    // Integer resolution only, so every texel lands on whole device pixels.
+    const RES = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
     canvas.width = VIEW_W * RES;
     canvas.height = VIEW_H * RES;
     const foreground = buildForeground(RES);
@@ -244,13 +242,14 @@ export default function WelcomeGame() {
 
       // --- draw ---
       ctx.setTransform(RES, 0, 0, RES, 0, 0);
-      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingEnabled = false;
 
       const sunScreenX = 800 - cam * 0.06;
       const sunWorldX = sunScreenX + cam;
 
-      drawSky(ctx, VIEW_W, VIEW_H);
-      drawSun(ctx, sunScreenX, 78, 30);
+      // sky only needs to reach the waterline (water + foreground cover the rest)
+      drawSky(ctx, VIEW_W, 400);
+      drawSun(ctx, sunScreenX, 252, 34);
       drawBirds(ctx, 320 - cam * 0.15, 96, t);
       drawBirds(ctx, 760 - cam * 0.15, 140, t);
       // big puffy clouds
@@ -265,7 +264,7 @@ export default function WelcomeGame() {
       drawFloatingIsland(ctx, 820 - cam * 0.3, 84, 116);
       drawTree(ctx, 820 - cam * 0.3, 84, 0.6);
       drawFloatingIsland(ctx, 1280 - cam * 0.3, 150, 96);
-      // hazy blue pre-Alps + rolling green hills
+      // dusky purple pre-Alps + rolling dusk-green hills
       drawMountains(ctx, VIEW_W, 306, -cam * 0.35, true);
       drawMountains(ctx, VIEW_W, 348, -cam * 0.55, false);
       // the great lake behind the villa terrace — Villa Sostaga overlooks it
@@ -378,16 +377,16 @@ export default function WelcomeGame() {
     <div
       className="fixed inset-0 flex items-center justify-center overflow-hidden touch-none select-none"
       style={{
-        // Letterbox bands read as sky (above) and deep water (below) on
+        // Letterbox bands read as dusk sky (above) and deep water (below) on
         // portrait screens where the 16:9 canvas can't fill the viewport.
-        background: "linear-gradient(to bottom, #57b6f2 0 50%, #1f6cb4 50% 100%)",
+        background: "linear-gradient(to bottom, #241f4d 0 50%, #222a55 50% 100%)",
       }}
     >
       <canvas
         ref={canvasRef}
         width={VIEW_W}
         height={VIEW_H}
-        className="w-full h-full object-contain touch-none"
+        className="w-full h-full object-contain touch-none [image-rendering:pixelated]"
       />
 
       {/* Title & instructions */}
