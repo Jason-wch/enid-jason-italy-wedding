@@ -1,12 +1,14 @@
 /**
- * 8-bit chibi characters drawn CryptoPunks-style on canvas — one fat pixel
- * per grid cell, flat colors, hard 1px outlines, big square head, tiny body.
+ * Flat 8-bit avatar characters, in the classic pixel-crowd illustration
+ * style: no outlines, no shading, one flat color per element, a big flat
+ * rectangular head with tiny dot eyes, and a stubby body with arms hanging
+ * at the sides.
  *
  * Characters use the same CharacterConfig shape stored in Supabase and
  * localStorage, so previously saved characters keep working.
  *
  * Coordinate system: a 16 x 22 "unit" box multiplied by `scale`. One pixel
- * IS one unit — a true 16 x 22 sprite, punk resolution.
+ * IS one unit — a true 16 x 22 sprite.
  */
 
 export const SPRITE_W = 16;
@@ -94,175 +96,83 @@ export function hashString(s: string): number {
 }
 
 /* ---------------------------------------------------------------------------
-   Color helpers
+   Pixel helpers — one grid cell is one fat pixel, flat colors only
 --------------------------------------------------------------------------- */
 
 type Ctx = CanvasRenderingContext2D;
 
-function hexToRgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-function mix(a: string, b: string, t: number): string {
-  const A = hexToRgb(a);
-  const B = hexToRgb(b);
-  return `rgb(${Math.round(A[0] + (B[0] - A[0]) * t)}, ${Math.round(
-    A[1] + (B[1] - A[1]) * t
-  )}, ${Math.round(A[2] + (B[2] - A[2]) * t)})`;
-}
-
-const light = (c: string, t: number) => mix(c, "#ffffff", t);
-const dark = (c: string, t: number) => mix(c, "#241209", t);
-
-/* ---------------------------------------------------------------------------
-   Pixel helpers — one grid cell is one fat pixel
---------------------------------------------------------------------------- */
-
 type PxFill = (x: number, y: number, w: number, h: number, color: string) => void;
 
-/** Rectangle with 1-step "rounded" pixel corners. */
-function blk(R: PxFill, x: number, y: number, w: number, h: number, color: string) {
-  R(x + 1, y, w - 2, h, color);
-  R(x, y + 1, w, h - 2, color);
-}
+const EYE = "#2b2320";
+const MOUTH = "#a34b40";
 
 /* ---------------------------------------------------------------------------
-   Head & face
+   Head & face — flat rectangle, dot eyes, tiny mouth. No outline, no shade.
 --------------------------------------------------------------------------- */
 
 function drawHeadPx(R: PxFill, skin: [string, string]) {
-  const outline = dark(skin[0], 0.55);
-  blk(R, 3, 1, 11, 10, outline); // silhouette y1..10
-  blk(R, 4, 2, 9, 8, skin[0]); // face fill y2..9
-  // jaw shading
-  R(5, 9, 7, 1, skin[1]);
+  R(2, 1, 13, 9, skin[0]);
 }
 
-function drawFacePx(R: PxFill, ctx: Ctx, blink?: boolean) {
+function drawFacePx(R: PxFill, blink?: boolean) {
   if (blink) {
-    R(5, 5, 2, 1, "#2b1d13");
-    R(9, 5, 2, 1, "#2b1d13");
+    R(5, 5, 1, 1, EYE);
+    R(11, 5, 1, 1, EYE);
   } else {
-    for (const ex of [5, 9]) {
-      // 2x2 punk eye: dark block with a single white glint
-      R(ex, 4, 2, 2, "#2b1c12");
-      R(ex, 4, 1, 1, "#ffffff");
-    }
+    R(5, 4, 1, 2, EYE);
+    R(11, 4, 1, 2, EYE);
   }
-  // mouth
-  R(7, 7, 2, 1, "#a34b40");
-  // blush
-  ctx.globalAlpha = 0.45;
-  R(4, 6, 1, 1, "#ef8a6f");
-  R(12, 6, 1, 1, "#ef8a6f");
-  ctx.globalAlpha = 1;
+  R(7, 7, 2, 1, MOUTH);
 }
 
 /* ---------------------------------------------------------------------------
-   Hair — back layer (behind body/head) and front layer (over the face)
+   Hair — one flat color per style, layered behind and over the head
 --------------------------------------------------------------------------- */
 
-function hairTones(hair: [string, string]) {
-  return {
-    base: hair[0],
-    shade: dark(hair[0], 0.26),
-    shine: light(hair[0], 0.35),
-    outline: dark(hair[0], 0.5),
-  };
-}
-
 function drawHairBackPx(R: PxFill, style: number, hair: [string, string]) {
-  const t = hairTones(hair);
+  const c = hair[0];
   if (style === 1) {
-    // Long — mane behind the body with a toothed hem
-    blk(R, 2, 2, 13, 12, t.outline);
-    blk(R, 3, 3, 11, 10, t.shade);
-    for (const fx of [3, 5, 7, 9, 11, 13]) R(fx, 13, 1, 1, t.shade);
+    // Long — flat curtain falling past the shoulders
+    R(1, 1, 15, 13, c);
   } else if (style === 2) {
-    // Ponytail — chunky tail down the right
-    R(13, 2, 2, 3, t.outline);
-    R(14, 4, 2, 5, t.outline);
-    R(13, 3, 1, 2, t.shade);
-    R(14, 5, 1, 4, t.shade);
-    R(13, 3, 1, 1, "#c14b45"); // hair tie
+    // Ponytail — flat tail down the right side
+    R(14, 2, 2, 7, c);
+    R(14, 4, 2, 1, "#c14b45"); // hair tie
   } else if (style === 3) {
-    // Bob — rounded volume behind the head
-    blk(R, 2, 2, 13, 10, t.outline);
-    blk(R, 3, 3, 11, 8, t.shade);
+    // Bob — flat volume down to the jaw
+    R(1, 1, 15, 10, c);
   }
 }
 
-function drawHairFrontPx(R: PxFill, ctx: Ctx, style: number, hair: [string, string]) {
-  const t = hairTones(hair);
-  const shine = () => {
-    ctx.globalAlpha = 0.85;
-    R(5, 1, 4, 1, t.shine);
-    ctx.globalAlpha = 1;
-  };
-
+function drawHairFrontPx(R: PxFill, style: number, hair: [string, string]) {
+  const c = hair[0];
   if (style === 0) {
-    // Short & Neat — cap with a notched fringe + sideburns
-    blk(R, 3, 0, 11, 5, t.outline);
-    R(5, 0, 7, 1, t.base);
-    R(4, 1, 9, 2, t.base);
-    R(4, 3, 2, 1, t.base);
-    R(7, 3, 3, 1, t.base);
-    R(11, 3, 2, 1, t.base);
-    R(4, 4, 1, 2, t.base);
-    R(12, 4, 1, 2, t.base);
-    shine();
+    // Short & Neat — straight flat cap with sideburns
+    R(2, 0, 13, 3, c);
+    R(2, 3, 1, 2, c);
+    R(14, 3, 1, 2, c);
   } else if (style === 1) {
-    // Long — parted fringe + face-framing locks over the head outline
-    blk(R, 3, 0, 11, 5, t.outline);
-    R(5, 0, 7, 1, t.base);
-    R(4, 1, 9, 2, t.base);
-    R(4, 3, 4, 1, t.base);
-    R(9, 3, 4, 1, t.base);
-    R(3, 3, 1, 7, t.base);
-    R(13, 3, 1, 7, t.base);
-    shine();
+    // Long — fringe with a center part showing the forehead
+    R(2, 0, 13, 2, c);
+    R(2, 2, 5, 1, c);
+    R(10, 2, 5, 1, c);
   } else if (style === 2) {
-    // Ponytail — swept-back cap with one side swoop
-    blk(R, 3, 0, 11, 5, t.outline);
-    R(5, 0, 7, 1, t.base);
-    R(4, 1, 9, 2, t.base);
-    R(4, 3, 7, 1, t.base);
-    R(4, 4, 1, 2, t.base);
-    shine();
+    // Ponytail — swept-back cap with a side swoop
+    R(2, 0, 13, 2, c);
+    R(2, 2, 9, 1, c);
+    R(2, 3, 1, 2, c);
   } else if (style === 3) {
-    // Bob — straight fringe with dips + face-framing curve
-    blk(R, 3, 0, 11, 5, t.outline);
-    R(5, 0, 7, 1, t.base);
-    R(4, 1, 9, 2, t.base);
-    R(4, 3, 2, 1, t.base);
-    R(7, 3, 3, 1, t.base);
-    R(11, 3, 2, 1, t.base);
-    R(3, 3, 1, 8, t.base);
-    R(13, 3, 1, 8, t.base);
-    R(4, 10, 1, 1, t.base);
-    R(12, 10, 1, 1, t.base);
-    shine();
+    // Bob — full straight fringe over the back volume
+    R(2, 0, 13, 3, c);
   } else {
-    // Spiky — single-pixel tufts above a jagged cap
-    for (const sx of [4, 6, 8, 10, 12]) {
-      R(sx - 1, 0, 3, 2, t.outline);
-      R(sx, 0, 1, 2, t.base);
-    }
-    blk(R, 3, 1, 11, 4, t.outline);
-    R(4, 2, 9, 1, t.base);
-    R(4, 3, 2, 1, t.base);
-    R(7, 3, 3, 1, t.base);
-    R(11, 3, 2, 1, t.base);
-    ctx.globalAlpha = 0.85;
-    R(6, 0, 1, 1, t.shine);
-    R(10, 0, 1, 1, t.shine);
-    ctx.globalAlpha = 1;
+    // Spiky — single-pixel tufts above a low cap
+    for (const sx of [3, 6, 9, 12]) R(sx, 0, 1, 1, c);
+    R(2, 1, 13, 2, c);
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Body & outfits
+   Body & outfits — stubby torso, arms at the sides, flat color blocks
 --------------------------------------------------------------------------- */
 
 type Pose = {
@@ -273,7 +183,6 @@ type Pose = {
 
 function drawBodyPx(
   R: PxFill,
-  ctx: Ctx,
   outfitIdx: number,
   outfit: [string, string],
   skin: [string, string],
@@ -285,18 +194,18 @@ function drawBodyPx(
   // walk cycle: legs scissor apart, arms swing out (whole pixels only)
   const spread = pose.walking ? 1 + Math.round(Math.abs(pose.swing)) : 0;
   const armOut = pose.walking ? Math.round(Math.abs(pose.swing)) : 0;
-  const legL = 5 - spread;
+  const legL = 6 - spread;
   const legR = 9 + spread;
   const armLX = 4 - armOut;
-  const armRX = 11 + armOut;
+  const armRX = 12 + armOut;
 
   const shoe = (x: number, toe: -1 | 1, color: string) => {
     R(toe < 0 ? x - 1 : x, 20, 3, 2, color);
   };
-  const leg = (x: number, color: string, top = 15) => R(x, top, 2, 20 - top, color);
-  const arm = (x: number, color: string, hand = true) => {
-    R(x, 10, 1, 3, color);
-    if (hand) R(x, 13, 1, 1, skin[0]);
+  const leg = (x: number, color: string, top = 16) => R(x, top, 2, 20 - top, color);
+  const arm = (x: number, color: string) => {
+    R(x, 10, 1, 4, color);
+    R(x, 14, 1, 1, skin[0]); // hand
   };
   const skinArms = () => {
     arm(armLX, skin[0]);
@@ -311,12 +220,9 @@ function drawBodyPx(
     shoe(legR, 1, "#3c2b1e");
     arm(armLX, o0);
     arm(armRX, o0);
-    R(5, 10, 6, 5, o0); // jacket torso
-    R(7, 10, 2, 1, "#faf6ec"); // shirt
-    R(7, 11, 2, 2, dark(o1, 0.25)); // tie
-    R(6, 10, 1, 2, dark(o0, 0.3)); // lapels
-    R(9, 10, 1, 2, dark(o0, 0.3));
-    R(6, 13, 1, 1, light(o0, 0.45)); // button
+    R(5, 10, 7, 6, o0); // jacket
+    R(7, 10, 3, 2, "#faf6ec"); // shirt
+    R(8, 12, 1, 3, o1); // tie
   } else if (outfitIdx === 1) {
     // ---- Sundress: bodice + flared skirt, bare arms & legs
     leg(legL, skin[0]);
@@ -324,12 +230,10 @@ function drawBodyPx(
     shoe(legL, -1, "#f4eee0");
     shoe(legR, 1, "#f4eee0");
     skinArms();
-    R(5, 10, 6, 3, o0); // bodice
-    R(5, 12, 6, 1, o1); // sash
-    R(5, 13, 6, 1, o0); // flared skirt
-    R(4, 14, 8, 2, o0);
-    R(3, 16, 10, 1, o1); // hem shade
-    for (const fx of [4, 7, 10]) R(fx, 17, 1, 1, o1); // scalloped hem
+    R(5, 10, 7, 3, o0); // bodice
+    R(5, 13, 7, 1, o1); // sash
+    R(4, 14, 9, 2, o0); // flared skirt
+    R(3, 16, 11, 1, o0);
   } else if (outfitIdx === 2) {
     // ---- Tee & Shorts
     leg(legL, skin[0]);
@@ -337,13 +241,12 @@ function drawBodyPx(
     shoe(legL, -1, "#f2eee6");
     shoe(legR, 1, "#f2eee6");
     skinArms();
-    R(5, 10, 6, 3, o0); // tee
-    R(4, 10, 1, 2, o0); // sleeves
-    R(11, 10, 1, 2, o0);
-    R(7, 10, 2, 1, light(o0, 0.35)); // collar
-    R(5, 13, 6, 2, o1); // shorts
-    R(legL, 15, 2, 1, o1); // cuffs follow the legs
-    R(legR, 15, 2, 1, o1);
+    R(4, 10, 1, 2, o0); // sleeves over the arms
+    R(12, 10, 1, 2, o0);
+    R(5, 10, 7, 4, o0); // tee
+    R(5, 14, 7, 2, o1); // shorts
+    R(legL, 16, 2, 1, o1); // cuffs follow the legs
+    R(legR, 16, 2, 1, o1);
   } else if (outfitIdx === 3) {
     // ---- Overalls over a cream tee
     const tee = "#f4efe2";
@@ -353,37 +256,23 @@ function drawBodyPx(
     shoe(legR, 1, "#6d4a30");
     skinArms();
     R(4, 10, 1, 2, tee); // tee sleeves over the arms
-    R(11, 10, 1, 2, tee);
-    R(5, 10, 6, 2, tee); // tee torso
+    R(12, 10, 1, 2, tee);
+    R(5, 10, 7, 2, tee); // tee
     R(5, 10, 1, 1, o0); // straps
-    R(10, 10, 1, 1, o0);
-    R(6, 11, 4, 2, o0); // bib
-    R(5, 13, 6, 2, o0); // hips
+    R(11, 10, 1, 1, o0);
+    R(6, 11, 5, 2, o0); // bib
+    R(5, 13, 7, 3, o0); // hips
     R(6, 11, 1, 1, "#e8c15a"); // buttons
-    R(9, 11, 1, 1, "#e8c15a");
+    R(10, 11, 1, 1, "#e8c15a");
   } else {
-    // ---- Gown: floor-length, elegant — no legs peeking out
+    // ---- Gown: floor-length, flat and elegant — no legs peeking out
     skinArms();
-    R(5, 10, 6, 3, o0); // bodice
-    R(5, 12, 6, 1, light(o0, 0.3)); // waistband
+    R(5, 10, 7, 3, o0); // bodice
+    R(5, 12, 7, 1, o1); // waistband
     for (let yy = 13; yy < 22; yy++) {
-      const g = yy < 15 ? 1 : yy < 18 ? 2 : 3;
-      R(5 - g, yy, 6 + 2 * g, 1, o0);
-      // drape shading down the right side
-      ctx.globalAlpha = 0.55;
-      R(9 + g, yy, 2, 1, o1);
-      ctx.globalAlpha = 1;
+      const g = yy < 16 ? 1 : yy < 19 ? 2 : 3;
+      R(6 - g, yy, 5 + 2 * g, 1, o0);
     }
-    ctx.globalAlpha = 0.75;
-    for (const [sx, sy] of [
-      [4, 16],
-      [8, 18],
-      [11, 15],
-      [6, 20],
-    ] as const) {
-      R(sx, sy, 1, 1, "#ffffff");
-    }
-    ctx.globalAlpha = 1;
   }
 }
 
@@ -431,15 +320,15 @@ export function drawCharacter(ctx: Ctx, config: CharacterConfig, opts: DrawOptio
   };
 
   if (opts.shadow) {
-    ctx.fillStyle = "rgba(80, 55, 15, 0.25)";
+    ctx.fillStyle = "rgba(80, 55, 15, 0.22)";
     ctx.fillRect(3, 21, 11, 1);
   }
 
   drawHairBackPx(R, c.hairStyle, hair);
-  drawBodyPx(R, ctx, c.outfit, outfit, skin, pose);
+  drawBodyPx(R, c.outfit, outfit, skin, pose);
   drawHeadPx(R, skin);
-  drawFacePx(R, ctx, opts.blink);
-  drawHairFrontPx(R, ctx, c.hairStyle, hair);
+  drawFacePx(R, opts.blink);
+  drawHairFrontPx(R, c.hairStyle, hair);
 
   ctx.restore();
 }
