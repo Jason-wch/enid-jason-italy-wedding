@@ -1,86 +1,118 @@
 "use client";
 
 /**
- * Welcome minigame — MapleStory-style 2.5D platformer rendered with Three.js.
- * Walk (and jump) your voxel character down Villa Sostaga's lakeside walk,
- * hop the floating one-way platforms if you like, and wade into Lake Garda
- * to enter the wedding website.
- *
- * The gameplay is the original canvas game's, byte-for-byte: walk 4.2 px/f,
- * gravity 0.7, jump -13, the same dt clamp, camera lead and arrive trigger.
- * Only the renderer changed — plus the new (optional) platform course, which
- * uses classic Maple one-way collision: land from above, jump up through,
- * down+jump to drop.
- *
- * If WebGL is unavailable (or the context dies), the old Canvas-2D build in
- * WelcomeGame2D.tsx takes over seamlessly.
+ * Canvas-2D fallback build of the welcome minigame, used when WebGL is
+ * unavailable: a MapleStory-style side-scroller in chunky 8-bit pixel
+ * art, set in a bright golden-hour glow. Walk (and jump) your chibi
+ * character down Villa Sostaga's gravel drive, past the yellow villa and the
+ * gazebo terrace, and dive into Lake Garda to enter the wedding website.
  */
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import * as THREE from "three";
 import {
   DEFAULT_CHARACTER,
+  drawCharacter,
   normalizeCharacter,
   SPRITE_H,
   SPRITE_W,
   type CharacterConfig,
 } from "@/lib/maple/characters";
-import { PALETTE } from "@/lib/maple/scenery";
 import {
-  addGoldenLights,
-  CAM_FOV,
-  camDistance,
-  createRenderer,
-  disposeObject,
-  srgbColor,
-} from "@/lib/maple3d/engine";
-import { makeShadowQuad, VoxelCharacter } from "@/lib/maple3d/voxelChar";
-import {
-  ARRIVE_X,
-  buildEntranceWorld,
-  GROUND_Y,
-  LAKE_X,
-  MAX_VIEW_W,
-  MIN_VIEW_W,
-  PLATFORMS,
-  VIEW_H,
-  WORLD_W,
-} from "@/lib/maple3d/level";
+  drawBirds,
+  drawBoat,
+  drawCloud,
+  drawCypress,
+  drawFlowerBed,
+  drawFloatingIsland,
+  drawGazebo,
+  drawGrass,
+  drawLadder,
+  drawMountains,
+  drawMushroom,
+  drawOliveTree,
+  drawSign,
+  drawSky,
+  drawSun,
+  drawTree,
+  drawVilla,
+  drawWater,
+  PALETTE,
+} from "@/lib/maple/scenery";
 import { WEDDING } from "@/lib/wedding";
 import { LogoMark } from "@/components/decor/Logo";
-import WelcomeGame2D from "@/components/WelcomeGame2D";
 
+/**
+ * The view height is fixed; the view WIDTH follows the device's aspect ratio
+ * so the world fills the entire screen — no letterboxing on phones.
+ */
+const MAX_VIEW_W = 960;
+const MIN_VIEW_W = 240;
+const VIEW_H = 540;
+const WORLD_W = 1500;
+const GROUND_Y = 470;
+const LAKE_X = 900; // water starts here
+const ARRIVE_X = 1020; // reaching this point finishes the game
 const CHAR_SCALE = 4;
 const CHAR_W = SPRITE_W * CHAR_SCALE;
 const CHAR_H = SPRITE_H * CHAR_SCALE;
-const MAX_SPLASHES = 96;
 
 type Splash = { x: number; y: number; vx: number; vy: number; life: number };
 
-export default function WelcomeGame() {
+/** Pre-renders the static foreground strip (ground + scenery) once. */
+function buildForeground(res: number): HTMLCanvasElement {
+  const off = document.createElement("canvas");
+  off.width = WORLD_W * res;
+  off.height = VIEW_H * res;
+  const ctx = off.getContext("2d")!;
+  ctx.setTransform(res, 0, 0, res, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+
+  // ground: lawn until the shore, then open water (drawn live)
+  drawGrass(ctx, 0, GROUND_Y, LAKE_X + 60, VIEW_H - GROUND_Y);
+  // stepped sandy slope into the lake
+  ctx.fillStyle = "#e0c089";
+  ctx.fillRect(LAKE_X + 18, GROUND_Y, 42, VIEW_H - GROUND_Y);
+  ctx.fillRect(LAKE_X + 33, GROUND_Y + 6, 27, VIEW_H - GROUND_Y - 6);
+  ctx.fillStyle = "#c9a06b";
+  ctx.fillRect(LAKE_X + 45, GROUND_Y + 12, 15, VIEW_H - GROUND_Y - 12);
+
+  // the walk to the villa
+  drawCypress(ctx, 48, GROUND_Y, 120);
+  drawTree(ctx, 118, GROUND_Y, 1.0);
+  drawSign(ctx, 205, GROUND_Y, "VILLA SOSTAGA");
+  drawMushroom(ctx, 262, GROUND_Y, 1.0);
+  drawFlowerBed(ctx, 292, GROUND_Y, 58);
+  drawOliveTree(ctx, 385, GROUND_Y, 1.05);
+  drawCypress(ctx, 432, GROUND_Y, 104);
+
+  // the villa itself (draws its own porch, steps and potted olives)
+  drawVilla(ctx, 458, GROUND_Y, 0.95);
+
+  // gazebo terrace down to the shore
+  drawGazebo(ctx, 706, GROUND_Y, 0.82);
+  drawFlowerBed(ctx, 792, GROUND_Y, 46);
+  drawMushroom(ctx, 812, GROUND_Y, 0.85);
+  drawSign(ctx, 852, GROUND_Y, "LAKE GARDA");
+  drawCypress(ctx, 893, GROUND_Y, 92);
+
+  return off;
+}
+
+export default function WelcomeGame2D() {
   const router = useRouter();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fadeRef = useRef<HTMLDivElement>(null);
   const keysRef = useRef<Set<string>>(new Set());
   const [arrived, setArrived] = useState(false);
-  const [fallback, setFallback] = useState(false);
 
   useEffect(() => {
-    if (fallback) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const renderer = createRenderer(canvas);
-    if (!renderer) {
-      setFallback(true);
-      return;
-    }
-    const onContextLost = (e: Event) => {
-      e.preventDefault();
-      setFallback(true);
-    };
-    canvas.addEventListener("webglcontextlost", onContextLost);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
+    // Integer resolution only, so every texel lands on whole device pixels.
+    const RES = (window.devicePixelRatio || 1) >= 1.5 ? 2 : 1;
     // Match the viewport to the screen's aspect ratio: the game fills the
     // whole phone screen (portrait shows a narrower slice of the world).
     const viewWFor = () =>
@@ -91,26 +123,14 @@ export default function WelcomeGame() {
         )
       );
     let viewW = viewWFor();
-
-    const D = camDistance(VIEW_H);
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(CAM_FOV, viewW / VIEW_H, 10, 30000);
-    camera.position.set(viewW / 2, -VIEW_H / 2, D);
-    addGoldenLights(scene);
-    const world = buildEntranceWorld(scene, camera, D);
-
-    const applySize = () => {
-      renderer.setSize(viewW, VIEW_H, false);
-      camera.aspect = viewW / VIEW_H;
-      camera.updateProjectionMatrix();
-      world.layout(viewW);
-    };
-    applySize();
+    canvas.width = viewW * RES;
+    canvas.height = VIEW_H * RES;
     const onResize = () => {
       viewW = viewWFor();
-      applySize();
+      canvas.width = viewW * RES;
     };
     window.addEventListener("resize", onResize);
+    const foreground = buildForeground(RES);
 
     let character: CharacterConfig = DEFAULT_CHARACTER;
     try {
@@ -119,31 +139,6 @@ export default function WelcomeGame() {
     } catch {
       // keep default
     }
-
-    const playerVox = new VoxelCharacter(CHAR_SCALE);
-    playerVox.setConfig(character);
-    scene.add(playerVox.group);
-    const shadow = makeShadowQuad(11 * CHAR_SCALE);
-    scene.add(shadow);
-
-    const splashMesh = new THREE.InstancedMesh(
-      new THREE.BoxGeometry(5, 5, 5),
-      new THREE.MeshBasicMaterial({
-        color: srgbColor(PALETTE.lakeShine),
-        transparent: true,
-        opacity: 0.85,
-        depthWrite: false,
-      }),
-      MAX_SPLASHES
-    );
-    splashMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-    splashMesh.frustumCulled = false;
-    splashMesh.count = 0;
-    scene.add(splashMesh);
-    const tmpPos = new THREE.Vector3();
-    const tmpScale = new THREE.Vector3();
-    const tmpQuat = new THREE.Quaternion();
-    const tmpMatrix = new THREE.Matrix4();
 
     const player = {
       x: 60,
@@ -154,8 +149,6 @@ export default function WelcomeGame() {
       moving: false,
       walkPhase: 0,
     };
-    let onPlatform = false; // current support is a one-way platform
-    let dropTimer = 0; // frames left of falling through platforms
     const splashes: Splash[] = [];
     let fade = 0;
     let finishing = false;
@@ -166,11 +159,7 @@ export default function WelcomeGame() {
     const keys = keysRef.current;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (
-        ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " ", "a", "d", "w", "s"].includes(
-          e.key
-        )
-      ) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", " ", "a", "d", "w"].includes(e.key)) {
         e.preventDefault();
       }
       keys.add(e.key);
@@ -186,18 +175,6 @@ export default function WelcomeGame() {
       router.push("/home");
     };
 
-    const addSplashes = (n: number, x: number, y: number, power: number) => {
-      for (let i = 0; i < n; i++) {
-        splashes.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * (power + 2),
-          vy: -Math.random() * (power + 1) - 2,
-          life: 1,
-        });
-      }
-    };
-
     const step = (now: number) => {
       const dt = Math.min(32, now - last) / 16.667; // normalized to 60fps units
       last = now;
@@ -208,7 +185,6 @@ export default function WelcomeGame() {
       const right = keys.has("ArrowRight") || keys.has("d") || keys.has("touch-right");
       const jump =
         keys.has("ArrowUp") || keys.has(" ") || keys.has("w") || keys.has("touch-jump");
-      const down = keys.has("ArrowDown") || keys.has("s");
 
       if (!finishing) {
         player.moving = false;
@@ -225,56 +201,33 @@ export default function WelcomeGame() {
         player.x = Math.max(0, Math.min(WORLD_W - CHAR_W, player.x));
 
         if (jump && player.onGround) {
-          if (down && onPlatform) {
-            // Maple drop-through: fall past one-way platforms for a beat
-            dropTimer = 12;
-            player.onGround = false;
-          } else {
-            player.vy = -13;
-            player.onGround = false;
-          }
+          player.vy = -13;
+          player.onGround = false;
         }
       }
-      dropTimer = Math.max(0, dropTimer - dt);
-
-      const prevFeet = player.y + CHAR_H;
       player.vy += 0.7 * dt;
       player.y += player.vy * dt;
 
       const feetX = player.x + CHAR_W / 2;
       const inLake = feetX > LAKE_X + 40;
       const floorY = inLake ? GROUND_Y + 56 : GROUND_Y; // chest-deep in the lake
-      const feet = player.y + CHAR_H;
-
-      // --- collision: base floor + one-way platforms ---
-      let land: number | null = null;
-      let landOnPlatform = false;
-      if (player.vy >= 0) {
-        if (dropTimer <= 0) {
-          for (const p of PLATFORMS) {
-            if (feetX < p.x || feetX > p.x + p.w) continue;
-            // only when the feet crossed the top edge this frame (one-way)
-            if (prevFeet <= p.top + 1 && feet >= p.top && (land === null || p.top < land)) {
-              land = p.top;
-              landOnPlatform = true;
-            }
+      if (player.y < floorY - CHAR_H - 0.5) player.onGround = false; // walked off a ledge
+      if (player.y >= floorY - CHAR_H) {
+        if (!player.onGround && inLake && !finishing) {
+          // splash on landing in water
+          for (let i = 0; i < 26; i++) {
+            splashes.push({
+              x: feetX,
+              y: floorY - 10,
+              vx: (Math.random() - 0.5) * 8,
+              vy: -Math.random() * 9 - 2,
+              life: 1,
+            });
           }
         }
-        if (feet >= floorY && (land === null || floorY < land)) {
-          land = floorY;
-          landOnPlatform = false;
-        }
-      }
-      if (land !== null) {
-        if (!player.onGround && !landOnPlatform && inLake && !finishing) {
-          addSplashes(26, feetX, floorY - 10, 7); // splash on landing in water
-        }
-        player.y = land - CHAR_H;
+        player.y = floorY - CHAR_H;
         player.vy = 0;
         player.onGround = true;
-        onPlatform = landOnPlatform;
-      } else {
-        player.onGround = false; // rising, walked off an edge, or dropping through
       }
 
       if (player.moving && player.onGround) {
@@ -284,7 +237,15 @@ export default function WelcomeGame() {
       if (!finishing && feetX >= ARRIVE_X) {
         finishing = true;
         setArrived(true);
-        addSplashes(40, feetX, GROUND_Y + 10, 9);
+        for (let i = 0; i < 40; i++) {
+          splashes.push({
+            x: feetX,
+            y: GROUND_Y + 10,
+            vx: (Math.random() - 0.5) * 10,
+            vy: -Math.random() * 11 - 3,
+            life: 1,
+          });
+        }
         setTimeout(finish, 2600);
       }
       if (finishing) fade = Math.min(1, fade + 0.006 * dt);
@@ -300,38 +261,107 @@ export default function WelcomeGame() {
 
       const cam = Math.max(0, Math.min(WORLD_W - viewW, player.x - viewW * 0.38));
 
-      // --- render ---
-      camera.position.set(cam + viewW / 2, -VIEW_H / 2, D);
+      // --- draw ---
+      ctx.setTransform(RES, 0, 0, RES, 0, 0);
+      ctx.imageSmoothingEnabled = false;
 
-      const submerged = player.x + CHAR_W / 2 > LAKE_X + 60;
-      playerVox.setFeet(player.x + CHAR_W / 2, player.y + CHAR_H);
-      playerVox.setFacing(player.facing);
-      playerVox.setPose(
-        player.moving && player.onGround,
-        player.walkPhase,
-        Math.floor(t / 200) % 18 === 0
+      const sunScreenX = viewW * 0.83 - cam * 0.06;
+      const sunWorldX = sunScreenX + cam;
+
+      // sky only needs to reach the waterline (water + foreground cover the rest)
+      drawSky(ctx, viewW, 400);
+      drawSun(ctx, sunScreenX, 158, 36);
+      drawBirds(ctx, 320 - cam * 0.15, 96, t);
+      drawBirds(ctx, 760 - cam * 0.15, 140, t);
+      // big puffy clouds
+      drawCloud(ctx, 90 - cam * 0.2, 58, 15);
+      drawCloud(ctx, 470 - cam * 0.2, 120, 11);
+      drawCloud(ctx, 900 - cam * 0.2, 48, 13);
+      drawCloud(ctx, 1420 - cam * 0.2, 96, 12);
+      // floating grass islands drifting in the sky
+      drawFloatingIsland(ctx, 300 - cam * 0.3, 128, 150);
+      drawLadder(ctx, 292 - cam * 0.3, 140, 52);
+      drawMushroom(ctx, 340 - cam * 0.3, 128, 1.1);
+      drawFloatingIsland(ctx, 820 - cam * 0.3, 84, 116);
+      drawTree(ctx, 820 - cam * 0.3, 84, 0.6);
+      drawFloatingIsland(ctx, 1280 - cam * 0.3, 150, 96);
+      // amber-hazed pre-Alps + rolling sunlit hills
+      drawMountains(ctx, viewW, 306, -cam * 0.35, true);
+      drawMountains(ctx, viewW, 348, -cam * 0.55, false);
+      // the great lake behind the villa terrace — Villa Sostaga overlooks it
+      drawWater(ctx, 0, 352, viewW, GROUND_Y - 352, t, sunScreenX);
+
+      // pre-rendered foreground strip
+      ctx.drawImage(
+        foreground,
+        cam * RES,
+        0,
+        viewW * RES,
+        VIEW_H * RES,
+        0,
+        0,
+        viewW,
+        VIEW_H
       );
-      shadow.visible = player.onGround && !submerged;
-      if (shadow.visible) {
-        shadow.position.set(player.x + CHAR_W / 2, -(player.y + CHAR_H) + 0.6, 1);
+
+      ctx.save();
+      ctx.translate(-cam, 0);
+
+      // animated lake water
+      drawWater(
+        ctx,
+        LAKE_X + 60,
+        GROUND_Y + 16,
+        WORLD_W - LAKE_X - 60 + viewW,
+        VIEW_H - GROUND_Y - 16,
+        t,
+        sunWorldX
+      );
+
+      // player (chest-deep once in the lake)
+      const submerged = player.x + CHAR_W / 2 > LAKE_X + 60;
+      drawCharacter(ctx, character, {
+        x: player.x,
+        y: player.y,
+        scale: CHAR_SCALE,
+        frame: player.moving && player.onGround ? "walk" : "stand",
+        phase: player.walkPhase,
+        flip: player.facing === -1,
+        blink: Math.floor(t / 200) % 18 === 0,
+        shadow: player.onGround && !submerged,
+      });
+      if (submerged) {
+        // redraw the water surface over the body below the waterline
+        drawWater(
+          ctx,
+          LAKE_X + 60,
+          GROUND_Y + 16,
+          WORLD_W - LAKE_X + viewW,
+          VIEW_H - GROUND_Y - 16,
+          t,
+          sunWorldX
+        );
+      }
+      drawBoat(ctx, 1150, GROUND_Y + 34, t);
+
+      // splash droplets
+      for (const s of splashes) {
+        ctx.globalAlpha = Math.max(0, s.life);
+        ctx.fillStyle = PALETTE.lakeShine;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 2.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+
+      // fade out at the end
+      if (fade > 0) {
+        ctx.fillStyle = `rgba(250, 246, 238, ${fade})`;
+        ctx.fillRect(0, 0, viewW, VIEW_H);
       }
 
-      const n = Math.min(splashes.length, MAX_SPLASHES);
-      for (let i = 0; i < n; i++) {
-        const s = splashes[i];
-        const size = Math.max(0.15, Math.min(1, s.life));
-        tmpPos.set(s.x, -s.y, 118);
-        tmpScale.setScalar(size);
-        tmpMatrix.compose(tmpPos, tmpQuat, tmpScale);
-        splashMesh.setMatrixAt(i, tmpMatrix);
-      }
-      splashMesh.count = n;
-      splashMesh.instanceMatrix.needsUpdate = true;
-
-      world.update(t, cam, viewW);
-      if (fadeRef.current) fadeRef.current.style.opacity = fade.toFixed(3);
-
-      renderer.render(scene, camera);
       raf = requestAnimationFrame(step);
     };
 
@@ -341,16 +371,8 @@ export default function WelcomeGame() {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener("resize", onResize);
-      canvas.removeEventListener("webglcontextlost", onContextLost);
-      playerVox.dispose();
-      const bg = scene.background;
-      if (bg && (bg as THREE.Texture).isTexture) (bg as THREE.Texture).dispose();
-      disposeObject(scene);
-      renderer.dispose();
     };
-  }, [router, fallback]);
-
-  if (fallback) return <WelcomeGame2D />;
+  }, [router]);
 
   const press = (key: string, down: boolean) => {
     if (down) keysRef.current.add(key);
@@ -432,13 +454,6 @@ export default function WelcomeGame() {
         width={MAX_VIEW_W}
         height={VIEW_H}
         className="w-full h-full object-cover touch-none [image-rendering:pixelated]"
-      />
-
-      {/* End-of-game fade to cream (driven by the game loop) */}
-      <div
-        ref={fadeRef}
-        className="absolute inset-0 pointer-events-none"
-        style={{ backgroundColor: "rgb(250, 246, 238)", opacity: 0 }}
       />
 
       {/* Title & instructions */}

@@ -1,6 +1,6 @@
 "use client";
 
-import CharacterSprite from "@/components/CharacterSprite";
+import CharacterStage from "@/components/CharacterStage";
 import {
   HAIR_COLORS,
   HAIR_STYLES,
@@ -108,13 +108,13 @@ export default function CharacterBuilder({ value, onChange }: Props) {
       {/* Golden-hour sky niche matching the game and guest map */}
       <div className="flex justify-center my-5">
         <div
-          className="arch flex items-end justify-center px-14 pt-12 pb-5 shadow-[inset_0_2px_10px_rgba(120,80,20,0.2)]"
+          className="arch flex items-end justify-center px-6 pt-8 pb-3 shadow-[inset_0_2px_10px_rgba(120,80,20,0.2)]"
           style={{
             background:
-              "linear-gradient(to bottom, #ffb84d 0%, #ffd985 40%, #fff3bd 66%, #fff9d6 76%, #85c554 76.5%, #5da23c 100%)",
+              "linear-gradient(to bottom, #ffb84d 0%, #ffd985 40%, #fff3bd 70%, #fff9d6 100%)",
           }}
         >
-          <CharacterSprite config={value} scale={7} />
+          <CharacterStage config={value} />
         </div>
       </div>
 
