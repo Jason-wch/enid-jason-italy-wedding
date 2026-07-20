@@ -13,7 +13,6 @@ import * as THREE from "three";
 import CharacterSprite from "@/components/CharacterSprite";
 import { normalizeCharacter, type CharacterConfig } from "@/lib/maple/characters";
 import {
-  addGoldenLights,
   CAM_FOV,
   camDistance,
   createRenderer,
@@ -56,7 +55,6 @@ export default function CharacterStage({ config }: Props) {
     const D = camDistance(H);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(CAM_FOV, W / H, 10, 4000);
-    addGoldenLights(scene);
 
     const slab = makePlatform(150);
     slab.placeTop(W / 2 - 75, FEET_Y);

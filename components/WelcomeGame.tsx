@@ -1,16 +1,13 @@
 "use client";
 
 /**
- * Welcome minigame — MapleStory-style 2.5D platformer rendered with Three.js.
- * Walk (and jump) your voxel character down Villa Sostaga's lakeside walk,
- * hop the floating one-way platforms if you like, and wade into Lake Garda
- * to enter the wedding website.
+ * Welcome minigame — MapleStory-style 2.5D side-scroller rendered with
+ * Three.js. Walk (and jump) your voxel character down Villa Sostaga's
+ * lakeside walk and wade into Lake Garda to enter the wedding website.
  *
  * The gameplay is the original canvas game's, byte-for-byte: walk 4.2 px/f,
  * gravity 0.7, jump -13, the same dt clamp, camera lead and arrive trigger.
- * Only the renderer changed — plus the new (optional) platform course, which
- * uses classic Maple one-way collision: land from above, jump up through,
- * down+jump to drop.
+ * Only the renderer changed.
  *
  * If WebGL is unavailable (or the context dies), the old Canvas-2D build in
  * WelcomeGame2D.tsx takes over seamlessly.
@@ -28,7 +25,6 @@ import {
 } from "@/lib/maple/characters";
 import { PALETTE } from "@/lib/maple/scenery";
 import {
-  addGoldenLights,
   CAM_FOV,
   camDistance,
   createRenderer,
@@ -43,7 +39,6 @@ import {
   LAKE_X,
   MAX_VIEW_W,
   MIN_VIEW_W,
-  PLATFORMS,
   VIEW_H,
   WORLD_W,
 } from "@/lib/maple3d/level";
@@ -96,7 +91,6 @@ export default function WelcomeGame() {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(CAM_FOV, viewW / VIEW_H, 10, 30000);
     camera.position.set(viewW / 2, -VIEW_H / 2, D);
-    addGoldenLights(scene);
     const world = buildEntranceWorld(scene, camera, D);
 
     const applySize = () => {
@@ -154,8 +148,6 @@ export default function WelcomeGame() {
       moving: false,
       walkPhase: 0,
     };
-    let onPlatform = false; // current support is a one-way platform
-    let dropTimer = 0; // frames left of falling through platforms
     const splashes: Splash[] = [];
     let fade = 0;
     let finishing = false;
@@ -166,11 +158,7 @@ export default function WelcomeGame() {
     const keys = keysRef.current;
 
     const onKeyDown = (e: KeyboardEvent) => {
-      if (
-        ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", " ", "a", "d", "w", "s"].includes(
-          e.key
-        )
-      ) {
+      if (["ArrowLeft", "ArrowRight", "ArrowUp", " ", "a", "d", "w"].includes(e.key)) {
         e.preventDefault();
       }
       keys.add(e.key);
@@ -208,7 +196,6 @@ export default function WelcomeGame() {
       const right = keys.has("ArrowRight") || keys.has("d") || keys.has("touch-right");
       const jump =
         keys.has("ArrowUp") || keys.has(" ") || keys.has("w") || keys.has("touch-jump");
-      const down = keys.has("ArrowDown") || keys.has("s");
 
       if (!finishing) {
         player.moving = false;
@@ -225,56 +212,24 @@ export default function WelcomeGame() {
         player.x = Math.max(0, Math.min(WORLD_W - CHAR_W, player.x));
 
         if (jump && player.onGround) {
-          if (down && onPlatform) {
-            // Maple drop-through: fall past one-way platforms for a beat
-            dropTimer = 12;
-            player.onGround = false;
-          } else {
-            player.vy = -13;
-            player.onGround = false;
-          }
+          player.vy = -13;
+          player.onGround = false;
         }
       }
-      dropTimer = Math.max(0, dropTimer - dt);
-
-      const prevFeet = player.y + CHAR_H;
       player.vy += 0.7 * dt;
       player.y += player.vy * dt;
 
       const feetX = player.x + CHAR_W / 2;
       const inLake = feetX > LAKE_X + 40;
       const floorY = inLake ? GROUND_Y + 56 : GROUND_Y; // chest-deep in the lake
-      const feet = player.y + CHAR_H;
-
-      // --- collision: base floor + one-way platforms ---
-      let land: number | null = null;
-      let landOnPlatform = false;
-      if (player.vy >= 0) {
-        if (dropTimer <= 0) {
-          for (const p of PLATFORMS) {
-            if (feetX < p.x || feetX > p.x + p.w) continue;
-            // only when the feet crossed the top edge this frame (one-way)
-            if (prevFeet <= p.top + 1 && feet >= p.top && (land === null || p.top < land)) {
-              land = p.top;
-              landOnPlatform = true;
-            }
-          }
-        }
-        if (feet >= floorY && (land === null || floorY < land)) {
-          land = floorY;
-          landOnPlatform = false;
-        }
-      }
-      if (land !== null) {
-        if (!player.onGround && !landOnPlatform && inLake && !finishing) {
+      if (player.y < floorY - CHAR_H - 0.5) player.onGround = false; // walked off a ledge
+      if (player.y >= floorY - CHAR_H) {
+        if (!player.onGround && inLake && !finishing) {
           addSplashes(26, feetX, floorY - 10, 7); // splash on landing in water
         }
-        player.y = land - CHAR_H;
+        player.y = floorY - CHAR_H;
         player.vy = 0;
         player.onGround = true;
-        onPlatform = landOnPlatform;
-      } else {
-        player.onGround = false; // rising, walked off an edge, or dropping through
       }
 
       if (player.moving && player.onGround) {

@@ -1,15 +1,13 @@
 /**
  * The entrance level: Villa Sostaga's lakeside walk rebuilt as a 2.5D
  * MapleStory map. World coordinates, scenery placement, parallax factors and
- * the collision constants are carried over 1:1 from the old canvas game —
- * plus a new (strictly optional) course of one-way floating platforms above
- * the flat path.
+ * the collision constants are carried over 1:1 from the old canvas game.
  */
 
 import * as THREE from "three";
 import { layoutParallaxLayer } from "./engine";
 import * as sc from "./scenery3d";
-import { makeGround, makePlatform, makeWaterSkirt, WaterSurface, PLATFORM_DEPTH } from "./tiles";
+import { makeGround, makeWaterSkirt, WaterSurface } from "./tiles";
 
 export const MAX_VIEW_W = 960;
 export const MIN_VIEW_W = 240;
@@ -18,21 +16,6 @@ export const WORLD_W = 1500;
 export const GROUND_Y = 470;
 export const LAKE_X = 900; // water starts here
 export const ARRIVE_X = 1020; // reaching this point finishes the game
-
-export type Platform = { x: number; top: number; w: number };
-
-/**
- * One-way jumpable platforms (land from above, jump up through from below).
- * The flat ground walk to ARRIVE_X never needs them — max rise per hop stays
- * under the jump apex (~120px with vy=-13, g=0.7).
- */
-export const PLATFORMS: Platform[] = [
-  { x: 150, top: 360, w: 132 },
-  { x: 330, top: 268, w: 120 },
-  { x: 520, top: 212, w: 132 },
-  { x: 700, top: 292, w: 120 },
-  { x: 858, top: 372, w: 108 },
-];
 
 export type EntranceWorld = {
   /** Re-place everything that depends on the view width (call on resize). */
@@ -57,17 +40,6 @@ export function buildEntranceWorld(
   const lakebed = makeGround(1140, "sand", 120, 220);
   lakebed.placeTop(962, GROUND_Y + 56);
   scene.add(grass.mesh, beach.mesh, lakebed.mesh);
-
-  for (const p of PLATFORMS) {
-    const slab = makePlatform(p.w);
-    slab.placeTop(p.x, p.top);
-    scene.add(slab.mesh);
-  }
-
-  // decorative ladder hanging from the first platform — the Maple invite
-  const firstLadder = sc.ladder(GROUND_Y - (PLATFORMS[0].top + 22) - 8);
-  firstLadder.place(PLATFORMS[0].x + 22, PLATFORMS[0].top + 22, -PLATFORM_DEPTH / 2 + 2);
-  scene.add(firstLadder.mesh);
 
   const water = new WaterSurface(1140, 240, 96);
   water.place(960, GROUND_Y + 16, 116);

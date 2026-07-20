@@ -22,7 +22,6 @@ import {
   SPRITE_W,
 } from "@/lib/maple/characters";
 import {
-  addGoldenLights,
   CAM_FOV,
   camDistance,
   createRenderer,
@@ -141,7 +140,6 @@ export default function GuestMap() {
     scene.background = sc.skyTexture(MAP_H);
     const camera = new THREE.PerspectiveCamera(CAM_FOV, MAP_W / MAP_H, 10, 30000);
     camera.position.set(MAP_W / 2, -MAP_H / 2, D);
-    addGoldenLights(scene);
 
     /* ------------------------------ terrain ------------------------------ */
 

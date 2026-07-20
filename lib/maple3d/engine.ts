@@ -47,15 +47,6 @@ export function createRenderer(
   }
 }
 
-/** Warm golden-hour light rig: near-white ambient keeps palette hexes honest,
-    a soft directional from the lake-side sun models the voxel faces. */
-export function addGoldenLights(scene: THREE.Scene) {
-  const ambient = new THREE.AmbientLight(0xffffff, 0.86);
-  const sun = new THREE.DirectionalLight(0xffe9b0, 0.42);
-  sun.position.set(0.55, 0.85, 0.65);
-  scene.add(ambient, sun);
-}
-
 export type Baked = {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;

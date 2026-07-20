@@ -111,7 +111,7 @@ const MOUTH = "#a34b40";
 --------------------------------------------------------------------------- */
 
 function drawHeadPx(R: PxFill, skin: [string, string]) {
-  R(3, 1, 11, 9, skin[0]);
+  R(4, 1, 9, 9, skin[0]);
 }
 
 function drawFacePx(R: PxFill, blink?: boolean) {
@@ -136,14 +136,14 @@ function drawHairBackPx(R: PxFill, style: number, hair: [string, string]) {
   const c = hair[0];
   if (style === 1) {
     // Long — flat curtain falling past the shoulders
-    R(2, 1, 13, 13, c);
+    R(3, 1, 11, 13, c);
   } else if (style === 2) {
     // Ponytail — flat tail down the right side
-    R(13, 2, 2, 7, c);
-    R(13, 4, 2, 1, "#c14b45"); // hair tie
+    R(12, 2, 2, 7, c);
+    R(12, 4, 2, 1, "#c14b45"); // hair tie
   } else if (style === 3) {
     // Bob — flat volume down to the jaw
-    R(2, 1, 13, 10, c);
+    R(3, 1, 11, 10, c);
   }
 }
 
@@ -151,26 +151,26 @@ function drawHairFrontPx(R: PxFill, style: number, hair: [string, string]) {
   const c = hair[0];
   if (style === 0) {
     // Short & Neat — straight flat cap with sideburns
-    R(3, 0, 11, 3, c);
-    R(3, 3, 1, 2, c);
-    R(13, 3, 1, 2, c);
+    R(4, 0, 9, 3, c);
+    R(4, 3, 1, 2, c);
+    R(12, 3, 1, 2, c);
   } else if (style === 1) {
     // Long — fringe with a center part showing the forehead
-    R(3, 0, 11, 2, c);
-    R(3, 2, 4, 1, c);
-    R(10, 2, 4, 1, c);
+    R(4, 0, 9, 2, c);
+    R(4, 2, 3, 1, c);
+    R(10, 2, 3, 1, c);
   } else if (style === 2) {
     // Ponytail — swept-back cap with a side swoop
-    R(3, 0, 11, 2, c);
-    R(3, 2, 8, 1, c);
-    R(3, 3, 1, 2, c);
+    R(4, 0, 9, 2, c);
+    R(4, 2, 7, 1, c);
+    R(4, 3, 1, 2, c);
   } else if (style === 3) {
     // Bob — full straight fringe over the back volume
-    R(3, 0, 11, 3, c);
+    R(4, 0, 9, 3, c);
   } else {
     // Spiky — single-pixel tufts above a low cap
     for (const sx of [4, 6, 8, 10, 12]) R(sx, 0, 1, 1, c);
-    R(3, 1, 11, 2, c);
+    R(4, 1, 9, 2, c);
   }
 }
 

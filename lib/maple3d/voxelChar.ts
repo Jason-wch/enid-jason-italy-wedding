@@ -108,7 +108,20 @@ export class VoxelCharacter {
 
   constructor(scale: number) {
     const geometry = new THREE.BoxGeometry(1, 1, VOXEL_DEPTH);
-    const material = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    // Unlit material so the palette hexes render exactly as authored (the
+    // flat pixel-crowd look). The 3D read comes from per-face brightness
+    // baked into vertex colors; front AND back stay 1.0 because facing left
+    // shows the back face, which must match the sprite colors too.
+    const faceShade = [0.85, 0.85, 1, 0.72, 1, 1]; // +x, -x, top, bottom, front, back
+    const shades = new Float32Array(24 * 3);
+    for (let f = 0; f < 6; f++) {
+      for (let v = 0; v < 4; v++) {
+        const i = (f * 4 + v) * 3;
+        shades[i] = shades[i + 1] = shades[i + 2] = faceShade[f];
+      }
+    }
+    geometry.setAttribute("color", new THREE.BufferAttribute(shades, 3));
+    const material = new THREE.MeshBasicMaterial({ vertexColors: true });
     this.mesh = new THREE.InstancedMesh(geometry, material, SPRITE_W * SPRITE_H);
     this.mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
     // instances span the whole sprite box; the unit-cube bounds would mis-cull
